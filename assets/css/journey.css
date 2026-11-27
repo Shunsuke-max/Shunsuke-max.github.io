@@ -69,3 +69,17 @@
 .gallery-tools .scale-exit{text-decoration:none;display:inline-flex;align-items:center}.scale-journey .protein-hero.immersive .scale-exit,.scale-journey .protein-hero.immersive #scaleRestart{display:none}@media(max-width:800px){.scale-journey .protein-hero[data-scene="4"] .gallery-tools{flex-wrap:wrap;right:12px;left:12px;gap:4px}.gallery-tools .mol-button{font-size:10px;padding:5px 7px}}
 /* Optional WebGL scenery: existing SVG remains the default fallback. */
 .depth-scene{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;visibility:hidden}.depth-scene canvas{display:block;width:100%;height:100%}.protein-hero.depth-ready[data-scene="0"] .depth-scene,.protein-hero.depth-ready[data-scene="1"] .depth-scene{visibility:visible;opacity:1}.protein-hero.depth-ready .scale-art{visibility:hidden!important;opacity:0!important}.protein-hero.depth-ready[data-scene="0"] .scale-story-copy,.protein-hero.depth-ready[data-scene="1"] .scale-story-copy{background:linear-gradient(90deg,#080e14a0,transparent);padding:16px 24px 16px 0}.protein-hero.depth-ready .scale-kind{color:#f2d4c0}.protein-hero.depth-ready .scale-caption{background:#080e1480;padding:4px 7px}
+
+/* Readability and motion polish: keep the scientific object in the foreground. */
+.scale-journey .molecule-stage:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;background:linear-gradient(90deg,#080e1490 0%,#080e1438 22%,transparent 48%),linear-gradient(0deg,#080e14b0 0%,transparent 24%);opacity:.78}
+.scale-journey .protein-hero[data-scene="4"] .molecule-stage:after{opacity:.25}
+.scale-journey .protein-hero.immersive .molecule-stage:after{opacity:0}
+.scale-story-copy h1{font-weight:500;line-height:1.2;letter-spacing:-.035em}
+.scale-story-copy p{color:#e0e1dd;line-height:1.9}
+.scale-story-copy .scale-index{color:#a7c5c6}
+.scale-progress .scale-step{transition:color .2s,border-color .2s}
+.scale-progress .scale-step[aria-current="step"]{border-color:var(--accent);color:#e5f2ee}
+.scale-next{border-color:#8da8ae;background:#101b23e8}
+.scale-next:hover{background:#263e48}
+@media(max-width:800px){.scale-journey .molecule-stage:after{background:linear-gradient(180deg,#080e1488,transparent 42%),linear-gradient(0deg,#080e14b0,transparent 25%)}.scale-story-copy h1{font-size:clamp(26px,6.8vw,42px)}}
+@media(prefers-reduced-motion:reduce){.scale-progress .scale-step{transition:none}}
