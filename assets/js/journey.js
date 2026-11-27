@@ -31,8 +31,8 @@ by('molHeme').addEventListener('click',()=>{if(!ready||!molecules[active].heme)r
 
 const story=by('scaleJourney'),stepsUI=Array.from(document.querySelectorAll('.scale-step')),reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 const scenes=[
-{index:'01 / 05 · BLOOD',title:'血液の中へ。',text:'酸素を運ぶ赤血球。その一つに近づいてみましょう。',kind:'模式的な可視化',caption:'血管内のイメージ / 縮尺は模式的です'},
-{index:'02 / 05 · RED BLOOD CELL',title:'赤血球の内側へ。',text:'赤血球の中には、酸素を運ぶヘモグロビンがたくさん詰まっています。',kind:'模式的な可視化',caption:'赤血球の内部のイメージ / 分子の数・配置は模式的です'},
+{index:'01 / 05 · BLOOD',title:'血液の中へ。',text:'酸素を運ぶ赤血球。その一つに近づいてみましょう。',kind:'模式的な可視化',caption:'血管内の模式表現 / 縮尺は実際と異なります'},
+{index:'02 / 05 · RED BLOOD CELL',title:'赤血球の内側へ。',text:'赤血球の中には、酸素を運ぶヘモグロビンがたくさん詰まっています。',kind:'模式的な可視化',caption:'赤血球の内部 / 分子の数・配置は模式的です'},
 {index:'03 / 05 · PROTEIN',title:'一つの分子に出会う。',text:'4本のポリペプチド鎖が集まったヘモグロビン。色の違いは鎖の違いを表します。',kind:'実験構造 · PDB 4HHB',caption:'ヒト脱酸素ヘモグロビン / X線結晶構造'},
 {index:'04 / 05 · HEME',title:'鉄のある場所へ。',text:'ヘムの中心にある鉄が酸素の結合に関わります。この構造は酸素が結合していない状態です。',kind:'実験構造 · PDB 4HHB',caption:'ヘムの拡大 / カメラの移動は分子の運動ではありません'}
 ];
