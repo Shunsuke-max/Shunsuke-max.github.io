@@ -39,3 +39,7 @@
 @media(prefers-reduced-motion:reduce){.design-stage *{transition:none!important;animation:none!important}}
 
 .design-copy h1{white-space:pre-line}
+
+/* Screenshot review: intentional headline wrap and clear visual hierarchy. */
+@media(min-width:801px){.design-copy{width:min(40vw,560px)}.design-copy h1{font-size:clamp(34px,4.45vw,66px)}}
+.design-copy h1{overflow-wrap:normal;word-break:keep-all}
