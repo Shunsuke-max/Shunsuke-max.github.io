@@ -558,3 +558,22 @@
 @media (prefers-reduced-motion: reduce) {
   .design-stage * { transition: none !important; animation: none !important; }
 }
+
+/* RFD3 atomic study — isolated chapter styling; preserve the current studio theme. */
+.design-stage[data-design-step="1"] .design-legend{display:none}
+.design-stage[data-design-step="1"] .design-copy p{max-width:320px}
+.design-atomic-panel{position:absolute;z-index:5;left:clamp(20px,5vw,80px);bottom:calc(var(--design-nav-height,120px) + 16px);width:min(345px,34vw);padding:10px 0 0;border-top:1px solid var(--line-strong);color:#c7d6d8}
+.design-atomic-panel[hidden]{display:none}
+.design-atomic-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font:10px/1.5 var(--font-mono);letter-spacing:.04em}
+#designAtomicCount{color:#e5e9e7;letter-spacing:0}
+.design-atomic-controls{display:flex;gap:8px;margin:7px 0}
+.design-atomic-controls button{min-height:36px;padding:6px 12px;border:1px solid var(--line-strong);background:var(--surface);color:#d9e6e5;border-radius:6px;font:12px var(--font-body)}
+.design-atomic-controls button[aria-pressed=true]{border-color:var(--accent);color:#e8f7f1;background:#29424a}
+.design-atomic-controls button:disabled{opacity:.45}
+.design-atomic-controls button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.design-atomic-panel p{font-size:11px;line-height:1.5;margin:4px 0;color:#c4d0d1}
+.design-elements{display:flex;gap:16px;margin:4px 0;font:11px var(--font-mono)}
+.design-elements span{display:inline-flex;gap:6px;align-items:center}
+.design-elements i{width:8px;height:8px;border-radius:50%;background:var(--element)}
+@media(min-width:801px) and (max-height:760px){.design-stage[data-design-step="1"] .design-copy{top:112px}.design-stage[data-design-step="1"] .design-copy h1{font-size:clamp(28px,3.2vw,46px);margin:8px 0}.design-stage[data-design-step="1"] .design-copy p{font-size:12px;line-height:1.5;margin:4px 0}.design-stage[data-design-step="1"] .design-formula{margin:5px 0}}
+@media(max-width:800px){.design-atomic-panel{left:20px;right:20px;width:auto;bottom:calc(var(--design-nav-height,114px) + 10px);padding:6px 0 0;background:linear-gradient(0deg,var(--background) 75%,transparent)}.design-atomic-controls{margin:4px 0}.design-atomic-controls button{min-height:32px;font-size:11px}.design-atomic-panel p{font-size:10px;margin:3px 0}}

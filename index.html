@@ -48,6 +48,7 @@
       <div id="designDataStatus" class="design-data" role="status">設計過程の模式図</div>
       <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 原子位置のイメージ</span></div>
     </div>
+    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span>ATOMIC STUDY / 1CRN</span><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="原子表示の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験構造の座標・距離から推定した結合。水素は非表示。</p></div>
     <div id="designSequencePanel" class="design-sequence" hidden>
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div>
       <div id="designSequence" class="design-residues"></div>
@@ -99,7 +100,7 @@
       <a href="https://www.rcsb.org/structure/1CRN">RCSB PDB 1CRN（天然クランビンの実験構造）</a>
       <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
       <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
-      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。表示する一部の原子は参照構造由来です。淡い背景粒子は空間演出です。ノイズの収束、グラフ、残基選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
+      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。工程02の重原子は参照実験構造由来で、結合は原子名・残基・共有結合半径に基づき距離から推定しています。淡い背景粒子は空間演出です。ノイズの収束、グラフ、残基選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
     </details>
   </section>
 </div>

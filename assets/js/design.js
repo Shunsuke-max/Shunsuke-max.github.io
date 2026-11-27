@@ -21,7 +21,7 @@ function parsePDB(pdb){
    const k=line.slice(21,27),xyz=[30,38,46].map(i=>Number(line.slice(i,i+8)));
    if(xyz.every(Number.isFinite)){
     if(!atomMap.has(k))atomMap.set(k,[]);
-    atomMap.get(k).push({x:xyz[0],y:xyz[1],z:xyz[2],element:line.slice(76,78).trim()||line.slice(12,16).trim()[0]});
+    atomMap.get(k).push({x:xyz[0],y:xyz[1],z:xyz[2],name:line.slice(12,16).trim(),element:line.slice(76,78).trim()||line.slice(12,16).trim()[0]});
    }
   }
  }
@@ -35,7 +35,35 @@ function parsePDB(pdb){
  return list;
 }
 let raw=fallback(),real=false,points=[],noise=[],edges=[],step=-1,progress=0,local=0,visible=true,raf=0,gl=null;
-let width=0,height=0,dpr=1,detailAtoms=[],detailBonds=[];
+let width=0,height=0,dpr=1,detailAtoms=[],detailBonds=[],atomicMode='local',atomicAngle=.52;
+const elementColors={C:'#d2c5ac',N:'#82a9e2',O:'#e18a7b',S:'#e5c47f'},radii={C:.76,N:.71,O:.66,S:1.05};
+function buildAtomicStudy(center,max){
+ const atoms=real?raw.flatMap((r,residue)=>{const seen=new Set();return r.atoms.filter(a=>radii[a.element]&&!seen.has(a.name)&&seen.add(a.name)).map(a=>({...a,residue}));}):[];
+ const bonds=[],disulfides=[];
+ for(let i=0;i<atoms.length;i++)for(let j=i+1;j<atoms.length;j++){
+  const a=atoms[i],b=atoms[j],distance=Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z),same=a.residue===b.residue;
+  const peptide=b.residue===a.residue+1&&a.name==='C'&&b.name==='N';
+  const sulfur=!same&&a.name==='SG'&&b.name==='SG'&&a.element==='S'&&b.element==='S';
+  if((same||peptide||sulfur)&&distance>.6&&distance<=radii[a.element]+radii[b.element]+.25){bonds.push([i,j]);if(sulfur)disulfides.push([a.residue,b.residue]);}
+ }
+ const pair=disulfides[0],focus=new Set(pair?[pair[0],pair[1],Math.min(raw.length-1,pair[0]+1),Math.max(0,pair[1]-1)]:[16,17,18]);
+ detailAtoms=atoms.map(a=>({...a,x:(a.x-center[0])/max*6,y:(a.y-center[1])/max*6,z:(a.z-center[2])/max*6,focus:focus.has(a.residue)}));detailBonds=bonds;
+ const selected=detailAtoms.filter(a=>a.focus);
+ const sulfurs=pair?detailAtoms.filter(a=>pair.includes(a.residue)&&a.name==='SG'):[];
+ // Choose a front-facing view that also exposes the S–S bond in screen space.
+ atomicAngle=.52;
+ if(selected.length){const cx=selected.reduce((v,a)=>v+a.x,0)/selected.length,cz=selected.reduce((v,a)=>v+a.z,0)/selected.length;let best=-Infinity;
+  for(let i=0;i<72;i++){const angle=i*Math.PI/36,c=Math.cos(angle),s=Math.sin(angle),depth=-cx*s+cz*c;
+   const separation=sulfurs.length===2?Math.hypot((sulfurs[1].x-sulfurs[0].x)*c+(sulfurs[1].z-sulfurs[0].z)*s,sulfurs[1].y-sulfurs[0].y):0;
+   const score=depth*.35+separation*2;if(score>best){best=score;atomicAngle=angle;}
+  }
+ }
+ stage.dataset.atomicCount=String(atoms.length);stage.dataset.atomicBondCount=String(bonds.length);
+ by('designAtomicFocus').textContent=pair?'Cys '+(pair[0]+1)+'–'+(pair[1]+1)+' · S–S結合と周辺残基':'局所残基の原子配置';updateAtomicMode();
+}
+function visibleAtomic(a){return atomicMode==='all'||a.focus;}
+function updateAtomicMode(){const count=detailAtoms.filter(visibleAtomic).length;stage.dataset.atomicMode=atomicMode;stage.dataset.atomicVisibleCount=String(count);by('designAtomicCount').textContent=count?count+' / '+detailAtoms.length+' 重原子':'参照構造を取得できません';for(const b of stage.querySelectorAll('[data-atomic-mode]')){b.disabled=!detailAtoms.length;b.setAttribute('aria-pressed',String(b.dataset.atomicMode===atomicMode));}by('designAtomicFocus').hidden=atomicMode==='all'||!detailAtoms.length;}
+for(const b of stage.querySelectorAll('[data-atomic-mode]'))b.addEventListener('click',()=>{atomicMode=b.dataset.atomicMode;updateAtomicMode();schedule();});
 let compare='close',choice='A';
 const selectedResidue=17;
 const legends=[
@@ -68,13 +96,7 @@ function rebuild(){
  const max=Math.max(...raw.map(p=>Math.hypot(p.x-center[0],p.y-center[1],p.z-center[2])));
  const scaleFactor=6/max;
  points=raw.map(p=>({x:(p.x-center[0])*scaleFactor,y:(p.y-center[1])*scaleFactor,z:(p.z-center[2])*scaleFactor,aa:p.aa,ss:p.ss||'loop'}));
- const rawAtoms=raw[selectedResidue]?.atoms||[];
- detailAtoms=rawAtoms.map(a=>({x:(a.x-center[0])*scaleFactor,y:(a.y-center[1])*scaleFactor,z:(a.z-center[2])*scaleFactor,element:a.element}));
- detailBonds=[];
- for(let i=0;i<rawAtoms.length;i++)for(let j=i+1;j<rawAtoms.length;j++){
-  const d=Math.hypot(rawAtoms[i].x-rawAtoms[j].x,rawAtoms[i].y-rawAtoms[j].y,rawAtoms[i].z-rawAtoms[j].z);
-  if(d>0.5&&d<1.95)detailBonds.push([i,j]);
- }
+ buildAtomicStudy(center,max);
  noise=points.map((p,i)=>({x:(random(i*3+1)-.5)*15.5,y:(random(i*3+2)-.5)*15.5,z:(random(i*3+3)-.5)*15.5}));
  edges=[];
  for(let i=0;i<raw.length;i++)for(let j=i+3;j<raw.length;j++){
@@ -95,7 +117,7 @@ function updateSequence(){
 
 function setStep(n){
  if(n===step)return;step=n;stage.dataset.designStep=String(n);
- by('designIntent').hidden=n>1;updateLegend(n);
+ by('designIntent').hidden=n!==0;by('designAtomicPanel').hidden=n!==1;updateLegend(n);
  const c=chapters[n];
  by('designKicker').textContent='0'+(n+1)+' / 05 — '+c[0];
  by('designTitle').textContent=c[1];
@@ -122,7 +144,7 @@ function updateScroll(){
 function jump(n){
  const top=scrollY+journey.getBoundingClientRect().top;
  const distance=journey.offsetHeight-stage.offsetHeight;
- window.scrollTo({top:top+distance*(n===0?0:(n+.07)/5),behavior:motion.matches?'auto':'smooth'});
+ window.scrollTo({top:top+distance*(n===0?0:(n+(n===1?.78:.07))/5),behavior:motion.matches?'auto':'smooth'});
 }
 buttons.forEach((b,i)=>b.addEventListener('click',()=>jump(i)));
 by('designNext').addEventListener('click',()=>step===4?document.getElementById('works').scrollIntoView({behavior:motion.matches?'auto':'smooth'}):jump(step+1));
@@ -155,12 +177,12 @@ function draw(now){
  raf=0;if(!visible||document.hidden||!width||!height)return;
  if(!motion.matches&&now-lastFrame<24){raf=requestAnimationFrame(draw);return;}
  lastFrame=now;
- const g=geometry();const angle=.52+(motion.matches?0:now*.00012);
+ const g=geometry();const angle=step===1&&real&&atomicMode==='local'?atomicAngle+(motion.matches?0:.18*Math.sin(now*.00035)):.52+(motion.matches?0:now*.00012);
  if(gl){try{gl.draw(g,angle);stage.classList.add('design-gl');}catch{gl.dispose();gl=null;stage.classList.remove('design-gl');}}
  if(!gl&&ctx){
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-  const portrait=width<801,cx=width*(portrait?.50:.67),cy=height*(portrait?(step===1?.535:step>=3?.47:.54):step>=3?.34:.45);
-  const scale=Math.min(width*(portrait?.043:.037),height*(portrait?.029:.048));
+  const portrait=width<801,cx=width*(portrait?.50:.67),cy=height*(portrait?(step===1?.49:step>=3?.47:.54):step>=3?.34:.45);
+  const scale=Math.min(width*(portrait?.043:.037),height*(portrait?.029:.048))*(step===1&&real&&portrait&&atomicMode==='local'?1.35:1);
   const a=Math.cos(angle),b=Math.sin(angle);
   const project=v=>{const x=v.x*a+v.z*b,z=-v.x*b+v.z*a;const k=1/(1+z*.025);return {x:cx+x*scale*k,y:cy-v.y*scale*k,z,k};};
   const p=g.coords.map(project);
@@ -173,6 +195,7 @@ function draw(now){
   if(step===0){ctx.fillStyle='#96bac7';ctx.globalAlpha=.24*(1-g.u);for(let i=0;i<220;i++){const v=project({x:(random(i*3+500)-.5)*24,y:(random(i*3+501)-.5)*22,z:(random(i*3+502)-.5)*25});ctx.beginPath();ctx.arc(v.x,v.y,.6+random(i+750)*1.3,0,Math.PI*2);ctx.fill();}}
   p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
   ctx.globalAlpha=1;
+  if(step===1&&real&&g.ribbon>.94){const q=detailAtoms.map(project);for(const [i,j] of detailBonds){if(!visibleAtomic(detailAtoms[i])||!visibleAtomic(detailAtoms[j]))continue;ctx.strokeStyle='#8a989b';ctx.lineWidth=atomicMode==='local'?2.5:1.4;ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[j].x,q[j].y);ctx.stroke();}q.map((p,i)=>({...p,i})).filter(p=>visibleAtomic(detailAtoms[p.i])).sort((a,b)=>b.z-a.z).forEach(p=>{const a=detailAtoms[p.i];ctx.fillStyle=elementColors[a.element];ctx.beginPath();ctx.arc(p.x,p.y,(atomicMode==='local'?3.5:2.7)*(a.element==='S'?1.25:1)*p.k,0,Math.PI*2);ctx.fill();});}
  }
  if(!motion.matches)raf=requestAnimationFrame(draw);
 }
@@ -304,36 +327,27 @@ function initGL(T){
 
  const yAxis=new T.Vector3(0,1,0),from=new T.Vector3(),to=new T.Vector3(),delta=new T.Vector3();
  const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971');
- let spheres=null,lines=null,links=null,trails=null,compareLine=null,backbone=null,ribbon=null,comparisonRibbon=null,atomDetail=null,bondDetail=null,lastCompare=null;
+ let spheres=null,lines=null,links=null,trails=null,compareLine=null,backbone=null,ribbon=null,comparisonRibbon=null,atomDetail=null,bondDetail=null,atomicRenderMode=null,lastCompare=null;
 
+ function updateAtomicMeshes(){
+  if(!atomDetail||atomicRenderMode===atomicMode)return;atomicRenderMode=atomicMode;
+  const size=atomicMode==='local'?1.12:.88;let n=0,m=0;
+  for(const a of detailAtoms){if(!visibleAtomic(a))continue;obj.position.set(a.x,a.y,a.z);obj.rotation.set(0,0,0);obj.scale.setScalar(size*(a.element==='S'?1.3:1));obj.updateMatrix();atomDetail.setMatrixAt(n,obj.matrix);atomDetail.setColorAt(n++,new T.Color(elementColors[a.element]));}
+  atomDetail.count=n;atomDetail.instanceMatrix.needsUpdate=true;if(atomDetail.instanceColor)atomDetail.instanceColor.needsUpdate=true;
+  if(bondDetail){for(const [i,j] of detailBonds){const a=detailAtoms[i],b=detailAtoms[j];if(!visibleAtomic(a)||!visibleAtomic(b))continue;from.set(a.x,a.y,a.z);to.set(b.x,b.y,b.z);delta.subVectors(to,from);const len=delta.length();obj.position.copy(from).add(to).multiplyScalar(.5);obj.quaternion.setFromUnitVectors(yAxis,delta.normalize());obj.scale.set(.92,len,.92);obj.updateMatrix();bondDetail.setMatrixAt(m++,obj.matrix);}bondDetail.count=m;bondDetail.instanceMatrix.needsUpdate=true;}
+ }
  function rebuildGL(){
   for(const m of [ribbon,comparisonRibbon])if(m){group.remove(m);m.geometry.dispose();}
   ribbon=null;comparisonRibbon=null;lastCompare=null;
   for(const m of [atomDetail,bondDetail])if(m){group.remove(m);m.dispose();}
-  atomDetail=null;bondDetail=null;
+  atomDetail=null;bondDetail=null;atomicRenderMode=null;
   if(real){
    ribbon=new T.Mesh(makeRibbon(T,points,points),ribbonMat);group.add(ribbon);
    if(detailAtoms.length){
     atomDetail=new T.InstancedMesh(atomGeo,atomMat,detailAtoms.length);
-    detailAtoms.forEach((a,i)=>{
-     obj.position.set(a.x,a.y,a.z);obj.rotation.set(0,0,0);obj.scale.setScalar(a.element==='S'?1.3:1);obj.updateMatrix();
-     atomDetail.setMatrixAt(i,obj.matrix);
-     atomDetail.setColorAt(i,new T.Color(({C:0xd8ccb4,N:0x7aa8ea,O:0xeb8473,S:0xefd07a})[a.element]||0xd8e4df));
-    });
-    group.add(atomDetail);
-    if(detailBonds.length){
-     bondDetail=new T.InstancedMesh(bondGeo,bondMat,detailBonds.length);
-     detailBonds.forEach(([ia,ib],k)=>{
-      const a=detailAtoms[ia],b=detailAtoms[ib];
-      from.set(a.x,a.y,a.z);to.set(b.x,b.y,b.z);delta.subVectors(to,from);
-      const len=delta.length();
-      obj.position.copy(from).add(to).multiplyScalar(.5);
-      obj.quaternion.setFromUnitVectors(yAxis,delta.normalize());
-      obj.scale.set(1,len,1);obj.updateMatrix();
-      bondDetail.setMatrixAt(k,obj.matrix);
-     });
-     group.add(bondDetail);
-    }
+    atomDetail.frustumCulled=false;group.add(atomDetail);
+    if(detailBonds.length){bondDetail=new T.InstancedMesh(bondGeo,bondMat,detailBonds.length);bondDetail.frustumCulled=false;group.add(bondDetail);}
+    updateAtomicMeshes();
    }
   }
   for(const m of [spheres,backbone])if(m){group.remove(m);m.dispose();}
@@ -357,16 +371,17 @@ function initGL(T){
   const depth=step===0?1-ease(local):0;
   const mobileDistance=Math.max(31,9.4/(Math.tan(camera.fov*Math.PI/360)*camera.aspect));
   const desktopDistance=step>=3?22.5:20.2;
-  camera.position.set(0,0,(portrait?mobileDistance:desktopDistance)+depth*3.2);
+  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?mobileDistance:desktopDistance))+depth*3.2);
   camera.lookAt(0,0,0);
   camera.setViewOffset(
    width,height,
    portrait?0:-Math.round(width*.17),
-   portrait?Math.round(height*(step===1?-.115:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
+   portrait?Math.round(height*(step===1?.015:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
    width,height
   );
   group.rotation.y=angle;
-  group.rotation.x=.22+.12*Math.sin(progress*Math.PI);
+  group.rotation.x=step===1&&real?.12:.22+.12*Math.sin(progress*Math.PI);
+  key.color.set(step===1?0xf1f6ff:0xfff1dc);rim.intensity=step===1?1.3:2.4;
   dust.visible=step===0;
   dustMat.opacity=.48*(1-g.u*.75);
   trails.visible=step===0&&g.u<.92;
@@ -392,12 +407,12 @@ function initGL(T){
   spheres.instanceMatrix.needsUpdate=true;
   spheres.instanceColor.needsUpdate=true;
   lines.geometry.attributes.position.needsUpdate=true;
-  lines.visible=g.u>.12&&step<2;
+  lines.visible=g.u>.12&&step<2&&!(step===1&&real&&g.ribbon>.94);
   lines.material.opacity=Math.pow(g.u,1.6)*.86;
   backbone.visible=step>=1&&(!real||g.ribbon<.15||step===2||step===3);
-  if(ribbon){ribbon.visible=(step===1||step===4)&&g.ribbon>.02;ribbonMat.opacity=g.ribbon;ribbonMat.depthWrite=g.ribbon>.85;}
+  if(ribbon){ribbon.visible=(step===1||step===4)&&g.ribbon>.02;ribbonMat.opacity=step===1?g.ribbon*(atomicMode==='all'?.16:.38):g.ribbon;ribbonMat.depthWrite=step!==1&&g.ribbon>.85;}
   const showDetail=step===1&&g.ribbon>.94;
-  if(atomDetail)atomDetail.visible=showDetail;
+  if(atomDetail){updateAtomicMeshes();atomDetail.visible=showDetail;}
   if(bondDetail)bondDetail.visible=showDetail;
   const ribbonState=String(!!ribbon&&ribbon.visible);
   if(stage.dataset.ribbonVisible!==ribbonState)stage.dataset.ribbonVisible=ribbonState;
