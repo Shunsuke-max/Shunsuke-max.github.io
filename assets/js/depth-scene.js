@@ -27,7 +27,7 @@ function init(T){
   function thickness(r){return Math.sqrt(Math.max(0,1-r*r))*(.13+.49*r*r);}
   for(let i=0;i<=radialSteps;i++){const r=i/radialSteps;profile.push(new T.Vector2(r,thickness(r)));}
   for(let i=radialSteps-1;i>=0;i--){const r=i/radialSteps;profile.push(new T.Vector2(r,-thickness(r)));}
-  const disc=new T.LatheGeometry(profile,48);
+  const disc=new T.LatheGeometry(profile.reverse(),48);
   const cellMaterial=new T.MeshStandardMaterial({color:0xb63235,roughness:.48,metalness:.02});
   const highlighted=new T.MeshStandardMaterial({color:0xd34e49,roughness:.42,metalness:.02});
   const focus=new T.Mesh(disc,highlighted);focus.position.set(0,0,-2);focus.scale.setScalar(2.05);focus.rotation.set(1.05,.15,.30);vessel.add(focus);
@@ -54,8 +54,9 @@ function init(T){
     if(scene===0){camera.position.set(1.1*(1-u),.65*(1-u),13-9.1*u);camera.lookAt(0,0,-2);if(!motion.matches){for(const c of cells)c.m.position.z=c.z+Math.sin(now*.00032+c.phase)*.52;}}
     else{camera.position.set(.7*(1-u),.55*(1-u),11-8.7*u);camera.lookAt(0,0,-3);if(!motion.matches)featured.rotation.y=now*.00019;}
     try{renderer.render(scene===0?vessel:interior,camera);gallery.classList.add('depth-ready');}catch{fallback();return;}
-    if(!motion.matches)frame=requestAnimationFrame(t=>{if(t-last<33){frame=requestAnimationFrame(render);return;}last=t;render(t);});
+    if(!motion.matches)frame=requestAnimationFrame(tick);
   }
+  function tick(t){if(t-last<33){frame=requestAnimationFrame(tick);return;}last=t;render(t);}
   function schedule(){if(!frame&&!failed)frame=requestAnimationFrame(render);}
   function fallback(){failed=true;if(frame)cancelAnimationFrame(frame);frame=0;gallery.classList.remove('depth-ready');host.replaceChildren();}
   renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback();});
