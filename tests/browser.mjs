@@ -15,6 +15,10 @@ try{
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
+    await page.locator('.design-sources summary').click();
+    await page.locator('#designImport').setInputFiles({name:'invalid.json',mimeType:'application/json',buffer:Buffer.from('{}')});
+    await page.waitForFunction(()=>document.querySelector('#designImportStatus').textContent.includes('読み込めません'));
+    await page.locator('.design-sources summary').click();
     await page.locator('#designNext').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
     await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
