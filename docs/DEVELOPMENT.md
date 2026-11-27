@@ -3,7 +3,11 @@
 ## Purpose
 A molecular journey and an interactive exhibition of published research and software. Keep the scientific data distinct from illustrative scenery. Do not imply that generated conformations are a time trajectory or that predictions prove biological function.
 
+## Protein design journey
+The homepage uses the natural crambin crystal structure (PDB 1CRN) as a public reference. It visualizes a deterministic coordinate interpolation, a C-alpha distance graph, and the known reference sequence. None is an actual RFdiffusion3 trajectory, ProteinMPNN result, or structure prediction. The validation stage leaves the re-prediction uncomputed and links to FoldLens. If PDB retrieval fails, display only schematic coordinates and no invented sequence. WebGL has a Canvas fallback. Replace the reference with genuine public model outputs only when provenance and disclosure are established.
+
 ## Architecture
+- `assets/js/design.js` / `assets/css/design.css`: five-stage scroll-driven design experience.
 - `index.html`: semantic markup, existing SVG scenery, exhibit content.
 - `assets/css/base.css`: shared color, type, spacing, navigation and focus tokens.
 - `assets/css/journey.css`: sticky story, molecular gallery and responsive controls.
@@ -25,7 +29,7 @@ python3 -m http.server 4173
 node tests/browser.mjs
 ```
 
-CI uses Ubuntu 24.04 to match the pinned Playwright release. Browser test covers desktop/mobile navigation, four exhibits and the intentionally unavailable CDN fallback. It does not validate GPU/WebGL or real PDB rendering. Manual release checks: real 3Dmol load, camera, residue selection, fullscreen, Safari/iOS, screenshots, loading performance and scientific text.
+CI uses Ubuntu 24.04 to match the pinned Playwright release. Browser test covers desktop/mobile navigation, the design journey, four exhibits and the intentionally unavailable CDN fallback. It does not validate GPU/WebGL or real PDB rendering. Manual release checks: real 3Dmol load, camera, residue selection, fullscreen, Safari/iOS, screenshots, loading performance and scientific text.
 
 ## Next
 1. Visually verify the new procedural Three.js vessel/cell scenery and refine the camera path. It is schematic, not a physical simulation.
