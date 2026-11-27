@@ -30,7 +30,8 @@ try {
     if(n)await page.locator('[data-design-jump="'+n+'"]').click();
     await page.waitForFunction(n=>document.querySelector('#design').dataset.designStep===String(n),n);
     await page.waitForTimeout(200);
-    if(n===3)assert.equal(await page.locator('#designSequence .on').count(),46);
+    if(n===3){assert.equal(await page.locator('#designSequence .on').count(),46);await page.locator('[data-aa-choice="S"]').click();assert.match(await page.locator('#designChoiceNote').innerText(),/セリン/);}
+    if(n===4){await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
     await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
   }
   await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));

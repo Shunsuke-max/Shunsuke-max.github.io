@@ -15,8 +15,13 @@ try{
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
+    await page.locator('[data-aa-choice="V"]').click();
+    assert.equal(await page.locator('#design').getAttribute('data-aa-choice'),'V');
+    assert.match(await page.locator('#designChoiceNote').innerText(),/バリン/);
     await page.locator('#designNext').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
+    await page.locator('[data-compare="different"]').click();
+    assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');
     await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
     await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='0');
     await page.locator('#scaleNext').click();
