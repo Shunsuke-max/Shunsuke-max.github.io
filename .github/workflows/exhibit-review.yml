@@ -1,4 +1,4 @@
-name: Curiosity exhibit review capture
+name: Curiosity exhibit gallery capture
 on:
   push:
     branches: ['qa/curiosity-exhibit-capture-2779261']
@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: [pc-no-preference, pc-reduce, tablet-no-preference, tablet-reduce, phone-no-preference, phone-reduce, extras, fault, perf, probes]
+        part: [pc, tablet, phone]
     runs-on: ubuntu-24.04
     timeout-minutes: 14
     steps:
@@ -36,40 +36,89 @@ jobs:
           done
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/exhibit-http.log 2>&1 &
           trap 'kill "$!" || true' EXIT
-          if [ "$REVIEW_SEGMENT" = "probes" ]; then node reviews/runner/probes.mjs; else node reviews/runner/capture.mjs; fi
+          node reviews/runner/supplement.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: exhibit-${{ matrix.part }}
+          name: gallery-${{ matrix.part }}
           path: |
             review-result/
             review-raw/
-  record:
-    if: always()
+  first-pass:
     runs-on: ubuntu-24.04
-    needs: capture
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: qa/curiosity-exhibit-capture-2779261
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow
       - uses: actions/download-artifact@v4
         with:
           pattern: exhibit-*
-          path: /tmp/review-parts
-      - name: Assemble chapters and record public evidence
+          github-token: ${{ github.token }}
+          run-id: 46001084992
+          path: /tmp/first-run
+      - name: Assemble primary evidence
         run: |
           mkdir -p review-raw review-result reviews/evidence
-          find /tmp/review-parts -type f -path '*/review-raw/*' -exec cp -t review-raw {} +
-          find /tmp/review-parts -type f -path '*/review-result/*' -exec cp -t review-result {} +
-          find /tmp/review-parts -mindepth 2 -maxdepth 2 -type f -exec cp -t review-result {} +
-          python3 reviews/runner/sheets.py
+          find /tmp/first-run -type f -path '*/review-raw/*' -exec cp -t review-raw {} +
+          find /tmp/first-run -type f -path '*/review-result/*' -exec cp -t review-result {} +
+          find /tmp/first-run -mindepth 2 -maxdepth 2 -type f -exec cp -t review-result {} +
+          python reviews/runner/sheets.py
           cp -r review-result/. reviews/evidence/
           git add -- reviews/evidence
-          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m 'Record independent render matrix and browser measurements'
+          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m 'Record public browser evidence from the isolated runner'
+          git push origin HEAD:refs/heads/qa/curiosity-exhibit-capture-2779261
+  record:
+    needs: [capture, first-pass]
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: qa/curiosity-exhibit-capture-2779261
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: exhibit-*
+          github-token: ${{ github.token }}
+          run-id: 46001084992
+          path: /tmp/first-run
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gallery-*
+          path: /tmp/extra-run
+      - name: Assemble complete evidence
+        run: |
+          mkdir -p review-raw review-result reviews/evidence
+          find /tmp/first-run -type f -path '*/review-raw/*' -exec cp -t review-raw {} +
+          find /tmp/first-run -type f -path '*/review-result/*' -exec cp -t review-result {} +
+          find /tmp/first-run -mindepth 2 -maxdepth 2 -type f -exec cp -t review-result {} +
+          python reviews/runner/sheets.py
+          find /tmp/extra-run -type f -path '*/review-raw/*' -exec cp -t review-raw {} +
+          find /tmp/extra-run -type f -path '*/review-result/*' -exec cp -t review-result {} +
+          find /tmp/extra-run -mindepth 2 -maxdepth 2 -type f -exec cp -t review-result {} +
+          python reviews/runner/merge.py
+          python reviews/runner/sheets.py
+          cp -r review-result/. reviews/evidence/
+          git add -- reviews/evidence
+          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m 'Record public browser evidence from the isolated runner'
           git push origin HEAD:refs/heads/qa/curiosity-exhibit-capture-2779261
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: complete-review
+          name: complete-gallery-review
           path: |
             review-result/
             review-raw/
