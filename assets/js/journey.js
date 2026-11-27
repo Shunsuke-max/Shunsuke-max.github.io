@@ -32,9 +32,9 @@ by('molHeme').addEventListener('click',()=>{if(!ready||!molecules[active].heme)r
 const story=by('scaleJourney'),stepsUI=Array.from(document.querySelectorAll('.scale-step')),reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 const scenes=[
 {index:'01 / 05 · BLOOD',title:'血液の中へ。',text:'酸素を運ぶ赤血球。その一つに近づいてみましょう。',kind:'模式的な可視化',caption:'血管内の模式表現 / 縮尺は実際と異なります'},
-{index:'02 / 05 · RED BLOOD CELL',title:'赤血球の内側へ。',text:'赤血球の中には、酸素を運ぶヘモグロビンがたくさん詰まっています。',kind:'模式的な可視化',caption:'赤血球の内部 / 分子の数・配置は模式的です'},
-{index:'03 / 05 · PROTEIN',title:'一つの分子に出会う。',text:'4本のポリペプチド鎖が集まったヘモグロビン。色の違いは鎖の違いを表します。',kind:'実験構造 · PDB 4HHB',caption:'ヒト脱酸素ヘモグロビン / X線結晶構造'},
-{index:'04 / 05 · HEME',title:'酸素を受け取る鉄。',text:'ヘムと近くのヒスチジンを取り出して表示しています。鉄は酸素の結合に関わります。この実験構造は脱酸素型です。',kind:'実験構造 · PDB 4HHB',caption:'ヘムと近傍のヒスチジンを選択表示 / 周囲の構造は非表示'}
+{index:'02 / 05 · RED BLOOD CELL',title:'赤血球の\n内側へ。',text:'赤血球の中には、酸素を運ぶヘモグロビンがたくさん詰まっています。',kind:'模式的な可視化',caption:'赤血球の内部 / 分子の数・配置は模式的です'},
+{index:'03 / 05 · PROTEIN',title:'一つの分子に\n出会う。',text:'4本のポリペプチド鎖が集まったヘモグロビン。色の違いは鎖の違いを表します。',kind:'実験構造 · PDB 4HHB',caption:'ヒト脱酸素ヘモグロビン / X線結晶構造'},
+{index:'04 / 05 · HEME',title:'酸素を受け取る\n鉄。',text:'ヘムと近くのヒスチジンを取り出して表示しています。鉄は酸素の結合に関わります。この実験構造は脱酸素型です。',kind:'実験構造 · PDB 4HHB',caption:'ヘムと近傍のヒスチジンを選択表示 / 周囲の構造は非表示'}
 ];
 let scene=-1,scheduled=false;
 function focusHeme(){if(!ready||!viewer)return false;const model=viewer.getModel(),atoms=model.selectedAtoms({resn:'HEM'});const iron=atoms.find(a=>String(a.elem).toUpperCase()==='FE');if(!iron)return false;const selection={resn:'HEM',chain:iron.chain,resi:iron.resi};pause();viewer.removeAllLabels();viewer.setStyle({},{});viewer.setStyle(selection,{stick:{radius:.17,colorscheme:'Jmol'},sphere:{scale:.24,colorscheme:'Jmol'}});viewer.setStyle({...selection,elem:iron.elem},{sphere:{scale:.52,color:'#e4ae67'}});const histidines=model.selectedAtoms({resn:'HIS',chain:iron.chain});const candidates=histidines.filter(a=>a.atom==='NE2'||a.atom==='ND1').map(a=>({a,d:Math.hypot(a.x-iron.x,a.y-iron.y,a.z-iron.z)})).sort((a,b)=>a.d-b.d);const nearest=candidates[0];if(nearest&&nearest.d<3){viewer.setStyle({resn:'HIS',chain:nearest.a.chain,resi:nearest.a.resi},{stick:{radius:.13,colorscheme:'Jmol'}});}viewer.zoomTo(selection);viewer.zoom(.68);viewer.addLabel('Fe',{position:iron,backgroundColor:'#17242d',fontColor:'#fff3dd',fontSize:15,inFront:true});viewer.render();gallery.dataset.hemeFocus='true';return true;}

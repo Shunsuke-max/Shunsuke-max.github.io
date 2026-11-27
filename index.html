@@ -1,45 +1,518 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="タンパク質を設計する。構造生成、配列設計、検証から研究とソフトウェア開発へ。">
 <title>Curiosity Lab — Shunsuke</title>
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
-<meta name="theme-color" content="#080e14">
+<meta name="theme-color" content="#070c12">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Curiosity Lab — Shunsuke">
 <meta property="og:description" content="タンパク質を設計する。構造生成、配列設計、検証から研究とソフトウェア開発へ。">
 <meta property="og:url" content="https://shunsuke-max.github.io/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://shunsuke-max.github.io/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/design.css">
 <link rel="stylesheet" href="assets/css/journey.css">
 <link rel="stylesheet" href="assets/css/exhibition.css">
 </head>
-<body><a class="skip" href="#main">本文へ移動</a><div class="page">
-<header class="top"><a class="wordmark" href="./">Curiosity Lab<span style="color:var(--accent)">.</span></a><nav aria-label="メインナビゲーション"><a href="#designJourney">設計の旅</a><a href="#scaleJourney">分子探索</a><a href="#works">作品</a><a href="https://github.com/Shunsuke-max">GitHub ↗</a></nav></header>
+<body>
+<a class="skip" href="#main">本文へ移動</a>
+<div class="page">
+<header class="top">
+  <a class="wordmark" href="./">Curiosity Lab<span class="wordmark-dot">.</span></a>
+  <nav aria-label="メインナビゲーション">
+    <a href="#designJourney">設計の旅</a>
+    <a href="#scaleJourney">分子探索</a>
+    <a href="#works">作品</a>
+    <a href="https://github.com/Shunsuke-max">GitHub ↗</a>
+  </nav>
+</header>
 <main id="main">
-<div id="designJourney" class="design-journey"><section id="design" class="design-stage" data-design-step="0" data-aa-choice="A" data-compare="close" aria-label="タンパク質設計の体験">
-<div class="design-visual" aria-hidden="true"><canvas id="designCanvas"></canvas><div id="designWebGL"></div></div>
-<div class="design-shade" aria-hidden="true"></div>
-<div class="design-top"><span>CURIOSITY LAB / PROTEIN DESIGN</span><a href="#works">研究と開発へ ↗</a></div>
-<div class="design-copy"><div class="design-kicker" id="designKicker">01 / 05 — DIFFUSION</div><h1 id="designTitle">タンパク質を、<br>設計する。</h1><p id="designDescription">原子の配置から立体構造へ。立体構造からアミノ酸配列へ。スクロールして、設計の流れをたどる。</p><div id="designIntent" class="design-intent"><span>DESIGN INTENT</span><strong>例：46残基の小型タンパク質</strong></div><div id="designFormula" class="design-formula">X(t) → X(0)</div><div id="designDataStatus" class="design-data" role="status">設計過程の模式図</div><div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 原子位置のイメージ</span></div></div>
-<div id="designSequencePanel" class="design-sequence" hidden><div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div><div id="designSequence" class="design-residues"></div><div class="design-choice"><span>ある残基の選択例</span><div class="design-choice-options" aria-label="アミノ酸の選択例"><button type="button" data-aa-choice="A" aria-pressed="true">A</button><button type="button" data-aa-choice="V" aria-pressed="false">V</button><button type="button" data-aa-choice="S" aria-pressed="false">S</button></div><svg class="design-sidechain" viewBox="0 0 88 46" width="88" height="46" role="img" aria-label="側鎖の違いを表す模式図"><path d="M8 23H30" stroke="#83c6c5" stroke-width="2.5"/><circle cx="8" cy="23" r="4" fill="#83c6c5"/><circle cx="30" cy="23" r="5" fill="#d4b384"/><g class="side-a"><path d="M30 23H53" stroke="#d4b384" stroke-width="2"/><circle cx="53" cy="23" r="6" fill="#d4b384"/></g><g class="side-v"><path d="M30 23H48M48 23L69 10M48 23L69 36" stroke="#d4b384" stroke-width="2" fill="none"/><circle cx="48" cy="23" r="5" fill="#d4b384"/><circle cx="69" cy="10" r="6" fill="#d4b384"/><circle cx="69" cy="36" r="6" fill="#d4b384"/></g><g class="side-s"><path d="M30 23H49M49 23L69 13" stroke="#d4b384" stroke-width="2" fill="none"/><circle cx="49" cy="23" r="5" fill="#d4b384"/><circle cx="69" cy="13" r="6" fill="#e88f7f"/><text x="69" y="16" font-size="8" fill="#101b23" text-anchor="middle">O</text></g></svg><span id="designChoiceNote" aria-live="polite">A：アラニン</span></div><p>選択の概念図。参照配列・候補文字は実際のProteinMPNN出力ではありません。</p></div>
-<div id="designEvaluate" class="design-evaluate" hidden><div class="design-eval-line"><span class="design-dot"></span> 設計構造 <small>入力</small></div><div class="design-eval-line"><span class="design-dot hollow"></span> 再予測構造 <small>模式例</small></div><div class="design-compare-options" aria-label="模式的な構造比較"><button type="button" data-compare="close" aria-pressed="true">形が近い例</button><button type="button" data-compare="different" aria-pressed="false">形が異なる例</button></div><p>配列から再予測した形と設計時の形を比較する。ここでの差は説明用で、実測・予測結果ではありません。</p><a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで予測構造の比較を体験 ↗</a></div>
-<div class="design-bottom"><div class="design-step-nav" aria-label="設計の工程"><button type="button" data-design-jump="0" aria-current="step"><span>01 / DIFFUSION</span><strong>ノイズから、形へ。</strong></button><button type="button" data-design-jump="1" ><span>02 / RFD3</span><strong>原子の配置を設計する。</strong></button><button type="button" data-design-jump="2" ><span>03 / GEOMETRY</span><strong>形を、グラフに。</strong></button><button type="button" data-design-jump="3" ><span>04 / PROTEINMPNN</span><strong>骨格から配列へ。</strong></button><button type="button" data-design-jump="4" ><span>05 / VALIDATION</span><strong>設計は、検証から。</strong></button></div><div class="design-bottom-line"><span id="designDisclosure">設計の流れを示す模式図 · 実際のAI出力ではありません</span><button id="designNext" type="button">スクロールして始める ↓</button></div><div class="design-track" aria-hidden="true"><span id="designProgress"></span></div></div>
-<details class="design-sources"><summary>データ・手法の出典</summary><a href="https://www.rcsb.org/structure/1CRN">RCSB PDB 1CRN（天然クランビンの実験構造）</a><a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a><p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。表示する一部の原子は参照構造由来です。淡い背景粒子は空間演出です。ノイズの収束、グラフ、残基選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p></details>
-</section></div><section class="design-bridge" aria-label="続きの探索"><div><span class="design-kicker">NEXT / MOLECULAR EXPLORATION</span><h2>実在する分子を、観察する。</h2><p>設計を考える前に、実際の構造を知る。血液からヘモグロビンへの旅と自由探索。</p></div><a href="#scaleJourney">分子の旅へ ↓</a><a href="#works">研究と開発へ ↓</a></section><div class="scale-journey" id="scaleJourney"><section class="protein-hero" id="protein" data-scene="0" aria-label="分子の展示室"><div class="molecule-stage"><div class="molecule-view" id="molView" tabindex="0" aria-label="タンパク質の3D表示。ドラッグまたは矢印キーで回転、プラスとマイナスキーで拡大縮小。"><div id="molHost" class="mol-host"></div><div class="mol-vignette" aria-hidden="true"></div><div class="view-caption" id="viewCaption">PDB 4HHB / EXPERIMENTAL STRUCTURE</div><div class="view-hint">ドラッグで回転 · スクロール / ピンチで拡大縮小 · 分子をクリックして観察</div><div class="mol-status" id="molStatus" role="status">分子データを読み込んでいます…</div></div><div id="depthScene" class="depth-scene" aria-hidden="true"></div><div class="scale-art vessel-art" aria-hidden="true"><svg viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="vesselBG" cx=".53" cy=".48" r=".72"><stop stop-color="#351e27"/><stop offset=".47" stop-color="#4a1925"/><stop offset="1" stop-color="#100b13"/></radialGradient><radialGradient id="discFill" cx=".37" cy=".34" r=".78"><stop stop-color="#ad403b"/><stop offset=".34" stop-color="#c15b4b"/><stop offset=".53" stop-color="#6f242c"/><stop offset=".77" stop-color="#bf554a"/><stop offset="1" stop-color="#38131e"/></radialGradient><radialGradient id="discHole"><stop stop-color="#42151f" stop-opacity=".9"/><stop offset="1" stop-color="#6e2630" stop-opacity="0"/></radialGradient><g id="rbcDisc"><ellipse rx="116" ry="70" fill="url(#discFill)" stroke="#d37b67" stroke-opacity=".46" stroke-width="1.5"/><ellipse rx="54" ry="27" fill="url(#discHole)"/><path d="M-92 -25Q-32 -61 61 -44" fill="none" stroke="#e7a18a" stroke-width="2.5" opacity=".42"/></g><linearGradient id="wallShade"><stop stop-color="#1a0c14"/><stop offset=".5" stop-color="#6d3438" stop-opacity=".45"/><stop offset="1" stop-color="#1a0c14"/></linearGradient></defs><rect width="1200" height="720" fill="url(#vesselBG)"/><g fill="none" stroke="url(#wallShade)" opacity=".65"><ellipse cx="600" cy="350" rx="870" ry="520" stroke-width="55"/><ellipse cx="600" cy="350" rx="725" ry="425" stroke-width="30"/><ellipse cx="600" cy="350" rx="515" ry="313" stroke-width="9"/></g><g opacity=".94"><use href="#rbcDisc" transform="translate(-90 385) rotate(18) scale(1.9)"/><use href="#rbcDisc" transform="translate(80 160) rotate(-25) scale(0.75)"/><use href="#rbcDisc" transform="translate(310 110) rotate(45) scale(0.46)"/><use href="#rbcDisc" transform="translate(810 90) rotate(-10) scale(0.55)"/><use href="#rbcDisc" transform="translate(935 270) rotate(18) scale(1.05)"/><use href="#rbcDisc" transform="translate(1110 490) rotate(-20) scale(1.7)"/><use href="#rbcDisc" transform="translate(260 525) rotate(-17) scale(1.35)"/><use href="#rbcDisc" transform="translate(575 420) rotate(22) scale(1.12)"/><use href="#rbcDisc" transform="translate(720 210) rotate(40) scale(0.57)"/><use href="#rbcDisc" transform="translate(410 290) rotate(-20) scale(0.42)"/><use href="#rbcDisc" transform="translate(130 660) rotate(12) scale(1.2)"/><use href="#rbcDisc" transform="translate(840 635) rotate(-30) scale(1.15)"/><use href="#rbcDisc" transform="translate(585 118) rotate(8) scale(0.28)"/><use href="#rbcDisc" transform="translate(1030 130) rotate(-8) scale(0.42)"/><use href="#rbcDisc" transform="translate(460 670) rotate(27) scale(0.8)"/></g><rect width="1200" height="720" fill="none" stroke="#0b0b12" stroke-width="32" opacity=".2"/></svg></div>
-<div class="scale-art cell-art" aria-hidden="true"><svg viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="cellBG"><stop stop-color="#522329"/><stop offset="1" stop-color="#120d18"/></radialGradient><radialGradient id="cellInterior"><stop stop-color="#5a3032"/><stop offset=".75" stop-color="#3a1927"/><stop offset="1" stop-color="#922d35"/></radialGradient><clipPath id="cellClip"><ellipse cx="610" cy="350" rx="360" ry="225"/></clipPath><g id="hbSchematic"><circle cx="-5" cy="-5" r="8" fill="#ad7e63"/><circle cx="5" cy="-5" r="8" fill="#839d9a"/><circle cx="-5" cy="5" r="8" fill="#839d9a"/><circle cx="5" cy="5" r="8" fill="#ad7e63"/><circle cx="0" cy="0" r="2" fill="#e3b26d"/></g></defs><rect width="1200" height="720" fill="url(#cellBG)"/><ellipse cx="610" cy="350" rx="373" ry="239" fill="#28151d" stroke="#b96a57" stroke-width="3"/><ellipse cx="610" cy="350" rx="360" ry="225" fill="url(#cellInterior)" stroke="#e39479" stroke-opacity=".65" stroke-width="4"/><g clip-path="url(#cellClip)"><g transform="translate(630.3 350.0) rotate(0) scale(0.55)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(584.0 364.5) rotate(47) scale(0.62)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(614.0 322.4) rotate(94) scale(0.69)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(642.7 376.0) rotate(141) scale(0.76)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(549.9 343.5) rotate(188) scale(0.83)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(666.9 327.9) rotate(235) scale(0.90)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(591.0 393.2) rotate(282) scale(0.97)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(573.7 307.4) rotate(329) scale(0.55)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(688.7 367.5) rotate(16) scale(0.62)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(528.1 370.6) rotate(63) scale(0.69)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(649.5 298.6) rotate(110) scale(0.76)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(639.2 406.7) rotate(157) scale(0.83)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(522.0 318.9) rotate(204) scale(0.90)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(713.2 336.2) rotate(251) scale(0.97)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(547.0 404.6) rotate(298) scale(0.55)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(595.5 281.6) rotate(345) scale(0.62)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(699.3 395.9) rotate(32) scale(0.69)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(489.8 353.0) rotate(79) scale(0.76)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(697.7 296.8) rotate(126) scale(0.83)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(604.1 427.3) rotate(173) scale(0.90)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(526.6 289.1) rotate(220) scale(0.97)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(742.1 360.8) rotate(267) scale(0.55)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(498.0 397.5) rotate(314) scale(0.62)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(640.6 267.1) rotate(1) scale(0.69)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(680.8 425.3) rotate(48) scale(0.76)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(471.7 323.1) rotate(95) scale(0.83)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(744.4 312.2) rotate(142) scale(0.90)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(551.8 434.8) rotate(189) scale(0.97)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(558.0 262.0) rotate(236) scale(0.55)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(748.3 394.3) rotate(283) scale(0.62)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(456.4 374.7) rotate(330) scale(0.69)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(697.3 267.3) rotate(17) scale(0.76)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(637.8 448.5) rotate(64) scale(0.83)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(478.4 287.9) rotate(111) scale(0.90)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(778.3 341.5) rotate(158) scale(0.97)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(493.7 426.7) rotate(205) scale(0.55)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(610.8 244.1) rotate(252) scale(0.62)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(728.3 429.5) rotate(299) scale(0.69)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(432.3 340.0) rotate(346) scale(0.76)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(754.0 283.4) rotate(33) scale(0.83)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(577.2 459.7) rotate(80) scale(0.90)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(511.3 254.4) rotate(127) scale(0.97)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(790.8 380.2) rotate(174) scale(0.55)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(441.3 402.8) rotate(221) scale(0.62)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(676.7 240.4) rotate(268) scale(0.69)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(683.1 459.5) rotate(315) scale(0.76)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(432.8 298.8) rotate(2) scale(0.83)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(799.4 314.4) rotate(49) scale(0.90)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(508.7 455.3) rotate(96) scale(0.97)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(567.5 229.4) rotate(143) scale(0.55)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(776.6 422.1) rotate(190) scale(0.62)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(405.2 365.6) rotate(237) scale(0.69)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(745.0 253.3) rotate(284) scale(0.76)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(617.7 478.1) rotate(331) scale(0.83)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(461.0 257.8) rotate(18) scale(0.90)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(823.9 356.7) rotate(65) scale(0.97)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(443.4 433.9) rotate(112) scale(0.55)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(640.1 218.4) rotate(159) scale(0.62)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(734.7 460.4) rotate(206) scale(0.69)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(393.8 319.7) rotate(253) scale(0.76)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(804.6 282.8) rotate(300) scale(0.83)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(540.4 480.7) rotate(347) scale(0.90)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(515.7 223.9) rotate(34) scale(0.97)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(820.9 404.5) rotate(81) scale(0.55)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(392.3 397.0) rotate(128) scale(0.62)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(719.3 224.8) rotate(175) scale(0.69)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(668.7 488.4) rotate(222) scale(0.76)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(411.9 271.5) rotate(269) scale(0.83)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(844.7 326.1) rotate(316) scale(0.90)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(462.3 465.1) rotate(3) scale(0.97)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(591.2 203.3) rotate(50) scale(0.55)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(787.7 451.2) rotate(97) scale(0.62)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(365.2 348.5) rotate(144) scale(0.69)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(793.4 249.6) rotate(191) scale(0.76)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(585.9 500.6) rotate(238) scale(0.83)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(459.9 228.2) rotate(285) scale(0.90)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(857.2 378.2) rotate(332) scale(0.97)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(395.1 431.5) rotate(19) scale(0.55)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(678.5 200.4) rotate(66) scale(0.62)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(725.9 489.4) rotate(113) scale(0.69)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(368.5 294.6) rotate(160) scale(0.76)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(850.9 291.1) rotate(207) scale(0.83)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(497.0 493.5) rotate(254) scale(0.90)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(533.8 196.7) rotate(301) scale(0.97)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(837.4 432.1) rotate(348) scale(0.55)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(349.8 383.3) rotate(35) scale(0.62)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(765.9 217.6) rotate(82) scale(0.69)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(642.0 512.8) rotate(129) scale(0.76)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(404.9 242.5) rotate(176) scale(0.83)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(881.9 344.8) rotate(223) scale(0.90)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(414.2 466.5) rotate(270) scale(0.97)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(625.4 182.6) rotate(317) scale(0.55)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(785.1 480.5) rotate(4) scale(0.62)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(334.8 325.8) rotate(51) scale(0.69)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(841.0 254.1) rotate(98) scale(0.76)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(545.7 516.7) rotate(145) scale(0.83)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(472.0 199.8) rotate(192) scale(0.90)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(879.7 404.2) rotate(239) scale(0.97)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(349.8 421.4) rotate(286) scale(0.55)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(723.3 189.4) rotate(333) scale(0.62)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(704.9 515.9) rotate(20) scale(0.69)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(354.9 266.3) rotate(67) scale(0.76)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(892.2 306.4) rotate(114) scale(0.83)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(449.4 499.0) rotate(161) scale(0.90)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(563.0 173.1) rotate(208) scale(0.97)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(841.7 461.6) rotate(255) scale(0.55)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(314.0 363.2) rotate(302) scale(0.62)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(814.6 217.8) rotate(349) scale(0.69)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(605.6 532.5) rotate(36) scale(0.76)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(410.0 213.0) rotate(83) scale(0.83)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(910.7 368.8) rotate(130) scale(0.90)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(366.4 460.4) rotate(177) scale(0.97)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(667.5 167.4) rotate(224) scale(0.55)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(770.6 509.0) rotate(271) scale(0.62)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(314.1 298.7) rotate(318) scale(0.69)"><use href="#hbSchematic" opacity="0.78"/></g><g transform="translate(886.3 265.6) rotate(5) scale(0.76)"><use href="#hbSchematic" opacity="0.38"/></g><g transform="translate(499.3 526.7) rotate(52) scale(0.83)"><use href="#hbSchematic" opacity="0.48"/></g><g transform="translate(495.3 173.3) rotate(99) scale(0.90)"><use href="#hbSchematic" opacity="0.58"/></g><g transform="translate(891.5 433.4) rotate(146) scale(0.97)"><use href="#hbSchematic" opacity="0.68"/></g><g transform="translate(308.7 404.7) rotate(193) scale(0.55)"><use href="#hbSchematic" opacity="0.78"/></g></g><ellipse cx="610" cy="350" rx="348" ry="212" fill="none" stroke="#b8786c" opacity=".35" stroke-dasharray="4 7"/><circle cx="610" cy="350" r="28" fill="none" stroke="#f7d4a1" stroke-dasharray="4 5" opacity=".9"/><g transform="translate(610 350) scale(1.28)"><use href="#hbSchematic"/></g><path d="M635 330L696 267H788" fill="none" stroke="#e9c7a7" opacity=".8"/><text x="702" y="257" font-size="12" fill="#edd8c1" font-family="monospace">Hemoglobin / schematic</text></svg></div><div class="scale-story-copy"><div class="scale-index" id="scaleIndex">01 / 05 · BLOOD</div><h1 id="scaleTitle">血液の中へ。</h1><p id="scaleText">酸素を運ぶ赤血球。その一つに近づいてみましょう。</p><span class="scale-kind" id="scaleKind">模式的なイラスト</span></div><button class="scale-next scale-skip" id="scaleSkip" type="button">自由に探索する ↗</button><div class="scale-caption" id="scaleCaption">血管内のイメージ / 縮尺は模式的です</div><div class="scale-progress"><div class="scale-timeline" aria-label="観察するスケール"><button class="scale-step" data-step="0" aria-current="step" type="button"><span>01</span>血液</button><button class="scale-step" data-step="1" type="button"><span>02</span>赤血球</button><button class="scale-step" data-step="2" type="button"><span>03</span>タンパク質</button><button class="scale-step" data-step="3" type="button"><span>04</span>ヘム</button><button class="scale-step" data-step="4" type="button"><span>05</span>自由探索</button></div><button class="scale-next" id="scaleNext" type="button">スクロールして近づく ↓</button></div><div class="gallery-heading"><div class="kicker">Curiosity Lab / Molecular gallery</div><h2 id="molName" style="font-size:clamp(30px,4vw,52px);margin:7px 0 12px">ヘモグロビン</h2><p>いろいろな角度から、<br>生命の形を眺めてみる。</p></div><div class="gallery-tools"><button id="scaleRestart" class="mol-button" type="button">旅の最初へ</button><a class="mol-button scale-exit" href="#works">作品を見る ↓</a><button id="molImmersive" class="mol-button" type="button" aria-pressed="false">分子だけ見る</button><button id="molFullscreen" class="mol-button" type="button" aria-pressed="false">全画面 ⛶</button></div><div id="residueInfo" class="residue-info" role="status"></div><details class="gallery-info"><summary>この分子について</summary><div id="molMeta" class="mol-legend">4HHB / X線結晶構造</div><p id="molDescription">赤血球の中で酸素を運ぶタンパク質です。4つのサブユニットそれぞれにヘムがあります。この構造は脱酸素型です。</p><a id="molSource" href="https://www.rcsb.org/structure/4HHB" target="_blank" rel="noopener">RCSB PDBで詳細を見る ↗</a><p class="small" id="molStyleNote">主鎖の形を見やすく表示しています。</p></details><div class="gallery-dock" aria-label="分子の操作"><div><label for="molSelect">分子を選ぶ</label><select id="molSelect"><option value="4HHB">ヘモグロビン</option><option value="1MBN">ミオグロビン</option><option value="1UBQ">ユビキチン</option><option value="1LYZ">リゾチーム</option><option value="1CRN">クランビン</option></select></div><div class="dock-group"><div class="mol-buttons"><button type="button" class="mol-button mol-style" data-style="cartoon" aria-pressed="true" disabled>リボン</button><button type="button" class="mol-button mol-style" data-style="stick" aria-pressed="false" disabled>結合</button><button type="button" class="mol-button mol-style" data-style="sphere" aria-pressed="false" disabled>原子</button></div></div><div class="dock-group"><div class="mol-buttons"><button id="molHeme" type="button" class="mol-button" disabled>ヘムに近づく</button><button id="molSpin" class="mol-button" type="button" aria-pressed="false" disabled>自動回転</button><button id="molReset" class="mol-button" type="button" disabled>視点を戻す</button><button id="molRetry" class="mol-button" type="button" hidden>再読み込み</button></div></div></div></div><div class="gallery-foot"><span>実験構造：RCSB Protein Data Bank / 3Dmol.js　·　回転は分子の実際の運動ではありません。</span><a href="#works">作品を見る ↓</a></div></section></div>
+<div id="designJourney" class="design-journey">
+  <section id="design" class="design-stage" data-design-step="0" data-aa-choice="A" data-compare="close" aria-label="タンパク質設計の体験">
+    <div class="design-visual" aria-hidden="true"><canvas id="designCanvas"></canvas><div id="designWebGL"></div></div>
+    <div class="design-shade" aria-hidden="true"></div>
+    <div class="design-top"><span>CURIOSITY LAB / PROTEIN DESIGN</span><a href="#works">研究と開発へ ↗</a></div>
+    <div class="design-copy">
+      <div class="design-kicker" id="designKicker">01 / 05 — DIFFUSION</div>
+      <h1 id="designTitle">タンパク質を、<br>設計する。</h1>
+      <p id="designDescription">原子の配置から立体構造へ。立体構造からアミノ酸配列へ。スクロールして、設計の流れをたどる。</p>
+      <div id="designIntent" class="design-intent"><span>DESIGN INTENT</span><strong>例：46残基の小型タンパク質</strong></div>
+      <div id="designFormula" class="design-formula">X<sub>t</sub> → X<sub>0</sub></div>
+      <div id="designDataStatus" class="design-data" role="status">設計過程の模式図</div>
+      <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 原子位置のイメージ</span></div>
+    </div>
+    <div id="designSequencePanel" class="design-sequence" hidden>
+      <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div>
+      <div id="designSequence" class="design-residues"></div>
+      <div class="design-choice">
+        <span>ある残基の選択例</span>
+        <div class="design-choice-options" aria-label="アミノ酸の選択例">
+          <button type="button" data-aa-choice="A" aria-pressed="true">A</button>
+          <button type="button" data-aa-choice="V" aria-pressed="false">V</button>
+          <button type="button" data-aa-choice="S" aria-pressed="false">S</button>
+        </div>
+        <svg class="design-sidechain" viewBox="0 0 88 46" width="88" height="46" role="img" aria-label="側鎖の違いを表す模式図">
+          <path d="M8 23H30" stroke="#7fd4d1" stroke-width="2.5"/>
+          <circle cx="8" cy="23" r="4" fill="#7fd4d1"/>
+          <circle cx="30" cy="23" r="5" fill="#e4be84"/>
+          <g class="side-a"><path d="M30 23H53" stroke="#e4be84" stroke-width="2"/><circle cx="53" cy="23" r="6" fill="#e4be84"/></g>
+          <g class="side-v"><path d="M30 23H48M48 23L69 10M48 23L69 36" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="48" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="10" r="6" fill="#e4be84"/><circle cx="69" cy="36" r="6" fill="#e4be84"/></g>
+          <g class="side-s"><path d="M30 23H49M49 23L69 13" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="49" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="13" r="6" fill="#e88f7f"/><text x="69" y="16" font-size="8" fill="#101b23" text-anchor="middle">O</text></g>
+        </svg>
+        <span id="designChoiceNote" aria-live="polite">A：アラニン</span>
+      </div>
+      <p>選択の概念図。参照配列・候補文字は実際のProteinMPNN出力ではありません。</p>
+    </div>
+    <div id="designEvaluate" class="design-evaluate" hidden>
+      <div class="design-eval-line"><span class="design-dot"></span> 設計構造 <small>入力</small></div>
+      <div class="design-eval-line"><span class="design-dot hollow"></span> 再予測構造 <small>模式例</small></div>
+      <div class="design-compare-options" aria-label="模式的な構造比較">
+        <button type="button" data-compare="close" aria-pressed="true">形が近い例</button>
+        <button type="button" data-compare="different" aria-pressed="false">形が異なる例</button>
+      </div>
+      <p>配列から再予測した形と設計時の形を比較する。ここでの差は説明用で、実測・予測結果ではありません。</p>
+      <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで予測構造の比較を体験 ↗</a>
+    </div>
+    <div class="design-bottom">
+      <div class="design-step-nav" aria-label="設計の工程">
+        <button type="button" data-design-jump="0" aria-current="step"><span>01 / DIFFUSION</span><strong>ノイズから、形へ。</strong></button>
+        <button type="button" data-design-jump="1"><span>02 / RFD3</span><strong>原子の配置を設計する。</strong></button>
+        <button type="button" data-design-jump="2"><span>03 / GEOMETRY</span><strong>形を、グラフに。</strong></button>
+        <button type="button" data-design-jump="3"><span>04 / PROTEINMPNN</span><strong>骨格から配列へ。</strong></button>
+        <button type="button" data-design-jump="4"><span>05 / VALIDATION</span><strong>設計は、検証から。</strong></button>
+      </div>
+      <div class="design-bottom-line">
+        <span id="designDisclosure">設計の流れを示す模式図 · 実際のAI出力ではありません</span>
+        <button id="designNext" type="button">スクロールして始める ↓</button>
+      </div>
+      <div class="design-track" aria-hidden="true"><span id="designProgress"></span></div>
+    </div>
+    <details class="design-sources">
+      <summary>データ・手法の出典</summary>
+      <a href="https://www.rcsb.org/structure/1CRN">RCSB PDB 1CRN（天然クランビンの実験構造）</a>
+      <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
+      <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
+      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。表示する一部の原子は参照構造由来です。淡い背景粒子は空間演出です。ノイズの収束、グラフ、残基選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
+    </details>
+  </section>
+</div>
+
+<section class="design-bridge" aria-label="続きの探索">
+  <div>
+    <span class="design-kicker">NEXT / MOLECULAR EXPLORATION</span>
+    <h2>実在する分子を、観察する。</h2>
+    <p>設計を考える前に、実際の構造を知る。血液からヘモグロビンへの旅と自由探索。</p>
+  </div>
+  <a href="#scaleJourney">分子の旅へ ↓</a>
+  <a href="#works">研究と開発へ ↓</a>
+</section>
+
+<div class="scale-journey" id="scaleJourney">
+  <section class="protein-hero" id="protein" data-scene="0" aria-label="分子の展示室">
+    <div class="molecule-stage">
+      <div class="molecule-view" id="molView" tabindex="0" aria-label="タンパク質の3D表示。ドラッグまたは矢印キーで回転、プラスとマイナスキーで拡大縮小。">
+        <div id="molHost" class="mol-host"></div>
+        <div class="mol-vignette" aria-hidden="true"></div>
+        <div class="view-caption" id="viewCaption">PDB 4HHB / EXPERIMENTAL STRUCTURE</div>
+        <div class="view-hint">ドラッグで回転 · スクロール / ピンチで拡大縮小 · 分子をクリックして観察</div>
+        <div class="mol-status" id="molStatus" role="status">分子データを読み込んでいます…</div>
+      </div>
+      <div id="depthScene" class="depth-scene" aria-hidden="true"></div>
+      <div class="scale-art vessel-art" aria-hidden="true">
+        <svg viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="vesselBG" cx=".53" cy=".48" r=".72"><stop stop-color="#351e27"/><stop offset=".47" stop-color="#4a1925"/><stop offset="1" stop-color="#100b13"/></radialGradient><radialGradient id="discFill" cx=".37" cy=".34" r=".78"><stop stop-color="#ad403b"/><stop offset=".34" stop-color="#c15b4b"/><stop offset=".53" stop-color="#6f242c"/><stop offset=".77" stop-color="#bf554a"/><stop offset="1" stop-color="#38131e"/></radialGradient><radialGradient id="discHole"><stop stop-color="#42151f" stop-opacity=".9"/><stop offset="1" stop-color="#6e2630" stop-opacity="0"/></radialGradient><g id="rbcDisc"><ellipse rx="116" ry="70" fill="url(#discFill)" stroke="#d37b67" stroke-opacity=".46" stroke-width="1.5"/><ellipse rx="54" ry="27" fill="url(#discHole)"/><path d="M-92 -25Q-32 -61 61 -44" fill="none" stroke="#e7a18a" stroke-width="2.5" opacity=".42"/></g></defs><rect width="1200" height="720" fill="url(#vesselBG)"/><g opacity=".94"><use href="#rbcDisc" transform="translate(-90 385) rotate(18) scale(1.9)"/><use href="#rbcDisc" transform="translate(80 160) rotate(-25) scale(0.75)"/><use href="#rbcDisc" transform="translate(310 110) rotate(45) scale(0.46)"/><use href="#rbcDisc" transform="translate(810 90) rotate(-10) scale(0.55)"/><use href="#rbcDisc" transform="translate(935 270) rotate(18) scale(1.05)"/><use href="#rbcDisc" transform="translate(1110 490) rotate(-20) scale(1.7)"/><use href="#rbcDisc" transform="translate(260 525) rotate(-17) scale(1.35)"/><use href="#rbcDisc" transform="translate(575 420) rotate(22) scale(1.12)"/><use href="#rbcDisc" transform="translate(720 210) rotate(40) scale(0.57)"/><use href="#rbcDisc" transform="translate(840 635) rotate(-30) scale(1.15)"/></g></svg>
+      </div>
+      <div class="scale-art cell-art" aria-hidden="true">
+        <svg viewBox="0 0 1200 720" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="cellBG"><stop stop-color="#522329"/><stop offset="1" stop-color="#120d18"/></radialGradient><radialGradient id="cellInterior"><stop stop-color="#5a3032"/><stop offset=".75" stop-color="#3a1927"/><stop offset="1" stop-color="#922d35"/></radialGradient><g id="hbSchematic"><circle cx="-5" cy="-5" r="8" fill="#ad7e63"/><circle cx="5" cy="-5" r="8" fill="#839d9a"/><circle cx="-5" cy="5" r="8" fill="#839d9a"/><circle cx="5" cy="5" r="8" fill="#ad7e63"/><circle cx="0" cy="0" r="2" fill="#e3b26d"/></g></defs><rect width="1200" height="720" fill="url(#cellBG)"/><ellipse cx="610" cy="350" rx="373" ry="239" fill="#28151d" stroke="#b96a57" stroke-width="3"/><ellipse cx="610" cy="350" rx="360" ry="225" fill="url(#cellInterior)" stroke="#e39479" stroke-opacity=".65" stroke-width="4"/><circle cx="610" cy="350" r="28" fill="none" stroke="#f7d4a1" stroke-dasharray="4 5" opacity=".9"/><g transform="translate(610 350) scale(1.28)"><use href="#hbSchematic"/></g><path d="M635 330L696 267H788" fill="none" stroke="#e9c7a7" opacity=".8"/><text x="702" y="257" font-size="12" fill="#edd8c1" font-family="monospace">Hemoglobin / schematic</text></svg>
+      </div>
+      <div class="scale-story-copy">
+        <div class="scale-index" id="scaleIndex">01 / 05 · BLOOD</div>
+        <h1 id="scaleTitle">血液の中へ。</h1>
+        <p id="scaleText">酸素を運ぶ赤血球。その一つに近づいてみましょう。</p>
+        <span class="scale-kind" id="scaleKind">模式的な可視化</span>
+      </div>
+      <button class="scale-next scale-skip" id="scaleSkip" type="button">自由に探索する ↗</button>
+      <div class="scale-caption" id="scaleCaption">血管内の模式表現 / 縮尺は実際と異なります</div>
+      <div class="scale-progress">
+        <div class="scale-timeline" aria-label="観察するスケール">
+          <button class="scale-step" data-step="0" aria-current="step" type="button"><span>01</span>血液</button>
+          <button class="scale-step" data-step="1" type="button"><span>02</span>赤血球</button>
+          <button class="scale-step" data-step="2" type="button"><span>03</span>タンパク質</button>
+          <button class="scale-step" data-step="3" type="button"><span>04</span>ヘム</button>
+          <button class="scale-step" data-step="4" type="button"><span>05</span>自由探索</button>
+        </div>
+        <button class="scale-next" id="scaleNext" type="button">スクロールして近づく ↓</button>
+      </div>
+      <div class="gallery-heading">
+        <div class="kicker">Curiosity Lab / Molecular gallery</div>
+        <h2 id="molName">ヘモグロビン</h2>
+        <p>いろいろな角度から、<br>生命の形を眺めてみる。</p>
+      </div>
+      <div class="gallery-tools">
+        <button id="scaleRestart" class="mol-button" type="button">旅の最初へ</button>
+        <a class="mol-button scale-exit" href="#works">作品を見る ↓</a>
+        <button id="molImmersive" class="mol-button" type="button" aria-pressed="false">分子だけ見る</button>
+        <button id="molFullscreen" class="mol-button" type="button" aria-pressed="false">全画面 ⛶</button>
+      </div>
+      <div id="residueInfo" class="residue-info" role="status"></div>
+      <details class="gallery-info">
+        <summary>この分子について</summary>
+        <div id="molMeta" class="mol-legend">4HHB / X線結晶構造</div>
+        <p id="molDescription">赤血球の中で酸素を運ぶタンパク質です。4つのサブユニットそれぞれにヘムがあります。この構造は脱酸素型です。</p>
+        <a id="molSource" href="https://www.rcsb.org/structure/4HHB" target="_blank" rel="noopener">RCSB PDBで詳細を見る ↗</a>
+        <p class="small" id="molStyleNote">主鎖の形を見やすく表示しています。</p>
+      </details>
+      <div class="gallery-dock" aria-label="分子の操作">
+        <div>
+          <label for="molSelect">分子を選ぶ</label>
+          <select id="molSelect">
+            <option value="4HHB">ヘモグロビン</option>
+            <option value="1MBN">ミオグロビン</option>
+            <option value="1UBQ">ユビキチン</option>
+            <option value="1LYZ">リゾチーム</option>
+            <option value="1CRN">クランビン</option>
+          </select>
+        </div>
+        <div class="dock-group">
+          <div class="mol-buttons">
+            <button type="button" class="mol-button mol-style" data-style="cartoon" aria-pressed="true" disabled>リボン</button>
+            <button type="button" class="mol-button mol-style" data-style="stick" aria-pressed="false" disabled>結合</button>
+            <button type="button" class="mol-button mol-style" data-style="sphere" aria-pressed="false" disabled>原子</button>
+          </div>
+        </div>
+        <div class="dock-group">
+          <div class="mol-buttons">
+            <button id="molHeme" type="button" class="mol-button" disabled>ヘムに近づく</button>
+            <button id="molSpin" class="mol-button" type="button" aria-pressed="false" disabled>自動回転</button>
+            <button id="molReset" class="mol-button" type="button" disabled>視点を戻す</button>
+            <button id="molRetry" class="mol-button" type="button" hidden>再読み込み</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="gallery-foot">
+      <span>実験構造：RCSB Protein Data Bank / 3Dmol.js · 回転は分子の実際の運動ではありません。</span>
+      <a href="#works">作品を見る ↓</a>
+    </div>
+  </section>
+</div>
+
 <section id="works" class="exhibition" aria-label="制作物と研究">
-<header class="exhibition-intro"><div><div class="exhibit-index">SHUNSUKE / SELECTED WORKS</div><h2>研究と開発</h2></div><p>タンパク質の構造解析から、日常の学習を支えるアプリまで。研究と開発の記録です。</p></header>
-<article class="exhibit" id="work-foldlens"><div class="exhibit-copy"><div class="exhibit-index">01 / STRUCTURAL AI</div><h3>FoldLens</h3><p>AIが予測したタンパク質の構造は、どこまで信頼できるのか。複数の予測結果を見比べ、スコアだけでは見落としやすい違いを調べるツールです。</p><a class="exhibit-link" href="https://shunsuke-max.github.io/foldlens-portfolio/">実際に使ってみる ↗</a><a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-portfolio">設計と検証結果を読む ↗</a></div><div class="exhibit-visual"><div class="visual-frame"><div class="visual-toolbar"><span><i class="live-mark"></i>FoldLens / 公開デモの画面</span><span>AF3 · 実データ</span></div><div class="exhibit-tabs" aria-label="FoldLensの画面を切り替える"><button type="button" data-gallery="fold" data-index="0" aria-pressed="true">3D解析</button><button type="button" data-gallery="fold" data-index="1" aria-pressed="false">モデル比較</button><button type="button" data-gallery="fold" data-index="2" aria-pressed="false">配置の不一致</button></div><div class="image-area"><a id="foldImageLink" href="https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png"><img id="foldImage" class="exhibit-image" src="https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png" alt="FoldLensの実データ解析ワークスペース" loading="lazy" decoding="async"></a><p class="image-unavailable" hidden>画像を読み込めませんでした。公開デモをご覧ください。</p></div><p class="visual-caption" id="foldCaption" aria-live="polite">3D構造と予測誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。</p></div></div></article>
-<article class="exhibit reverse" id="work-ensemble"><div class="exhibit-copy"><div class="exhibit-index">02 / CONFORMATIONAL ENSEMBLE</div><h3 class="jp">タンパク質は<br>一つの形ではない。</h3><p>BioEmu-2で生成したVAMP721–PICALM1aの8つの構造候補を解析しました。同じ複合体でも、鎖同士の接触の数が変わります。</p><div class="exhibit-metric"><strong>8</strong><span>生成した構造候補</span></div><a class="exhibit-link" href="https://github.com/Shunsuke-max/vamp721-structural-ensemble">研究と解析コードを見る ↗</a></div><div class="exhibit-visual"><div class="visual-frame"><div class="visual-toolbar"><span><i class="live-mark"></i>VAMP721–PICALM1a</span><span>公開解析データ</span></div><div class="data-chart"><div class="chart-title">鎖間 Cα 接触ペア数（距離 8 Å 未満）</div><div class="frame-bars" aria-label="構造候補ごとの接触ペア数。各棒を選択できます。"><button type="button" class="frame-bar" data-frame="0" aria-pressed="true" aria-label="構造 1、接触数 84"><span>84</span><span class="bar" style="--bar:53.2%"></span><span>1</span></button><button type="button" class="frame-bar" data-frame="1" aria-pressed="false" aria-label="構造 2、接触数 104"><span>104</span><span class="bar" style="--bar:65.9%"></span><span>2</span></button><button type="button" class="frame-bar" data-frame="2" aria-pressed="false" aria-label="構造 3、接触数 103"><span>103</span><span class="bar" style="--bar:65.2%"></span><span>3</span></button><button type="button" class="frame-bar" data-frame="3" aria-pressed="false" aria-label="構造 4、接触数 92"><span>92</span><span class="bar" style="--bar:58.3%"></span><span>4</span></button><button type="button" class="frame-bar" data-frame="4" aria-pressed="false" aria-label="構造 5、接触数 81"><span>81</span><span class="bar" style="--bar:51.3%"></span><span>5</span></button><button type="button" class="frame-bar" data-frame="5" aria-pressed="false" aria-label="構造 6、接触数 110"><span>110</span><span class="bar" style="--bar:69.7%"></span><span>6</span></button><button type="button" class="frame-bar" data-frame="6" aria-pressed="false" aria-label="構造 7、接触数 81"><span>81</span><span class="bar" style="--bar:51.3%"></span><span>7</span></button><button type="button" class="frame-bar" data-frame="7" aria-pressed="false" aria-label="構造 8、接触数 80"><span>80</span><span class="bar" style="--bar:50.7%"></span><span>8</span></button></div><div class="ensemble-selection" aria-live="polite"><span id="ensembleFrame">構造候補 1 / 8</span><strong id="ensembleContacts">84 ペア</strong></div></div><a href="https://raw.githubusercontent.com/Shunsuke-max/vamp721-structural-ensemble/main/assets/interface_contact_map.png"><img class="exhibit-image ensemble-figure" src="https://raw.githubusercontent.com/Shunsuke-max/vamp721-structural-ensemble/main/assets/interface_contact_map.png" alt="8構造全体の鎖間Cα接触頻度マップ" loading="lazy" decoding="async"></a><p class="visual-caption">棒を選ぶと各構造候補の接触数を確認できます。下の図は8構造全体の接触頻度で、選択した構造単独の図ではありません。生成構造は時間軌跡ではありません。</p></div></div></article>
-<article class="exhibit" id="work-part5"><div class="exhibit-copy"><div class="exhibit-index">03 / iOS APPLICATION</div><h3>Part5 Pro</h3><p>TOEIC Part 5で同じ間違いを繰り返した経験から、演習・解説・復習を一つにつなげた英語学習アプリを作りました。</p><a class="exhibit-link" href="https://apps.apple.com/jp/app/part5-pro/id6748593708">App Storeで見る ↗</a><a class="secondary-link" href="https://github.com/Shunsuke-max/part5-pro-portfolio">開発と教材品質の記録 ↗</a></div><div class="exhibit-visual"><div class="visual-frame"><div class="visual-toolbar"><span><i class="live-mark"></i>Part5 Pro / 公開画面資料</span><span>iOS</span></div><div class="exhibit-tabs" aria-label="Part5 Proの画面を切り替える"><button type="button" data-gallery="part" data-index="0" aria-pressed="true">ホーム</button><button type="button" data-gallery="part" data-index="1" aria-pressed="false">演習</button><button type="button" data-gallery="part" data-index="2" aria-pressed="false">模試</button><button type="button" data-gallery="part" data-index="3" aria-pressed="false">解説</button></div><div class="phone-stage"><div class="phone-shell"><div class="image-area"><img id="partImage" class="exhibit-image" src="https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg" alt="Part5 Proのホーム画面" loading="lazy" decoding="async"><p class="image-unavailable" hidden>画像を読み込めませんでした。</p></div></div><div class="phone-copy" aria-live="polite"><strong id="partTitle">学習の入口</strong><p id="partCaption">実力診断と短時間の演習から、次に行う学習を選べます。</p></div></div><p class="visual-caption">公開ポートフォリオの画面資料です。現在の配信版と異なる場合があります。</p></div></div></article>
-<article class="exhibit reverse" id="work-design"><div class="exhibit-copy"><div class="exhibit-index">04 / COMPUTATIONAL DESIGN</div><h3 class="jp">タンパク質を<br>設計する。</h3><p>狙った機能を持つタンパク質をAIで設計できるのか。構造生成、配列設計、独立した構造予測を組み合わせ、計算上の候補を検証する流れを構築しました。</p><a class="exhibit-link" href="https://github.com/Shunsuke-max/protein-design-portfolio">設計の記録を見る ↗</a></div><div class="exhibit-visual"><div class="visual-frame"><div class="visual-toolbar"><span><i class="live-mark"></i>計算設計ワークフロー</span><span>概念図</span></div><div class="pipeline"><div class="pipeline-track" aria-label="設計の工程"><button class="pipeline-step" data-phase-button="0" type="button" aria-pressed="true"><span>01</span>課題設定</button><button class="pipeline-step" data-phase-button="1" type="button" aria-pressed="false"><span>02</span>骨格生成</button><button class="pipeline-step" data-phase-button="2" type="button" aria-pressed="false"><span>03</span>配列設計</button><button class="pipeline-step" data-phase-button="3" type="button" aria-pressed="false"><span>04</span>予測・検証</button></div><svg class="pipeline-graphic" viewBox="0 0 500 230" role="img" aria-label="タンパク質設計工程の概念図。実際の設計候補の構造ではありません。"><defs><pattern id="designGrid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" stroke="#47616d" stroke-opacity=".18" fill="none"/></pattern></defs><rect width="500" height="230" fill="url(#designGrid)"/><g stroke="#95babd" fill="none" stroke-width="5" stroke-linecap="round"><path d="M90 145C55 30 190 30 162 113S290 225 292 121 420 50 406 147"/><path d="M85 143C170 210 158 73 225 74S353 195 410 146" stroke="#627a93" stroke-width="3"/></g><g data-phase="0" class="is-selected"><circle cx="240" cy="117" r="50" fill="#e6b779" fill-opacity=".17" stroke="#e6b779" stroke-dasharray="5 5"/><path d="M239 49v24m0 87v24M172 117h24m88 0h24" stroke="#e6b779"/><text x="240" y="123" text-anchor="middle" font-size="12" fill="#f4d9b5">条件</text></g><g data-phase="1" stroke="#e6b779" stroke-width="3" fill="none" stroke-linecap="round"><path d="M145 150C138 60 230 41 245 100S288 177 338 94"/><circle cx="145" cy="150" r="4" fill="#e6b779"/><circle cx="338" cy="94" r="4" fill="#e6b779"/></g><g data-phase="2" fill="#f2d5b1" font-family="monospace" font-size="13"><text x="145" y="38">A · L · G · V · E · K …</text><text x="145" y="200" font-size="10">概念的な配列表示</text></g><g data-phase="3" fill="none" stroke="#e6b779" stroke-width="2"><path d="M90 152C62 35 192 32 168 111S289 217 300 128 424 57 408 154" stroke-dasharray="5 4"/><circle cx="300" cy="128" r="25"/><path d="M320 111l36-25h49"/><text x="358" y="78" stroke="none" fill="#f4d9b5" font-size="11">比較</text></g></svg><div class="pipeline-detail" aria-live="polite"><strong id="phaseTitle">まず、何を作るのか。</strong><span id="phaseText">標的や必要な性質を文献・公開構造から整理し、設計条件を定義します。</span></div></div><p class="visual-caption">工程を選ぶと説明が切り替わります。図は模式的なもので、候補構造や実験的な結合・機能の実証を示していません。</p></div></div></article>
-<div class="exhibit-ending"><span>Curiosity Lab — 研究と開発の記録</span><a href="#designJourney">設計の旅へ戻る ↑</a><a href="https://github.com/Shunsuke-max">GitHubですべての公開作品を見る ↗</a></div></section>
-</main><footer class="footer"><span>Curiosity Lab / Shunsuke</span><a href="https://github.com/Shunsuke-max/Shunsuke-max.github.io">このサイトのソースコード ↗</a></footer></div>
+  <header class="exhibition-intro">
+    <div>
+      <div class="exhibit-index">SHUNSUKE / SELECTED WORKS</div>
+      <h2>研究と開発</h2>
+    </div>
+    <p>構造生物学の検証基盤から、AI 研究エージェント、日常の学習を支えるアプリまで。実データと自動テストで裏づけた記録です。</p>
+  </header>
+
+  <article class="exhibit" id="work-foldlens">
+    <div class="exhibit-copy">
+      <div class="exhibit-index">01 / STRUCTURAL AI &amp; GROUNDED AGENT</div>
+      <h3>FoldLens</h3>
+      <p>AlphaFold 3 の複数予測を比較し、ipTM などの単一スコアでは見落としやすい「形状一致と PAE 誤差の食い違い」や重複座標を可視化する解析ツールです。決定論エンジンと 6 ツール根拠付き AI エージェントを MIT コアとして公開しています。</p>
+      <div class="exhibit-badges" aria-label="主な技術要素">
+        <span class="exhibit-badge">AF3 実データ比較</span>
+        <span class="exhibit-badge">6ツール根拠付きAI</span>
+        <span class="exhibit-badge">145 自動テスト / CI</span>
+      </div>
+      <div class="exhibit-actions">
+        <a class="exhibit-link" href="https://shunsuke-max.github.io/foldlens-portfolio/">ライブデモを体験する ↗</a>
+      </div>
+      <div class="exhibit-secondary-links">
+        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-core">コアコード（foldlens-core / MIT）↗</a>
+        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-portfolio">設計と検証結果を読む ↗</a>
+      </div>
+    </div>
+    <div class="exhibit-visual">
+      <div class="visual-frame">
+        <div class="visual-toolbar"><span><i class="live-mark"></i>FoldLens / 公開デモの実画面</span><span>AF3 · 5-Step Tour</span></div>
+        <div class="exhibit-tabs" aria-label="FoldLensの画面を切り替える">
+          <button type="button" data-gallery="fold" data-index="0" aria-pressed="true">3D解析</button>
+          <button type="button" data-gallery="fold" data-index="1" aria-pressed="false">モデル比較</button>
+          <button type="button" data-gallery="fold" data-index="2" aria-pressed="false">配置の不一致</button>
+          <button type="button" data-gallery="fold" data-index="3" aria-pressed="false">AIエージェント</button>
+        </div>
+        <div class="image-area">
+          <a id="foldImageLink" href="https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png">
+            <img id="foldImage" class="exhibit-image" src="https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png" alt="FoldLensの実データ解析ワークスペース" loading="lazy" decoding="async">
+          </a>
+          <p class="image-unavailable" hidden>画像を読み込めませんでした。公開デモをご覧ください。</p>
+        </div>
+        <p class="visual-caption" id="foldCaption" aria-live="polite">3D構造と予測誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="exhibit reverse" id="work-ensemble">
+    <div class="exhibit-copy">
+      <div class="exhibit-index">02 / CONFORMATIONAL ENSEMBLE &amp; QC</div>
+      <h3 class="jp">タンパク質は<br>一つの形ではない。</h3>
+      <p>BioEmu-2 で生成した VAMP721–PICALM1a 複合体の 8 構造候補を定量解析しました。モデル標準チェック（8/8 合格）を通過した構造に対し、独自の重原子衝突検査で 2 フレームの局所クラッシュを特定し、型付き Python モジュール＋CI へ切り出しています。</p>
+      <div class="exhibit-metrics" aria-label="定量結果サマリー">
+        <div class="exhibit-metric"><strong>8</strong><span>構造候補 (A100)</span></div>
+        <div class="exhibit-metric"><strong>2,411<small> Å²</small></strong><span>平均片側 BSA</span></div>
+        <div class="exhibit-metric"><strong>2 / 8</strong><span>独立クラッシュ検知</span></div>
+      </div>
+      <div class="exhibit-actions">
+        <a class="exhibit-link" href="https://github.com/Shunsuke-max/vamp721-structural-ensemble">解析コードとCIを見る ↗</a>
+      </div>
+    </div>
+    <div class="exhibit-visual">
+      <div class="visual-frame">
+        <div class="visual-toolbar"><span><i class="live-mark"></i>VAMP721–PICALM1a</span><span>BioEmu-2 · pytest + Ruff CI</span></div>
+        <div class="data-chart">
+          <div class="chart-title"><span>鎖間 Cα 接触ペア数（距離 8 Å 未満）</span><small>6 / 8 / 10 Å 感度分析済み</small></div>
+          <div class="frame-bars" aria-label="構造候補ごとの接触ペア数。各棒を選択できます。">
+            <button type="button" class="frame-bar" data-frame="0" aria-pressed="true" aria-label="構造 1、接触数 84"><span>84</span><span class="bar" style="--bar:64%"></span><span>1</span></button>
+            <button type="button" class="frame-bar" data-frame="1" aria-pressed="false" aria-label="構造 2、接触数 104"><span>104</span><span class="bar" style="--bar:79%"></span><span>2</span></button>
+            <button type="button" class="frame-bar" data-frame="2" aria-pressed="false" aria-label="構造 3、接触数 103"><span>103</span><span class="bar" style="--bar:78%"></span><span>3</span></button>
+            <button type="button" class="frame-bar" data-frame="3" aria-pressed="false" aria-label="構造 4、接触数 92"><span>92</span><span class="bar" style="--bar:70%"></span><span>4</span></button>
+            <button type="button" class="frame-bar" data-frame="4" aria-pressed="false" aria-label="構造 5、接触数 81"><span>81</span><span class="bar" style="--bar:61%"></span><span>5</span></button>
+            <button type="button" class="frame-bar" data-frame="5" aria-pressed="false" aria-label="構造 6、接触数 110"><span>110</span><span class="bar" style="--bar:84%"></span><span>6</span></button>
+            <button type="button" class="frame-bar" data-frame="6" aria-pressed="false" aria-label="構造 7、接触数 81"><span>81</span><span class="bar" style="--bar:61%"></span><span>7</span></button>
+            <button type="button" class="frame-bar" data-frame="7" aria-pressed="false" aria-label="構造 8、接触数 80"><span>80</span><span class="bar" style="--bar:60%"></span><span>8</span></button>
+          </div>
+          <div class="ensemble-selection" aria-live="polite"><span id="ensembleFrame">構造候補 1 / 8（局所クラッシュ 2.02 Å 検知）</span><strong id="ensembleContacts">84 ペア</strong></div>
+        </div>
+        <div class="figure-card">
+          <a href="https://raw.githubusercontent.com/Shunsuke-max/vamp721-structural-ensemble/main/assets/interface_contact_map.png">
+            <img class="exhibit-image ensemble-figure" src="https://raw.githubusercontent.com/Shunsuke-max/vamp721-structural-ensemble/main/assets/interface_contact_map.png" alt="8構造全体の鎖間Cα接触頻度マップ" loading="lazy" decoding="async">
+          </a>
+          <div class="figure-card-label"><span>FIG. 2D INTERCHAIN CONTACT MAP</span><span>VAMP721 × PICALM1a (N = 8)</span></div>
+        </div>
+        <p class="visual-caption">棒を選ぶと各構造候補の接触数と独立 QC 結果を確認できます。図版は 8 構造全体の接触頻度マップであり、生成構造は分子動力学の時間軌跡ではありません。</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="exhibit" id="work-part5">
+    <div class="exhibit-copy">
+      <div class="exhibit-index">03 / iOS APPLICATION</div>
+      <h3>Part5 Pro</h3>
+      <p>TOEIC Part 5 で同じ間違いを繰り返した経験から、実力診断・演習・解説・復習を一貫してつなげた英語学習 iOS アプリを設計・公開しました。</p>
+      <div class="exhibit-actions">
+        <a class="exhibit-link" href="https://apps.apple.com/jp/app/part5-pro/id6748593708">App Storeで見る ↗</a>
+      </div>
+      <div class="exhibit-secondary-links">
+        <a class="secondary-link" href="https://github.com/Shunsuke-max/part5-pro-portfolio">開発と教材品質の記録 ↗</a>
+      </div>
+    </div>
+    <div class="exhibit-visual">
+      <div class="visual-frame">
+        <div class="visual-toolbar"><span><i class="live-mark"></i>Part5 Pro / 公開画面資料</span><span>SwiftUI · iOS</span></div>
+        <div class="exhibit-tabs" aria-label="Part5 Proの画面を切り替える">
+          <button type="button" data-gallery="part" data-index="0" aria-pressed="true">ホーム</button>
+          <button type="button" data-gallery="part" data-index="1" aria-pressed="false">演習</button>
+          <button type="button" data-gallery="part" data-index="2" aria-pressed="false">模試</button>
+          <button type="button" data-gallery="part" data-index="3" aria-pressed="false">解説</button>
+        </div>
+        <div class="phone-stage">
+          <div class="phone-shell">
+            <div class="image-area">
+              <img id="partImage" class="exhibit-image" src="https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg" alt="Part5 Proのホーム画面" loading="lazy" decoding="async">
+              <p class="image-unavailable" hidden>画像を読み込めませんでした。</p>
+            </div>
+          </div>
+          <div class="phone-copy" aria-live="polite">
+            <strong id="partTitle">学習の入口</strong>
+            <p id="partCaption">実力診断と短時間の演習から、次に行う学習を選べます。</p>
+          </div>
+        </div>
+        <p class="visual-caption">公開ポートフォリオの画面資料です。現在の配信版と異なる場合があります。</p>
+      </div>
+    </div>
+  </article>
+
+  <article class="exhibit reverse" id="work-design">
+    <div class="exhibit-copy">
+      <div class="exhibit-index">04 / COMPUTATIONAL DESIGN</div>
+      <h3 class="jp">タンパク質を<br>設計する。</h3>
+      <p>狙った機能を持つタンパク質を AI で設計できるのか。標的解析、骨格生成、逆折り畳み配列設計、そして独立モデルによる再予測・スクリーニングを一貫した計算パイプラインとして整理しました。</p>
+      <div class="exhibit-badges" aria-label="設計パイプライン要素">
+        <span class="exhibit-badge">RFdiffusion</span>
+        <span class="exhibit-badge">ProteinMPNN</span>
+        <span class="exhibit-badge">AF3 / Boltz-2 検証</span>
+      </div>
+      <div class="exhibit-actions">
+        <a class="exhibit-link" href="https://github.com/Shunsuke-max/protein-design-portfolio">設計の記録を見る ↗</a>
+      </div>
+    </div>
+    <div class="exhibit-visual">
+      <div class="visual-frame">
+        <div class="visual-toolbar"><span><i class="live-mark"></i>計算設計パイプライン</span><span>4-Stage Schematic</span></div>
+        <div class="pipeline">
+          <div class="pipeline-track" aria-label="設計の工程">
+            <button class="pipeline-step" data-phase-button="0" type="button" aria-pressed="true"><span>01</span>課題設定</button>
+            <button class="pipeline-step" data-phase-button="1" type="button" aria-pressed="false"><span>02</span>骨格生成</button>
+            <button class="pipeline-step" data-phase-button="2" type="button" aria-pressed="false"><span>03</span>配列設計</button>
+            <button class="pipeline-step" data-phase-button="3" type="button" aria-pressed="false"><span>04</span>予測・検証</button>
+          </div>
+          <svg class="pipeline-graphic" viewBox="0 0 560 250" role="img" aria-label="タンパク質設計工程の概念図。実際の設計候補の構造ではありません。">
+            <defs>
+              <pattern id="designGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M24 0H0V24" stroke="#7fd4d1" stroke-opacity=".07" fill="none"/>
+              </pattern>
+              <radialGradient id="pipeHalo" cx="50%" cy="50%" r="52%">
+                <stop offset="0%" stop-color="#1f4959" stop-opacity=".55"/>
+                <stop offset="65%" stop-color="#0d1b26" stop-opacity=".2"/>
+                <stop offset="100%" stop-color="#081018" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#5ca7b0"/>
+                <stop offset="50%" stop-color="#8fe2dc"/>
+                <stop offset="100%" stop-color="#609fb8"/>
+              </linearGradient>
+              <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#c49450"/>
+                <stop offset="50%" stop-color="#f5d49b"/>
+                <stop offset="100%" stop-color="#d5a664"/>
+              </linearGradient>
+              <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <rect width="560" height="250" fill="url(#designGrid)"/>
+            <rect width="560" height="250" fill="url(#pipeHalo)"/>
+
+            <!-- Shared faint coordinate axes -->
+            <g stroke="#7fd4d1" stroke-opacity=".18" stroke-width="1">
+              <line x1="28" y1="218" x2="532" y2="218"/>
+              <line x1="28" y1="28" x2="28" y2="218"/>
+            </g>
+            <g fill="#7b969e" font-family="monospace" font-size="9">
+              <text x="36" y="38">STRUCTURAL DESIGN SPACE</text>
+              <text x="458" y="234">SCHEMATIC VIEW</text>
+            </g>
+
+            <!-- Base stylized target fold (subtle background reference) -->
+            <g opacity=".32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" stroke="#4f7c8a" stroke-width="11"/>
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" stroke="#8ad4d2" stroke-width="2" stroke-opacity=".6"/>
+            </g>
+
+            <!-- Phase 0: Problem & Hotspot Constraint Definition -->
+            <g data-phase="0" class="is-selected">
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" fill="none" stroke="url(#ribbonGrad)" stroke-width="6" stroke-linecap="round" opacity=".82"/>
+              <circle cx="288" cy="118" r="58" fill="#e4be84" fill-opacity=".1" stroke="#e4be84" stroke-width="1.4" stroke-dasharray="5 5"/>
+              <circle cx="288" cy="118" r="32" fill="#e4be84" fill-opacity=".14" stroke="#f5d49b" stroke-width="1.2"/>
+              <g stroke="#f5d49b" stroke-width="1.2" opacity=".85">
+                <line x1="288" y1="48" x2="288" y2="70"/>
+                <line x1="288" y1="166" x2="288" y2="188"/>
+                <line x1="218" y1="118" x2="240" y2="118"/>
+                <line x1="336" y1="118" x2="358" y2="118"/>
+              </g>
+              <g fill="#f5d49b" filter="url(#softGlow)">
+                <circle cx="268" cy="108" r="4.5"/>
+                <circle cx="298" cy="96" r="4.5"/>
+                <circle cx="312" cy="128" r="4.5"/>
+              </g>
+              <line x1="336" y1="78" x2="388" y2="54" stroke="#e4be84" stroke-width="1"/>
+              <rect x="388" y="38" width="144" height="34" rx="6" fill="#13212c" stroke="#e4be84" stroke-opacity=".55"/>
+              <text x="400" y="53" fill="#f5d49b" font-family="monospace" font-size="9.5" font-weight="600">HOTSPOT CONSTRAINTS</text>
+              <text x="400" y="65" fill="#cbd8dc" font-size="9">標的部位・幾何条件を固定</text>
+            </g>
+
+            <!-- Phase 1: Diffusion Backbone Generation -->
+            <g data-phase="1">
+              <!-- Denoising flow arrows -->
+              <g stroke="#7fd4d1" stroke-opacity=".42" stroke-width="1.2" stroke-dasharray="3 3" fill="none">
+                <path d="M116 48 Q 134 78 148 106"/>
+                <path d="M220 208 Q 238 176 254 138"/>
+                <path d="M358 44 Q 344 74 334 94"/>
+                <path d="M460 194 Q 442 162 426 144"/>
+              </g>
+              <g fill="#7fd4d1" opacity=".48">
+                <circle cx="116" cy="48" r="3"/><circle cx="220" cy="208" r="3"/><circle cx="358" cy="44" r="3"/><circle cx="460" cy="194" r="3"/>
+                <circle cx="96" cy="92" r="2"/><circle cx="192" cy="60" r="2"/><circle cx="412" cy="64" r="2"/><circle cx="498" cy="148" r="2"/>
+              </g>
+              <!-- Generated sculpted backbone -->
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" fill="none" stroke="url(#amberGrad)" stroke-width="10" stroke-linecap="round" opacity=".24" filter="url(#softGlow)"/>
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" fill="none" stroke="url(#amberGrad)" stroke-width="4.5" stroke-linecap="round"/>
+              <g fill="#f5d49b">
+                <circle cx="148" cy="106" r="4"/><circle cx="254" cy="136" r="4"/><circle cx="334" cy="94" r="4"/><circle cx="426" cy="144" r="4"/>
+              </g>
+              <rect x="372" y="34" width="160" height="34" rx="6" fill="#13212c" stroke="#7fd4d1" stroke-opacity=".5"/>
+              <text x="384" y="49" fill="#7fd4d1" font-family="monospace" font-size="9.5" font-weight="600">DE NOVO BACKBONE</text>
+              <text x="384" y="61" fill="#cbd8dc" font-size="9">ノイズから骨格座標を収束</text>
+            </g>
+
+            <!-- Phase 2: Inverse Folding Sequence Design -->
+            <g data-phase="2">
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" fill="none" stroke="url(#ribbonGrad)" stroke-width="5.5" stroke-linecap="round"/>
+              <!-- Connectors from backbone nodes to residue badges -->
+              <g stroke="#e4be84" stroke-opacity=".6" stroke-width="1" stroke-dasharray="2 2">
+                <line x1="126" y1="100" x2="126" y2="62"/>
+                <line x1="196" y1="176" x2="196" y2="62"/>
+                <line x1="258" y1="124" x2="258" y2="62"/>
+                <line x1="316" y1="76" x2="316" y2="62"/>
+                <line x1="378" y1="154" x2="378" y2="62"/>
+                <line x1="444" y1="152" x2="444" y2="62"/>
+              </g>
+              <g fill="#f5d49b">
+                <circle cx="126" cy="100" r="4"/><circle cx="196" cy="176" r="4"/><circle cx="258" cy="124" r="4"/>
+                <circle cx="316" cy="76" r="4"/><circle cx="378" cy="154" r="4"/><circle cx="444" cy="152" r="4"/>
+              </g>
+              <!-- Sequence token chips -->
+              <g font-family="monospace" font-size="11" font-weight="600" text-anchor="middle">
+                <rect x="112" y="40" width="28" height="24" rx="5" fill="#182c38" stroke="#7fd4d1"/><text x="126" y="56" fill="#e6faf8">A</text>
+                <rect x="182" y="40" width="28" height="24" rx="5" fill="#2c251b" stroke="#e4be84"/><text x="196" y="56" fill="#ffebc8">L</text>
+                <rect x="244" y="40" width="28" height="24" rx="5" fill="#182c38" stroke="#7fd4d1"/><text x="258" y="56" fill="#e6faf8">V</text>
+                <rect x="302" y="40" width="28" height="24" rx="5" fill="#2c251b" stroke="#e4be84"/><text x="316" y="56" fill="#ffebc8">E</text>
+                <rect x="364" y="40" width="28" height="24" rx="5" fill="#182c38" stroke="#7fd4d1"/><text x="378" y="56" fill="#e6faf8">K</text>
+                <rect x="430" y="40" width="28" height="24" rx="5" fill="#2c251b" stroke="#e4be84"/><text x="444" y="56" fill="#ffebc8">I</text>
+              </g>
+              <text x="280" y="206" text-anchor="middle" fill="#b7cbd0" font-family="monospace" font-size="9.5">p(Sequence | Backbone) — 概念的な残基割り当て</text>
+            </g>
+
+            <!-- Phase 3: Independent Structure Refold & Verification -->
+            <g data-phase="3">
+              <!-- Designed backbone -->
+              <path d="M74 162 C 110 74, 152 74, 174 146 C 194 206, 232 198, 258 124 C 284 52, 336 52, 362 126 C 386 190, 434 188, 482 104" fill="none" stroke="url(#ribbonGrad)" stroke-width="6" stroke-linecap="round"/>
+              <!-- Refolded candidate superposition -->
+              <path d="M76 168 C 114 82, 156 80, 179 150 C 199 210, 236 198, 263 128 C 290 60, 340 58, 367 132 C 392 195, 438 192, 486 112" fill="none" stroke="url(#amberGrad)" stroke-width="3.2" stroke-dasharray="6 4" stroke-linecap="round"/>
+              <circle cx="316" cy="84" r="24" fill="#e4be84" fill-opacity=".12" stroke="#f5d49b" stroke-width="1.3"/>
+              <line x1="336" y1="70" x2="376" y2="52" stroke="#f5d49b" stroke-width="1"/>
+              <rect x="376" y="34" width="158" height="44" rx="6" fill="#13212c" stroke="#e4be84" stroke-opacity=".6"/>
+              <text x="388" y="49" fill="#f5d49b" font-family="monospace" font-size="9.5" font-weight="600">REFOLD &amp; QC GATE</text>
+              <text x="388" y="62" fill="#d5e2e5" font-size="9">RMSD · PAE · 衝突検査で選別</text>
+              <text x="388" y="73" fill="#9eb4ba" font-size="8.2">※ 実証には生化学実験が必要</text>
+            </g>
+          </svg>
+          <div class="pipeline-detail" aria-live="polite">
+            <strong id="phaseTitle">まず、何を作るのか。</strong>
+            <span id="phaseText">標的や必要な性質を文献・公開構造から整理し、設計条件を定義します。</span>
+          </div>
+        </div>
+        <p class="visual-caption">工程を選ぶと説明と図版が切り替わります。図は模式的なもので、候補構造や実験的な結合・機能の実証を示していません。</p>
+      </div>
+    </div>
+  </article>
+
+  <div class="exhibit-ending">
+    <span>Curiosity Lab — 研究と開発の記録</span>
+    <a href="#designJourney">設計の旅へ戻る ↑</a>
+    <a href="https://github.com/Shunsuke-max">GitHubですべての公開作品を見る ↗</a>
+  </div>
+</section>
+</main>
+<footer class="footer">
+  <span>Curiosity Lab / Shunsuke</span>
+  <a href="https://github.com/Shunsuke-max/Shunsuke-max.github.io">このサイトのソースコード ↗</a>
+</footer>
+</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js"></script>
 <script defer src="assets/js/journey.js"></script>
-<script defer src="assets/js/exhibition.js"></script><script type="module" src="assets/js/depth-scene.js"></script><script type="module" src="assets/js/design.js"></script></body></html>
+<script defer src="assets/js/exhibition.js"></script>
+<script type="module" src="assets/js/depth-scene.js"></script>
+<script type="module" src="assets/js/design.js"></script>
+</body>
+</html>
