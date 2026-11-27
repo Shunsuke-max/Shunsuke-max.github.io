@@ -2,6 +2,7 @@
 .exhibition {
   margin: 0 calc(-1 * max(32px, (100vw - 1036px) / 2));
   padding: 0 clamp(22px, 6vw, 88px);
+  overflow-x: clip;
   background:
     radial-gradient(ellipse 70% 35% at 50% 0%, color-mix(in oklab, #142733 38%, transparent), transparent 65%),
     var(--background);
