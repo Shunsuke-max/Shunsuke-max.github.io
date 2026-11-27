@@ -25,6 +25,15 @@ try {
     await route.fulfill({body:text,contentType:'text/plain',headers:{'access-control-allow-origin':'*'}});
   });
   await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='1CRN'&&document.querySelector('#design').classList.contains('design-gl'),{},{timeout:30000});
+  for(let n=0;n<5;n++){
+    if(n)await page.locator('[data-design-jump="'+n+'"]').click();
+    await page.waitForFunction(n=>document.querySelector('#design').dataset.designStep===String(n),n);
+    await page.waitForTimeout(200);
+    if(n===3)assert.equal(await page.locator('#designSequence .on').count(),46);
+    await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
+  }
+  await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
   await page.waitForFunction(()=>document.querySelector('#protein').classList.contains('depth-ready'),{},{timeout:30000});
   const stage=page.locator('#protein');
   await stage.screenshot({path:'artifacts/screenshots/01-blood.png'});

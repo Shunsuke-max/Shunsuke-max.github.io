@@ -8,8 +8,17 @@ try{
     page.on('pageerror',e=>errors.push(e.message));
     // Simulate the CDN being unavailable: offline fallback and project UI must still work.
     await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
+    await page.route('https://files.rcsb.org/**',route=>route.abort());
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    await page.locator('[data-design-jump="3"]').click();
+    await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
+    assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
+    await page.locator('#designNext').click();
+    await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
+    await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
+    await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='0');
     await page.locator('#scaleNext').click();
     await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='1');
     await page.locator('#scaleSkip').click();

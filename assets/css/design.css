@@ -1,0 +1,45 @@
+
+.design-journey{height:430vh;height:430svh;position:relative;margin:0 calc(-1 * max(32px,(100vw - 1036px)/2));background:#080e14}
+.design-stage{position:sticky;top:0;height:100vh;height:100svh;min-height:0;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 65% 45%,#162833 0%,#0b141c 46%,#080e14 78%);color:var(--text)}
+.design-visual,.design-visual canvas,#designWebGL,.design-shade{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#designWebGL{opacity:0}.design-stage.design-gl #designWebGL{opacity:1}.design-stage.design-gl #designCanvas{opacity:0}
+.design-shade{z-index:2;background:linear-gradient(90deg,#080e14e0 0%,#080e1470 27%,transparent 54%),linear-gradient(0deg,#080e14 0%,#080e1450 20%,transparent 42%)}
+.design-top{position:absolute;top:24px;left:clamp(20px,5vw,80px);right:clamp(20px,5vw,80px);z-index:4;display:flex;justify-content:space-between;gap:12px;font:11px/1.5 var(--font-mono);letter-spacing:.12em;color:#a8c0c5}
+.design-top a{color:#e3e6e2;text-decoration:none;letter-spacing:0;font-family:var(--font-body)}
+.design-copy{position:absolute;left:clamp(20px,5vw,80px);top:clamp(85px,24vh,240px);width:min(36vw,455px);z-index:3;pointer-events:none}
+.design-kicker{font:11px/1.5 var(--font-mono);letter-spacing:.16em;color:var(--accent)}
+.design-copy h1{font-size:clamp(37px,5vw,76px);line-height:1.16;letter-spacing:-.045em;font-weight:500;margin:20px 0 24px;color:#f0f0e9}
+.design-copy p{font-size:14px;line-height:1.95;max-width:315px;color:#c7d2d4}
+.design-formula{font:clamp(18px,2.2vw,28px)/1.5 var(--font-mono);color:#d4b384;margin:26px 0 14px}
+.design-data{font-size:11px;color:#afc0c4;line-height:1.6;max-width:300px}
+.design-bottom{position:absolute;left:clamp(20px,5vw,80px);right:clamp(20px,5vw,80px);bottom:24px;z-index:4}
+.design-step-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.design-step-nav button{color:#a6b6bb;text-align:left;border:0;border-top:1px solid #71868d80;background:none;padding:12px 0 10px;min-width:0}
+.design-step-nav button span{display:block;font:10px/1.5 var(--font-mono);letter-spacing:.05em}
+.design-step-nav button strong{display:block;font-size:12px;font-weight:500;margin-top:5px}
+.design-step-nav button[aria-current=step]{border-color:var(--accent);color:#e4f3ef}
+.design-bottom-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;font-size:10px;color:#aebfc1}
+#designNext{border:1px solid #6d9299;background:#101c25;color:#e5f1ef;padding:8px 15px;border-radius:3px;font-size:13px;white-space:nowrap}
+.design-track{height:2px;background:#34464e;margin-top:10px}.design-track span{display:block;height:100%;width:0;background:var(--accent)}
+.design-sequence,.design-evaluate{position:absolute;z-index:3;left:43%;right:clamp(20px,5vw,80px);bottom:145px;background:#0c171eea;border:1px solid #50636c;padding:12px 15px;border-radius:3px}
+.design-seq-head{display:flex;justify-content:space-between;font:11px var(--font-mono);color:#b9cdcf}
+.design-residues{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.design-residues span{font:12px var(--font-mono);min-width:20px;text-align:center;padding:4px;border:1px solid #4d636a;color:#9aadb2}
+.design-residues span.on{background:#20373d;color:#d8f0e9;border-color:#6da4a6}
+.design-sequence p,.design-evaluate p{font-size:11px;color:#b0c0c2;line-height:1.7;margin:8px 0 0}
+.design-eval-line{display:flex;align-items:center;gap:8px;font-size:13px;color:#e0e8e7;margin:4px 0}
+.design-eval-line small{margin-left:auto;color:#9cabb0}.design-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}.design-dot.hollow{background:transparent;border:1px dashed var(--gold)}
+.design-evaluate a{display:block;margin-top:9px;font-size:12px}
+.design-sources{position:absolute;right:clamp(20px,5vw,80px);top:52px;z-index:6;max-width:300px;background:#101b23e8;font-size:11px;padding:5px 10px;border-radius:3px;color:#c0d0d1}
+.design-sources summary{cursor:pointer}.design-sources a{display:block;margin-top:6px}.design-sources p{margin:8px 0 2px}
+.design-bridge{padding:55px 0;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.design-bridge div{flex:1;min-width:230px}.design-bridge h2{font-weight:500;margin:8px 0}.design-bridge p{font-size:13px;color:var(--muted);margin:0}.design-bridge a{font-size:13px;white-space:nowrap}
+@media(max-width:800px){.design-journey{margin:0 -20px;height:380svh}.design-copy{top:80px;width:calc(100% - 40px);max-width:440px}.design-copy h1{font-size:clamp(30px,8vw,49px);margin:12px 0}.design-copy p{font-size:12px;max-width:260px;line-height:1.75;margin-bottom:6px}.design-formula{font-size:17px;margin:8px 0}.design-data{font-size:10px;max-width:260px}.design-top{top:12px;font-size:9px}.design-sources{top:36px;right:20px;font-size:10px}.design-shade{background:linear-gradient(180deg,#080e14d0 0%,#080e1460 32%,transparent 48%),linear-gradient(0deg,#080e14 0%,#080e1450 20%,transparent 42%)}.design-step-nav{gap:4px}.design-step-nav button span{font-size:8px;overflow-wrap:anywhere}.design-step-nav button strong{display:none}.design-bottom{bottom:15px}.design-bottom-line{font-size:9px;gap:6px}.design-bottom-line span{max-width:52%}#designNext{font-size:11px;padding:7px 9px}.design-sequence,.design-evaluate{left:20px;right:20px;bottom:103px;padding:8px 10px}.design-residues{gap:2px;margin-top:5px}.design-residues span{font-size:10px;min-width:16px;padding:2px}.design-sequence p,.design-evaluate p{font-size:10px}.design-bridge{padding:32px 0}}
+@media(max-height:600px){.design-copy{top:58px}.design-copy h1{font-size:30px;margin:8px 0}.design-copy p{font-size:11px;line-height:1.5}.design-formula{margin:5px 0;font-size:16px}.design-sequence,.design-evaluate{bottom:104px}.design-data{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.design-stage *{transition:none!important;animation:none!important}}
+
+.design-copy h1{white-space:pre-line}
+
+/* Screenshot review: intentional headline wrap and clear visual hierarchy. */
+@media(min-width:801px){.design-copy{width:min(40vw,560px)}.design-copy h1{font-size:clamp(34px,4.45vw,66px)}}
+.design-copy h1{overflow-wrap:normal;word-break:keep-all}
