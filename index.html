@@ -53,17 +53,34 @@
     <aside id="designGraphPanel" class="design-graph-panel" aria-label="残基間の空間的近傍" hidden>
       <div class="design-graph-eyebrow"><span>SPATIAL NEIGHBORHOOD</span><span>PDB 1CRN</span></div>
       <div id="designGraphMetrics">
-        <div class="design-graph-pair">Cys4 <span>—</span> Cys32</div>
+        <div class="design-graph-pair" id="designGraphPairTitle">Cys4 — Cys32</div>
         <div class="design-graph-metrics"><div><small>Cα間距離</small><strong id="designGraphDistance">—</strong></div><div><small>配列上の位置差</small><strong id="designGraphSeparation">—</strong></div></div>
-        <div class="design-graph-neighbors"><small>6近傍（距離順）</small><span id="designGraphNeighbors">—</span></div>
+        <div class="design-graph-neighbors"><small id="designGraphRank">近傍（距離順）</small><span id="designGraphNeighbors">—</span></div>
       </div>
       <p id="designGraphStatus" role="status">参照構造を読み込み中</p>
+      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近傍数 k <output id="designGraphKValue">6</output><input id="designGraphK" type="range" min="1" max="45" value="6" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を探索</button><button id="designGraphDetailOpen" type="button">原子間距離</button><button id="designGraphMessage" type="button" aria-pressed="false">情報伝達</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>近傍から注目残基への情報伝達の模式演出。光点は学習済み重み・推論結果ではありません。</p></div>
     </aside>
+    <div id="designGraphHit" class="design-graph-hit" hidden aria-label="分子をドラッグで回転、残基をクリックで選択"></div>
+    <aside id="designGraphMatrix" class="design-graph-matrix" aria-label="残基間の行列" hidden>
+      <div class="design-graph-eyebrow"><span>GEOMETRIC REPRESENTATION</span><button id="designGraphMatrixClose" type="button" aria-label="行列を閉じる">閉じる ×</button></div>
+      <div class="design-matrix-switch" role="group" aria-label="行列の種類"><button type="button" data-matrix-mode="adj" aria-pressed="true">近接行列</button><button type="button" data-matrix-mode="dist" aria-pressed="false">距離行列</button></div>
+      <canvas id="designMatrixCanvas" width="320" height="320" tabindex="0" aria-label="残基間行列。矢印キーで残基ペアを選択"></canvas>
+      <p id="designMatrixLegend">行 i → 列 j：k近傍に含まれる関係</p>
+      <div id="designMatrixReadout" role="status"></div>
+      <div class="design-graph-eyebrow"><span>REFERENCE SEQUENCE</span><span>1–46</span></div>
+      <div id="designGraphSequence" class="design-graph-sequence" aria-label="参照配列から注目残基を選択"></div>
+      <p class="design-matrix-help">セルを選ぶと3Dと配列が連動。金＝注目行の近傍、白枠＝比較ペア。</p>
+    </aside>
+    <dialog id="designGraphDetail" class="design-graph-detail" aria-labelledby="designGraphDetailTitle">
+      <div class="design-graph-eyebrow"><span>EDGE FEATURE INSPECTOR</span><button id="designGraphDetailClose" type="button">閉じる ×</button></div>
+      <h2 id="designGraphDetailTitle">残基間の幾何情報</h2><p>行の原子（残基 i）と列の原子（残基 j）の距離（Å）。Cβ* は N・Cα・C から計算した仮想原子です。</p>
+      <div id="designGraphAtomTable"></div><p id="designGraphRbfLabel"></p><div id="designGraphRbf" class="design-rbf-bars"></div><p>16個のRBF基底（中心 2–22 Å、幅1.25 Å）。学習済みモデルの出力ではありません。</p>
+    </dialog>
     <div id="designSequencePanel" class="design-sequence" hidden>
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div>
       <div id="designSequence" class="design-residues"></div>
       <div class="design-choice">
-        <span>ある残基の選択例</span>
+        <span id="designSequenceFocus">ある残基の選択例</span>
         <div class="design-choice-options" aria-label="アミノ酸の選択例">
           <button type="button" data-aa-choice="A" aria-pressed="true">A</button>
           <button type="button" data-aa-choice="V" aria-pressed="false">V</button>
@@ -110,7 +127,7 @@
       <a href="https://www.rcsb.org/structure/1CRN">RCSB PDB 1CRN（天然クランビンの実験構造）</a>
       <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
       <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
-      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。工程02の重原子は参照実験構造由来で、結合は原子名・残基・共有結合半径に基づき距離から推定しています。淡い背景粒子は空間演出です。ノイズの収束、グラフ、残基選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
+      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。工程02の重原子は参照実験構造由来で、結合は原子名・残基・共有結合半径に基づき距離から推定しています。淡い背景粒子は空間演出です。工程03のCα距離・近傍・原子間距離は実験座標から計算した教育用グラフです（自己ノードを除外）。情報伝達、配列選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
     </details>
   </section>
 </div>

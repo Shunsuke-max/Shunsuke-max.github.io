@@ -23,3 +23,6 @@ Fixed Cys4 focus, Cys32 comparison; six directed neighborhood edges only. Reuse 
 
 ### Gate 02 first render review
 CI 46019533729 passed. Desktop and 390px mobile screenshots show readable pair metrics and six local edges, but ribbon competes with nodes, Cys4 label sits over a neighbor, mobile molecule is too small. Revision: 14% ribbon opacity, slightly smaller focus and neighbors, stronger pair hierarchy, projected label placement and leader lines, focus ring, closer mobile camera. Camera scoring now also considers angular separation between edges. Re-run screenshot QA; do not claim visual gate complete until second render is inspected.
+
+## Interactive explorer, gates 03–07
+Shared geometry, directed adjacency and selection state. Desktop matrix, mobile expandable matrix, focus/pair selects, keyboard arrows, sequence track, 3D click and drag, k 1–45; non-neighbor pair retained as a dashed measurement. Pair inspector uses N/CA/C/O/virtual CB and a 5×5 Å distance table, with 16 RBF values for selected cell. Message dots move from neighbors to focus as a schematic only, static under reduced motion. Chapter 04 retains focus. No actual inference. Transition is a short panel reveal and a fixed-coordinate representation change, not a full atom-to-graph morph. CI plus screenshot review required before completion.

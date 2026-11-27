@@ -59,3 +59,23 @@ export function describePair(geometry, graph, i, j) {
     isNeighbor:graph.adjacency[i][j]===1,
     rank:i===j?null:geometry.rankings[i].indexOf(j)+1});
 }
+
+/** ProteinMPNN-style virtual C-beta from N, CA and C; all coordinates in Å. */
+export function backboneFeatures(residue) {
+  const names=['N','CA','C','O'], atoms=names.map(name=>residue.atoms?.find(a=>a.name===name));
+  if(atoms.some(a=>!a||![a.x,a.y,a.z].every(Number.isFinite))) return null;
+  const [n,ca,c,o]=atoms.map(a=>[a.x,a.y,a.z]);
+  const b=ca.map((v,i)=>v-n[i]), v=c.map((x,i)=>x-ca[i]);
+  const a=[b[1]*v[2]-b[2]*v[1],b[2]*v[0]-b[0]*v[2],b[0]*v[1]-b[1]*v[0]];
+  const cb=ca.map((x,i)=>x-.58273431*a[i]+.56802827*b[i]-.54067466*v[i]);
+  return [n,ca,c,o,cb];
+}
+export function pairAtomDistances(a,b) {
+  const x=backboneFeatures(a),y=backboneFeatures(b);
+  return x&&y?x.map(p=>y.map(q=>Math.hypot(...p.map((v,i)=>v-q[i])))):null;
+}
+/** RBF basis used in the standard ProteinMPNN distance features, not learned weights. */
+export function distanceRbf(d) {
+  if(!Number.isFinite(d)||d<0)throw new RangeError('Invalid distance');
+  return Array.from({length:16},(_,i)=>{const center=2+20*i/15;return {center,value:Math.exp(-(((d-center)/1.25)**2))};});
+}

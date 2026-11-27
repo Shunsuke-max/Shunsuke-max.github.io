@@ -48,3 +48,16 @@ test('Missing coordinates, invalid k/indices rejected; results immutable',()=>{
   assert.throws(()=>{graph.adjacency[0][1]=0;},TypeError);
   assert.throws(()=>{g.distances[0][1]=99;},TypeError);
 });
+
+import {backboneFeatures,pairAtomDistances,distanceRbf} from '../assets/js/design-geometry.mjs';
+test('Backbone distance matrix and virtual C-beta; RBF basis',()=>{
+ const a={atoms:[{name:'N',x:0,y:0,z:0},{name:'CA',x:1,y:0,z:0},{name:'C',x:1,y:1,z:0},{name:'O',x:1,y:2,z:0}]};
+ const b={atoms:a.atoms.map(p=>({...p,z:p.z+3}))};
+ const x=backboneFeatures(a);
+ assert.deepEqual(x[4],[1+.56802827,-.54067466,-.58273431]);
+ const d=pairAtomDistances(a,b),reverse=pairAtomDistances(b,a);
+ assert.equal(d.length,5);assert.equal(d[1][1],3);
+ for(let i=0;i<5;i++)for(let j=0;j<5;j++)assert.ok(Math.abs(d[i][j]-reverse[j][i])<1e-12);
+ assert.equal(pairAtomDistances(a,{atoms:[]}),null);
+ const rbf=distanceRbf(2);assert.equal(rbf.length,16);assert.equal(rbf[0].value,1);assert.equal(rbf[15].center,22);assert.ok(rbf.every(x=>x.value>=0&&x.value<=1));
+});

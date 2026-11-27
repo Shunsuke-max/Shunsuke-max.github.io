@@ -16,7 +16,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='2');
     assert.equal(await page.locator('#design').getAttribute('data-graph-source'),'unavailable');
     assert.equal(await page.locator('#design').getAttribute('data-graph-neighbor-count'),'0');
-    assert.equal(await page.locator('#designGraphMetrics').isVisible(),false);
+    assert.equal(await page.locator('#designGraphMetrics').isVisible(),false);assert.equal(await page.locator('#designGraphControls').isVisible(),false);assert.equal(await page.locator('#designGraphMatrix').isVisible(),false);
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);

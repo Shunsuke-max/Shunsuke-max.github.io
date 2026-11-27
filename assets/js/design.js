@@ -65,25 +65,27 @@ function visibleAtomic(a){return atomicMode==='all'||a.focus;}
 function updateAtomicMode(){const count=detailAtoms.filter(visibleAtomic).length;stage.dataset.atomicMode=atomicMode;stage.dataset.atomicVisibleCount=String(count);by('designAtomicCount').textContent=count?count+' / '+detailAtoms.length+' 重原子':'参照構造を取得できません';for(const b of stage.querySelectorAll('[data-atomic-mode]')){b.disabled=!detailAtoms.length;b.setAttribute('aria-pressed',String(b.dataset.atomicMode===atomicMode));}by('designAtomicFocus').hidden=atomicMode==='all'||!detailAtoms.length;}
 for(const b of stage.querySelectorAll('[data-atomic-mode]'))b.addEventListener('click',()=>{atomicMode=b.dataset.atomicMode;updateAtomicMode();schedule();});
 // Gate 02: fixed editorial composition, no picking or selection controls yet.
-const graphFocus=3,graphPair=31,graphK=6;
+let graphFocus=3,graphPair=31,graphK=6,graphMode='adj',graphMessage=false,graphPitch=.20,graphProjected=[],graphPhase=0,graphMatrixOpen=false;
+let graphFrameKey='',graphInitialAngle=.61;
 let graphGeometry=null,graphModel=null,geometryModule=null,graphAngle=.61,graphNeighbors=new Set();
-function updateGraphStudy(){
- graphGeometry=real&&geometryModule?geometryModule.buildGeometry(raw):null;
+function updateGraphStudy(rebuildGeometry=true){
+ if(rebuildGeometry)graphGeometry=real&&geometryModule?geometryModule.buildGeometry(raw):null;
  graphModel=graphGeometry?geometryModule.buildKnn(graphGeometry,graphK):null;
  graphNeighbors=new Set(graphModel?.neighbors[graphFocus]||[]);
  edges=graphModel?graphModel.neighbors[graphFocus].map(j=>[graphFocus,j]):[];
  stage.dataset.graphSource=graphModel?'1CRN':'unavailable';
  stage.dataset.graphFocus=graphModel?String(graphFocus+1):'';
  stage.dataset.graphPair=graphModel?String(graphPair+1):'';
- stage.dataset.graphNeighborCount=String(edges.length);
+ stage.dataset.graphNeighborCount=String(edges.length);stage.dataset.graphK=String(graphK);stage.dataset.graphMode=graphMode;stage.dataset.graphPairNeighbor=String(graphNeighbors.has(graphPair));graphFrameKey='';
  const pair=graphModel?geometryModule.describePair(graphGeometry,graphModel,graphFocus,graphPair):null;
  by('designGraphDistance').textContent=pair?pair.distance.toFixed(2)+' Å':'—';
  by('designGraphSeparation').textContent=pair?String(pair.sequenceSeparation):'—';
- by('designGraphStatus').textContent=pair?'46残基 · k=6 · 自己ノード除外':'参照構造を取得できないため、近傍は表示しません。';
+ by('designGraphStatus').textContent=pair?('46残基 · k='+graphK+' · 自己ノード除外 · 教育用'):'参照構造を取得できないため、近傍は表示しません。';
  by('designGraphNeighbors').textContent=graphModel?graphModel.neighbors[graphFocus].map(j=>raw[j].aa+(j+1)).join(' · '):'—';
- by('designGraphMetrics').hidden=!pair;
+ by('designGraphMetrics').hidden=!pair;by('designGraphControls').hidden=!pair;by('designGraphHit').hidden=step!==2||!pair;by('designGraphMatrix').hidden=step!==2||!pair;
+ if(pair)renderGraphUI(pair);
  by('designGraphLabels').hidden=step!==2||!pair;
- if(pair){
+ if(pair&&rebuildGeometry){
   // Seek a front-facing direction with separated focus, pair and nearby residues.
   const ids=[graphFocus,...graphNeighbors],f=points[graphFocus],p=points[graphPair];
   let best=-Infinity;
@@ -97,14 +99,15 @@ function updateGraphStudy(){
    let minAngular=Math.PI;
    for(let j=0;j<vectors.length;j++)for(let k=j+1;k<vectors.length;k++){const d=Math.abs(vectors[j]-vectors[k]);minAngular=Math.min(minAngular,d,2*Math.PI-d);}
    const score=separation*1.5+minNear*1.3+minAngular*.65+(a[2]+b[2])*.22;
-   if(score>best){best=score;graphAngle=angle;}
+   if(score>best){best=score;graphAngle=angle;graphInitialAngle=angle;}
   }
  }
 }
 function graphLabelPositions(project){
  const labels=by('designGraphLabels');labels.hidden=step!==2||!graphModel;
  if(labels.hidden)return;
- const projected=points.map(project);
+ const projected=points.map(project);graphProjected=projected;
+ const key=[width,height,graphFocus,graphPair,graphAngle,graphPitch].join(':');if(key===graphFrameKey)return;graphFrameKey=key;
  const a=projected[graphFocus],b=projected[graphPair],portrait=width<801;
  const ring=by('designGraphFocusRing');ring.style.left=a.x+'px';ring.style.top=a.y+'px';
  const placed=[];
@@ -131,7 +134,7 @@ function graphLabelPositions(project){
  }
 }
 let compare='close',choice='A';
-const selectedResidue=17;
+let selectedResidue=3;
 const legends=[
  ['明るい点：Cαの位置の模式例','淡い粒子：空間演出'],
  ['青緑：主鎖の模式リボン','球・結合棒：参照残基の原子'],
@@ -173,13 +176,14 @@ function rebuild(){
 function updateSequence(){
  const count=real&&step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*raw.length):0;
  by('designSequenceCount').textContent=count+' / '+raw.length;
+ selectedResidue=graphFocus;stage.dataset.sequenceFocus=String(selectedResidue+1);by('designSequenceFocus').textContent=real?'注目残基 '+residueLabel(selectedResidue)+' の候補例':'ある残基の選択例';
  by('designSequenceLabel').textContent=real?'天然クランビンの参照配列（1CRN）':'参照配列は取得できませんでした';
- [...by('designSequence').children].forEach((s,i)=>{s.textContent=i<count?raw[i].aa:'·';s.classList.toggle('on',i<count);});
+ [...by('designSequence').children].forEach((s,i)=>{s.textContent=i<count?raw[i].aa:'·';s.classList.toggle('on',i<count);s.classList.toggle('design-seq-focus',real&&i===selectedResidue);});
 }
 
 function setStep(n){
  if(n===step)return;step=n;stage.dataset.designStep=String(n);
- by('designIntent').hidden=n!==0;by('designAtomicPanel').hidden=n!==1;by('designGraphPanel').hidden=n!==2;by('designGraphLabels').hidden=n!==2||!graphModel;updateLegend(n);
+ by('designIntent').hidden=n!==0;by('designAtomicPanel').hidden=n!==1;by('designGraphPanel').hidden=n!==2;by('designGraphMatrix').hidden=n!==2||!graphModel;by('designGraphHit').hidden=n!==2||!graphModel;graphFrameKey='';if(n!==2){if(by('designGraphDetail').open)by('designGraphDetail').close();setMatrixOpen(false);}by('designGraphLabels').hidden=n!==2||!graphModel;updateLegend(n);
  const c=chapters[n];
  by('designKicker').textContent='0'+(n+1)+' / 05 — '+c[0];
  by('designTitle').textContent=c[1];
@@ -220,7 +224,7 @@ function dimensions(){
  const rect=stage.getBoundingClientRect();measureNav();
  width=rect.width;height=rect.height;dpr=Math.min(devicePixelRatio||1,2);
  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
- if(gl)gl.resize();
+ if(gl)gl.resize();graphFrameKey='';if(graphModel)drawMatrix();
  schedule();
 }
 
@@ -239,28 +243,28 @@ function draw(now){
  raf=0;if(!visible||document.hidden||!width||!height)return;
  if(!motion.matches&&now-lastFrame<24){raf=requestAnimationFrame(draw);return;}
  lastFrame=now;
- const g=geometry();const angle=step===2?graphAngle:step===1&&real&&atomicMode==='local'?atomicAngle+(motion.matches?0:.18*Math.sin(now*.00035)):.52+(motion.matches?0:now*.00012);
+ graphPhase=motion.matches?.55:(now%1500)/1500;const g=geometry();const angle=step===2?graphAngle:step===1&&real&&atomicMode==='local'?atomicAngle+(motion.matches?0:.18*Math.sin(now*.00035)):.52+(motion.matches?0:now*.00012);
  if(gl){try{gl.draw(g,angle);stage.classList.add('design-gl');}catch{gl.dispose();gl=null;stage.classList.remove('design-gl');}}
  if(!gl&&ctx){
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-  const portrait=width<801,cx=width*(portrait?.50:.67),cy=height*(portrait?(step===1?.49:step===2?.49:step>=3?.47:.54):step===2?.43:step>=3?.34:.45);
-  const scale=Math.min(width*(portrait?.043:.037),height*(portrait?.029:.048))*(step===1&&real&&portrait&&atomicMode==='local'?1.35:1);
+  const portrait=width<801,wide=width>=1280,cx=width*(step===2&&wide?.51:portrait?.50:.67),cy=height*(portrait?(step===1?.49:step===2?.40:step>=3?.47:.54):step===2?.43:step>=3?.34:.45);
+  const scale=Math.min(width*(portrait?.043:.037),height*(portrait?.029:.048))*(step===2&&wide?.76:step===1&&real&&portrait&&atomicMode==='local'?1.35:1);
   const a=Math.cos(angle),b=Math.sin(angle);
-  const project=v=>{const x=v.x*a+v.z*b,z=-v.x*b+v.z*a;const k=1/(1+(step===2?-z:z)*.025);return {x:cx+x*scale*k,y:cy-v.y*scale*k,z,k};};
+  const project=v=>{const x=v.x*a+v.z*b,z=-v.x*b+v.z*a;const k=1/(1+(step===2?-z:z)*.025);return {x:cx+x*scale*k,y:cy-(step===2?v.y*Math.cos(graphPitch)-z*Math.sin(graphPitch):v.y)*scale*k,z,k};};
   const p=g.coords.map(project);
   const line=(i,j,color,w)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(p[i].x,p[i].y);ctx.lineTo(p[j].x,p[j].y);ctx.stroke();};
-  if(step===2)for(const [i,j] of edges)line(i,j,j===graphPair?'#fff0c7':'rgba(228,190,132,.82)',j===graphPair?2.5:1.6);
+  if(step===2){for(const [i,j] of edges){line(i,j,j===graphPair?'#fff0c7':'rgba(228,190,132,.82)',j===graphPair?2.5:1.6);if(graphMessage){const a=p[j],b=p[i];ctx.fillStyle='#fff0c7';ctx.beginPath();ctx.arc(a.x+(b.x-a.x)*graphPhase,a.y+(b.y-a.y)*graphPhase,3,0,Math.PI*2);ctx.fill();}}if(graphModel&&!graphNeighbors.has(graphPair)){ctx.setLineDash([4,5]);line(graphFocus,graphPair,'#b2c1c8',1.4);ctx.setLineDash([]);}}
   const trace=(q,color,w)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(q[0].x,q[0].y);for(let i=1;i<q.length-1;i++)ctx.quadraticCurveTo(q[i].x,q[i].y,(q[i].x+q[i+1].x)/2,(q[i].y+q[i+1].y)/2);ctx.lineTo(q.at(-1).x,q.at(-1).y);ctx.stroke();};
   if(step===4)trace(comparisonPoints(g.coords).map(project),'rgba(228,190,132,.85)',5);
   if(g.u>.12)trace(p,'rgba(127,212,209,'+(Math.pow(g.u,1.6)*(step===2?.22:.88))+')',step===1||step===4?5:2.6);
   const count=step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*p.length):0;
   if(step===0){ctx.fillStyle='#96bac7';ctx.globalAlpha=.24*(1-g.u);for(let i=0;i<220;i++){const v=project({x:(random(i*3+500)-.5)*24,y:(random(i*3+501)-.5)*22,z:(random(i*3+502)-.5)*25});ctx.beginPath();ctx.arc(v.x,v.y,.6+random(i+750)*1.3,0,Math.PI*2);ctx.fill();}}
-  p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===2?(v.i===graphFocus?8:v.i===graphPair?6:graphNeighbors.has(v.i)?5:2.8):step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===2?(v.i===graphFocus?'#ffe1a6':v.i===graphPair?'#fff0c7':graphNeighbors.has(v.i)?'#d5b17c':'#63939d'):step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
+  p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===2?(graphModel&&v.i===graphFocus?8:graphModel&&v.i===graphPair?6:graphNeighbors.has(v.i)?5:2.8):step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===2?(graphModel&&v.i===graphFocus?'#ffe1a6':graphModel&&v.i===graphPair?'#fff0c7':graphNeighbors.has(v.i)?'#d5b17c':'#63939d'):step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
   ctx.globalAlpha=1;
   if(step===2)graphLabelPositions(project);
   if(step===1&&real&&g.ribbon>.94){const q=detailAtoms.map(project);for(const [i,j] of detailBonds){if(!visibleAtomic(detailAtoms[i])||!visibleAtomic(detailAtoms[j]))continue;ctx.strokeStyle='#8a989b';ctx.lineWidth=atomicMode==='local'?2.5:1.4;ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[j].x,q[j].y);ctx.stroke();}q.map((p,i)=>({...p,i})).filter(p=>visibleAtomic(detailAtoms[p.i])).sort((a,b)=>b.z-a.z).forEach(p=>{const a=detailAtoms[p.i];ctx.fillStyle=elementColors[a.element];ctx.beginPath();ctx.arc(p.x,p.y,(atomicMode==='local'?3.5:2.7)*(a.element==='S'?1.25:1)*p.k,0,Math.PI*2);ctx.fill();});}
  }
- if(!motion.matches)raf=requestAnimationFrame(draw);
+ if(!motion.matches&&(step!==2||graphMessage))raf=requestAnimationFrame(draw);
 }
 function schedule(){if(visible&&!raf)raf=requestAnimationFrame(draw);}
 
@@ -391,7 +395,8 @@ function initGL(T){
  const yAxis=new T.Vector3(0,1,0),from=new T.Vector3(),to=new T.Vector3(),delta=new T.Vector3();
  const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971'),graphMuted=new T.Color('#426675'),graphGold=new T.Color('#d6ac6d'),graphIvory=new T.Color('#fff0c7'),projected=new T.Vector3();
  const graphRodGeo=new T.CylinderGeometry(.027,.027,1,12),graphRodMat=new T.MeshBasicMaterial({color:0xffffff});
- let graphRods=null;
+ let graphRods=null,graphSignals=null,graphDashed=null;
+ const signalGeo=new T.SphereGeometry(.075,12,8),signalMat=new T.MeshBasicMaterial({color:0xffe6a5});
  let spheres=null,lines=null,links=null,trails=null,compareLine=null,backbone=null,ribbon=null,comparisonRibbon=null,atomDetail=null,bondDetail=null,atomicRenderMode=null,lastCompare=null;
 
  function updateAtomicMeshes(){
@@ -415,15 +420,17 @@ function initGL(T){
     updateAtomicMeshes();
    }
   }
-  for(const m of [spheres,backbone,graphRods])if(m){group.remove(m);m.dispose();}
-  for(const m of [compareLine,lines,links,trails])if(m){group.remove(m);m.geometry.dispose();m.material.dispose();}
+  for(const m of [spheres,backbone,graphRods,graphSignals])if(m){group.remove(m);m.dispose();}
+  for(const m of [compareLine,lines,links,trails,graphDashed])if(m){group.remove(m);m.geometry.dispose();m.material.dispose();}
   backbone=new T.InstancedMesh(rodGeo,rodMat,points.length-1);backbone.frustumCulled=false;group.add(backbone);
   const cmpGeo=new T.BufferGeometry();cmpGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*3),3));
   compareLine=new T.Line(cmpGeo,new T.LineBasicMaterial({color:0xe8c186,transparent:true,opacity:.95}));compareLine.frustumCulled=false;group.add(compareLine);
   spheres=new T.InstancedMesh(geom,mat,points.length);spheres.frustumCulled=false;group.add(spheres);
   const lineGeo=new T.BufferGeometry();lineGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*3),3));
   lines=new T.Line(lineGeo,new T.LineBasicMaterial({color:0x7fd4d1,transparent:true,opacity:.75}));lines.frustumCulled=false;group.add(lines);
-  graphRods=new T.InstancedMesh(graphRodGeo,graphRodMat,Math.max(1,edges.length));graphRods.frustumCulled=false;graphRods.count=edges.length;group.add(graphRods);
+  graphRods=new T.InstancedMesh(graphRodGeo,graphRodMat,Math.max(1,raw.length-1));graphRods.frustumCulled=false;graphRods.count=edges.length;group.add(graphRods);
+  graphSignals=new T.InstancedMesh(signalGeo,signalMat,Math.max(1,raw.length-1));graphSignals.frustumCulled=false;group.add(graphSignals);
+  const dashedGeo=new T.BufferGeometry();dashedGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(6),3));graphDashed=new T.Line(dashedGeo,new T.LineDashedMaterial({color:0xb2c1c8,dashSize:.13,gapSize:.12,transparent:true,opacity:.8}));graphDashed.frustumCulled=false;group.add(graphDashed);
   const edgeGeo=new T.BufferGeometry();edgeGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(edges.length*6),3));
   links=new T.LineSegments(edgeGeo,new T.LineBasicMaterial({color:0xedc484,transparent:true,opacity:.56}));links.frustumCulled=false;group.add(links);
   const trailGeo=new T.BufferGeometry();trailGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*6),3));
@@ -436,17 +443,17 @@ function initGL(T){
   const portrait=width<801;
   const depth=step===0?1-ease(local):0;
   const mobileDistance=Math.max(31,9.4/(Math.tan(camera.fov*Math.PI/360)*camera.aspect));
-  const desktopDistance=step===2?20.8:step>=3?22.5:20.2;
-  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?(step===2?Math.max(23,mobileDistance*.66):mobileDistance):desktopDistance))+depth*3.2);
+  const desktopDistance=step===2?(width>=1280?Math.max(25,12.4/(Math.tan(camera.fov*Math.PI/360)*camera.aspect*.39)):20.8):step>=3?22.5:20.2;
+  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?(step===2?Math.max(23,mobileDistance*.76):mobileDistance):desktopDistance))+depth*3.2);
   camera.lookAt(0,0,0);
   camera.setViewOffset(
    width,height,
-   portrait?0:-Math.round(width*.17),
-   portrait?Math.round(height*(step===1?.015:step===2?.025:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
+   portrait?0:step===2&&width>=1280?-Math.round(width*.01):-Math.round(width*.17),
+   portrait?Math.round(height*(step===1?.015:step===2?.10:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
    width,height
   );
   group.rotation.y=angle;
-  group.rotation.x=step===2?.20:step===1&&real?.12:.22+.12*Math.sin(progress*Math.PI);
+  group.rotation.x=step===2?graphPitch:step===1&&real?.12:.22+.12*Math.sin(progress*Math.PI);
   key.color.set(step===1?0xf1f6ff:0xfff1dc);rim.intensity=step===1?1.3:2.4;
   dust.visible=step===0;
   dustMat.opacity=.48*(1-g.u*.75);
@@ -504,7 +511,10 @@ function initGL(T){
    compareLine.geometry.attributes.position.needsUpdate=true;
   }
   links.visible=false;
-  graphRods.visible=step===2&&!!graphModel;
+  graphRods.visible=step===2&&!!graphModel;graphRods.count=edges.length;
+  graphSignals.visible=graphRods.visible&&graphMessage;graphSignals.count=edges.length;
+  graphDashed.visible=graphRods.visible&&!graphNeighbors.has(graphPair);
+  if(graphDashed.visible){const a=g.coords[graphFocus],b=g.coords[graphPair],attr=graphDashed.geometry.attributes.position;attr.setXYZ(0,a.x,a.y,a.z);attr.setXYZ(1,b.x,b.y,b.z);attr.needsUpdate=true;graphDashed.computeLineDistances();}
   if(graphRods.visible){
    edges.forEach(([i,j],k)=>{
     const a=g.coords[i],b=g.coords[j];
@@ -514,10 +524,11 @@ function initGL(T){
     const weight=j===graphPair?1.55:.84;
     obj.scale.set(weight,len,weight);obj.updateMatrix();
     graphRods.setMatrixAt(k,obj.matrix);graphRods.setColorAt(k,j===graphPair?graphIvory:graphGold);
+    if(graphMessage){obj.position.set(b.x+(a.x-b.x)*graphPhase,b.y+(a.y-b.y)*graphPhase,b.z+(a.z-b.z)*graphPhase);obj.rotation.set(0,0,0);obj.scale.setScalar(1);obj.updateMatrix();graphSignals.setMatrixAt(k,obj.matrix);}
    });
-   graphRods.instanceMatrix.needsUpdate=true;graphRods.instanceColor.needsUpdate=true;
+   graphRods.instanceMatrix.needsUpdate=true;if(graphRods.instanceColor)graphRods.instanceColor.needsUpdate=true;if(graphMessage)graphSignals.instanceMatrix.needsUpdate=true;
   }
-  if(step===2){group.updateMatrixWorld(true);camera.updateMatrixWorld(true);graphLabelPositions(p=>{projected.set(p.x,p.y,p.z).applyMatrix4(group.matrixWorld).project(camera);return {x:(projected.x+1)*width/2,y:(1-projected.y)*height/2};});}
+  if(step===2){group.updateMatrixWorld(true);camera.updateMatrixWorld(true);graphLabelPositions(p=>{projected.set(p.x,p.y,p.z).applyMatrix4(group.matrixWorld).project(camera);return {x:(projected.x+1)*width/2,y:(1-projected.y)*height/2,z:projected.z};});}
   renderer.render(scene,camera);
  }
 
@@ -528,6 +539,92 @@ function initGL(T){
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();dispose();gl=null;stage.classList.remove('design-gl');schedule();},{once:true});
  rebuildGL();resize();return {draw:render,rebuild:rebuildGL,resize,dispose};
 }
+
+
+const residueNames={A:'Ala',R:'Arg',N:'Asn',D:'Asp',C:'Cys',Q:'Gln',E:'Glu',G:'Gly',H:'His',I:'Ile',L:'Leu',K:'Lys',M:'Met',F:'Phe',P:'Pro',S:'Ser',T:'Thr',W:'Trp',Y:'Tyr',V:'Val'};
+function residueLabel(i){return (residueNames[raw[i]?.aa]||'?')+(i+1);}
+function renderGraphUI(pair){
+ by('designGraphPairTitle').textContent=residueLabel(graphFocus)+' — '+residueLabel(graphPair);
+ by('designGraphFocusLabel').textContent=residueLabel(graphFocus).toUpperCase();
+ by('designGraphPairLabel').textContent=residueLabel(graphPair).toUpperCase();
+ by('designGraphRank').textContent=pair.self?'自己ノード':pair.isNeighbor?'近傍順位 '+pair.rank+' / '+graphK:'非近傍（距離順位 '+pair.rank+'）';
+ by('designGraphKValue').textContent=String(graphK);by('designGraphK').value=String(graphK);
+ for(const [id,selected] of [['designGraphFocusSelect',graphFocus],['designGraphPairSelect',graphPair]]){
+  const select=by(id);
+  if(select.options.length!==raw.length){select.replaceChildren(...raw.map((_,i)=>new Option(residueLabel(i),String(i))));}
+  select.value=String(selected);
+ }
+ const track=by('designGraphSequence');
+ if(track.children.length!==raw.length){track.replaceChildren(...raw.map((r,i)=>{const b=document.createElement('button');b.type='button';b.textContent=r.aa;b.dataset.residue=String(i);b.title=residueLabel(i);b.setAttribute('aria-label',residueLabel(i)+' を注目残基に選択');b.addEventListener('click',()=>selectGraph(i));return b;}));}
+ [...track.children].forEach((b,i)=>{b.classList.toggle('near',graphNeighbors.has(i));b.classList.toggle('pair',i===graphPair);b.setAttribute('aria-pressed',String(i===graphFocus));});
+ by('designMatrixReadout').textContent=residueLabel(graphFocus)+' → '+residueLabel(graphPair)+' · '+pair.distance.toFixed(2)+' Å · '+(pair.self?'自己ノード':pair.isNeighbor?'近傍':'非近傍');
+ for(const b of stage.querySelectorAll('[data-matrix-mode]'))b.setAttribute('aria-pressed',String(b.dataset.matrixMode===graphMode));
+ by('designMatrixLegend').textContent=graphMode==='adj'?'行 i → 列 j：近傍 = 1（青緑）、非近傍 = 0（暗色）':'Cα間距離：明るいほど近い · 0–24 Å以上';
+ drawMatrix();if(by('designGraphDetail').open)renderAtomDetail();
+}
+function selectGraph(i,j=null){
+ if(!graphGeometry||!Number.isInteger(i)||i<0||i>=raw.length)return;
+ graphFocus=i;graphPair=j===null?graphGeometry.rankings[i][Math.min(2,graphK-1)]:Math.max(0,Math.min(raw.length-1,j));
+ updateGraphStudy(false);updateSequence();schedule();
+}
+function setMatrixOpen(open){
+ graphMatrixOpen=open;stage.classList.toggle('graph-matrix-open',open);
+ by('designGraphMatrixOpen').setAttribute('aria-expanded',String(open));
+ if(open){drawMatrix();by('designMatrixCanvas').focus({preventScroll:true});}
+}
+const matrixCanvas=by('designMatrixCanvas'),matrixContext=matrixCanvas.getContext('2d');
+const matrixOrigin=30,matrixSpan=276;
+function drawMatrix(){
+ if(!graphModel||!matrixContext)return;
+ const ctx=matrixContext,n=graphModel.size,cell=matrixSpan/n;
+ ctx.clearRect(0,0,320,320);ctx.fillStyle='#10232e';ctx.fillRect(matrixOrigin,matrixOrigin,matrixSpan,matrixSpan);
+ for(let i=0;i<n;i++)for(let j=0;j<n;j++){
+  const active=graphModel.adjacency[i][j]===1,d=graphGeometry.distances[i][j];
+  if(graphMode==='adj')ctx.fillStyle=i===j?'#566a74':active?(i===graphFocus?'#e5bc7e':'#568a92'):'#1b303b';
+  else {const t=Math.max(0,1-d/24);ctx.fillStyle='rgb('+Math.round(23+155*t)+','+Math.round(43+173*t)+','+Math.round(55+161*t)+')';}
+  ctx.fillRect(matrixOrigin+j*cell,matrixOrigin+i*cell,cell-.4,cell-.4);
+ }
+ ctx.font='9px monospace';ctx.fillStyle='#a4bbc2';ctx.textAlign='center';
+ for(const i of [0,9,19,29,39,n-1]){ctx.fillText(String(i+1),matrixOrigin+(i+.5)*cell,22);ctx.fillText(String(i+1),15,matrixOrigin+(i+.8)*cell);}
+ ctx.strokeStyle='#e6be81';ctx.lineWidth=1.2;ctx.strokeRect(matrixOrigin-.5,matrixOrigin+graphFocus*cell-.5,matrixSpan+1,cell+1);
+ ctx.strokeStyle='#fff1cc';ctx.lineWidth=1.8;ctx.strokeRect(matrixOrigin+graphPair*cell-.5,matrixOrigin+graphFocus*cell-.5,cell+1,cell+1);
+ ctx.fillStyle='#b1c4c9';ctx.fillText('列 j →',170,316);ctx.fillText('i ↓',12,12);
+ matrixCanvas.dataset.focus=String(graphFocus+1);matrixCanvas.dataset.pair=String(graphPair+1);matrixCanvas.dataset.mode=graphMode;
+ matrixCanvas.setAttribute('aria-label','残基間行列 '+residueLabel(graphFocus)+' と '+residueLabel(graphPair)+'。矢印キーでペアを選択');
+}
+matrixCanvas.addEventListener('click',e=>{if(!graphModel)return;const r=matrixCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*320/r.width,y=(e.clientY-r.top)*320/r.height,j=Math.floor((x-matrixOrigin)*graphModel.size/matrixSpan),i=Math.floor((y-matrixOrigin)*graphModel.size/matrixSpan);if(i>=0&&j>=0&&i<graphModel.size&&j<graphModel.size)selectGraph(i,j);});
+matrixCanvas.addEventListener('keydown',e=>{const delta={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];if(!delta||!graphModel)return;e.preventDefault();selectGraph(Math.max(0,Math.min(raw.length-1,graphFocus+delta[0])),Math.max(0,Math.min(raw.length-1,graphPair+delta[1])));});
+by('designGraphFocusSelect').addEventListener('change',e=>selectGraph(Number(e.target.value)));
+by('designGraphPairSelect').addEventListener('change',e=>selectGraph(graphFocus,Number(e.target.value)));
+by('designGraphK').addEventListener('input',e=>{graphK=Number(e.target.value);updateGraphStudy(false);schedule();});
+for(const b of stage.querySelectorAll('[data-matrix-mode]'))b.addEventListener('click',()=>{graphMode=b.dataset.matrixMode;updateGraphStudy(false);});
+by('designGraphMatrixOpen').addEventListener('click',()=>setMatrixOpen(!graphMatrixOpen));
+by('designGraphMatrixClose').addEventListener('click',()=>{setMatrixOpen(false);by('designGraphMatrixOpen').focus({preventScroll:true});});
+by('designGraphMessage').addEventListener('click',()=>{graphMessage=!graphMessage;by('designGraphMessage').setAttribute('aria-pressed',String(graphMessage));by('designGraphMessageNote').hidden=!graphMessage;schedule();});
+by('designGraphReset').addEventListener('click',()=>{graphK=6;graphMode='adj';graphAngle=graphInitialAngle;graphPitch=.20;graphMessage=false;by('designGraphMessage').setAttribute('aria-pressed','false');by('designGraphMessageNote').hidden=true;selectGraph(3,31);});
+let drag=null;
+const hit=by('designGraphHit');
+hit.addEventListener('pointerdown',e=>{if(!graphModel||e.button!==0)return;drag={x:e.clientX,y:e.clientY,angle:graphAngle,pitch:graphPitch,moved:false};hit.setPointerCapture(e.pointerId);});
+hit.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>6)drag.moved=true;if(drag.moved){graphAngle=drag.angle+dx*.009;graphPitch=Math.max(-1.2,Math.min(1.2,drag.pitch+dy*.006));schedule();}});
+hit.addEventListener('pointercancel',()=>{drag=null;});
+hit.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;drag=null;if(moved)return;const r=stage.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let nearest=-1,best=Infinity;graphProjected.forEach((p,i)=>{const d=Math.hypot(x-p.x,y-p.y);if(d<best){best=d;nearest=i;}});if(best<22)selectGraph(nearest);});
+const atomNames=['N','Cα','C','O','Cβ*'];
+function renderAtomDetail(){
+ const host=by('designGraphAtomTable'),values=geometryModule?.pairAtomDistances(raw[graphFocus],raw[graphPair]);host.replaceChildren();
+ by('designGraphRbf').replaceChildren();by('designGraphRbfLabel').textContent='';
+ if(!values){host.textContent='主鎖原子が不足しているため計算できません。';return;}
+ const table=document.createElement('table'),head=table.createTHead().insertRow();head.append(document.createElement('th'));
+ for(const label of atomNames){const th=document.createElement('th');th.textContent=label;th.scope='col';head.append(th);}
+ const body=table.createTBody();
+ values.forEach((row,i)=>{const tr=body.insertRow(),th=document.createElement('th');th.textContent=atomNames[i];th.scope='row';tr.append(th);row.forEach((d,j)=>{const td=tr.insertCell(),b=document.createElement('button');b.type='button';b.textContent=d.toFixed(2);b.style.setProperty('--distance-shade',String(Math.max(.06,1-d/24)));b.setAttribute('aria-label',atomNames[i]+' から '+atomNames[j]+' '+d.toFixed(2)+' Å');b.addEventListener('click',()=>showRbf(i,j,d));td.append(b);});});
+ host.append(table);showRbf(1,1,values[1][1]);
+}
+function showRbf(i,j,d){
+ by('designGraphRbfLabel').textContent=residueLabel(graphFocus)+' '+atomNames[i]+' → '+residueLabel(graphPair)+' '+atomNames[j]+' · '+d.toFixed(2)+' Å';
+ by('designGraphRbf').replaceChildren(...geometryModule.distanceRbf(d).map(r=>{const el=document.createElement('span');el.style.setProperty('--rbf',String(r.value));el.title=r.center.toFixed(2)+' Å: '+r.value.toFixed(4);el.setAttribute('aria-label',el.title);return el;}));
+}
+by('designGraphDetailOpen').addEventListener('click',()=>{renderAtomDetail();by('designGraphDetail').showModal();});
+by('designGraphDetailClose').addEventListener('click',()=>by('designGraphDetail').close());
 
 rebuild();dimensions();updateScroll();
 if('ResizeObserver' in window)new ResizeObserver(measureNav).observe(stage.querySelector('.design-bottom'));
