@@ -16,6 +16,11 @@ jobs:
         with:
           node-version: '22'
       - run: node --test tests/*.test.mjs
+      - name: Test design output conversion
+        run: |
+          python3 -m venv /tmp/design-env
+          /tmp/design-env/bin/pip install gemmi numpy
+          /tmp/design-env/bin/python tests/test_export_design_run.py
       - run: npm install --no-save playwright@1.51.1
       - run: npx playwright install chromium
       - name: Browser checks
