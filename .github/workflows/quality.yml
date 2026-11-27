@@ -17,7 +17,7 @@ jobs:
           node-version: '22'
       - run: node --test tests/static.test.mjs
       - run: npm install --no-save playwright@1.51.1
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Browser checks
         run: |
           python3 -m http.server 4173 > /tmp/curiosity-server.log 2>&1 &
@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright@1.51.1 three@0.170.0 3dmol@2.5.5
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Fetch experimental structures from RCSB
         run: |
           mkdir -p /tmp/curiosity-pdb
