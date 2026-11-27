@@ -31,7 +31,8 @@ try {
     await page.waitForFunction(n=>document.querySelector('#design').dataset.designStep===String(n),n);
     await page.waitForTimeout(200);
     if(n===1){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');assert.ok(Number(await page.locator('#design').getAttribute('data-secondary-count'))>0);}
-    if(n===3){assert.equal(await page.locator('#designSequence .on').count(),46);await page.locator('[data-aa-choice="S"]').click();assert.match(await page.locator('#designChoiceNote').innerText(),/セリン/);}
+    if(n===2){await page.locator('#designResidueSelect').selectOption('12');assert.equal(await page.locator('#design').getAttribute('data-focus-residue'),'13');assert.match(await page.locator('#designNeighbors').innerText(),/R13/);}
+    if(n===3){assert.equal(await page.locator('#designSequence button.focused').getAttribute('data-residue'),'12');assert.equal(await page.locator('#designSequence .on').count(),46);await page.locator('#designSequence button[data-residue="17"]').click();assert.equal(await page.locator('#design').getAttribute('data-focus-residue'),'18');await page.locator('[data-aa-choice="S"]').click();assert.match(await page.locator('#designChoiceNote').innerText(),/セリン/);}
     if(n===4){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
     await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
   }
@@ -72,10 +73,10 @@ try {
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/motion-'+name+'.png'});
   }
   await page.setViewportSize({width:390,height:844});
-  for(const [name,p] of [['intro',.02],['ribbon',.36],['sequence',.76],['compare',.92]]){
+  for(const [name,p] of [['intro',.02],['ribbon',.36],['graph',.53],['sequence',.76],['compare',.92]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-'+name+'.png'});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);
-    if(name==='sequence'||name==='compare'){const panel=page.locator(name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
+    if(name==='graph'||name==='sequence'||name==='compare'){const panel=page.locator(name==='graph'?'#designGraphPanel':name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
   }
   assert.deepEqual(errors,[]);
   console.log('Real libraries + RCSB PDB data: WebGL scene navigation and molecular controls passed');
