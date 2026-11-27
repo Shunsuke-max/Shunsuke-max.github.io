@@ -80,3 +80,15 @@
  .design-copy h1{font-size:26px}
  .design-legend{gap:3px 8px}
 }
+
+/* Shared focus across graph and inverse-folding chapters. */
+.design-graph-panel{position:absolute;z-index:3;left:43%;right:clamp(20px,5vw,80px);bottom:145px;background:#0c171eea;border:1px solid #50636c;padding:12px 15px;border-radius:3px}
+.design-graph-panel p{font-size:11px;line-height:1.65;color:#b0c0c2;margin:6px 0}
+.design-residue-control{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:12px;color:#dae6e4}
+.design-residue-control select,.design-residue-control button,#designMessageToggle{font:inherit;color:#e4eeec;background:#13212b;border:1px solid #50636c;padding:5px 8px;border-radius:2px}
+#designMessageToggle{font-size:11px}#designMessageToggle[aria-pressed=true]{border-color:#d4b384;color:#f4d7ad}
+.design-neighbors{font:11px/1.6 var(--font-mono);color:#e2bb82;overflow-wrap:anywhere}
+.design-residues button{font:12px var(--font-mono);min-width:20px;text-align:center;padding:4px;border:1px solid #4d636a;background:transparent;color:#9aadb2;border-radius:0}
+.design-residues button.on{background:#20373d;color:#d8f0e9;border-color:#6da4a6}.design-residues button.focused{border-color:#e2bb82;color:#ffe4bc;background:#423627;outline:1px solid #e2bb82}
+.design-sampling{display:flex;gap:8px;margin-top:8px}.design-prob{position:relative;flex:1;font:10px var(--font-mono);color:#b7c7c8;padding-bottom:5px;border-bottom:2px solid #31424b}.design-prob i{position:absolute;bottom:-2px;left:0;height:2px;background:#83c6c5}.design-prob.chosen{color:#e2bb82}.design-prob.chosen i{background:#e2bb82}
+@media(max-width:800px){.design-graph-panel{left:20px;right:20px;bottom:calc(var(--design-nav-height,112px) + 10px);max-height:min(26svh,210px);overflow-y:auto;overscroll-behavior:contain;padding:8px 10px}.design-graph-panel p{font-size:10px}.design-residues button{font-size:10px;min-width:16px;padding:2px}.design-sampling{gap:4px}.design-prob{font-size:9px}}
