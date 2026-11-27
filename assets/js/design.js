@@ -607,7 +607,9 @@ by('designGraphPairSelect').addEventListener('change',e=>selectGraph(graphFocus,
 by('designGraphK').addEventListener('input',e=>{graphK=Number(e.target.value);updateGraphStudy(false);schedule();});
 for(const b of stage.querySelectorAll('[data-matrix-mode]'))b.addEventListener('click',()=>{graphMode=b.dataset.matrixMode;updateGraphStudy(false);});
 by('designGraphMatrixOpen').addEventListener('click',()=>setMatrixOpen(!graphMatrixOpen));
-by('designGraphMatrixClose').addEventListener('click',()=>{setMatrixOpen(false);by('designGraphMatrixOpen').focus({preventScroll:true});});
+function closeGraphMatrix(){setMatrixOpen(false);by('designGraphMatrixOpen').focus({preventScroll:true});}
+by('designGraphMatrixClose').addEventListener('click',closeGraphMatrix);
+by('designGraphMatrix').addEventListener('keydown',e=>{if(e.key==='Escape'&&graphMatrixOpen){e.preventDefault();closeGraphMatrix();}});
 by('designGraphMessage').addEventListener('click',()=>{graphMessage=!graphMessage;by('designGraphMessage').setAttribute('aria-pressed',String(graphMessage));by('designGraphMessageNote').hidden=!graphMessage;schedule();});
 by('designGraphReset').addEventListener('click',()=>{graphK=6;graphMode='adj';graphAngle=graphInitialAngle;graphPitch=.20;graphMessage=false;by('designGraphMessage').setAttribute('aria-pressed','false');by('designGraphMessageNote').hidden=true;selectGraph(3,31);});
 let drag=null;
