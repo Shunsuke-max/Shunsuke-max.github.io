@@ -37,3 +37,6 @@ CI uses Ubuntu 24.04 to match the pinned Playwright release. Browser test covers
 3. Use only genuinely public coordinates for scientific exhibits, with provenance.
 4. Measure loading and rendering performance before setting numerical targets.
 5. Review the visual result on desktop and mobile before merge.
+
+## Molecular rendering refinement
+The design scene renders a stylized C-alpha ribbon with widths based on the reference PDB HELIX/SHEET annotations, a residue's actual reference atom positions, and an identical ribbon mesh style for a deliberately perturbed comparison. It does not reproduce an atom-accurate secondary-structure cartoon, an inference trajectory, or a predicted structure. Small ambient points in the diffusion scene are decorative; larger points represent a schematic C-alpha trace. The camera and opacity interpolate with scroll, and animation is throttled to roughly 30 frames/s. CI captures motion-enabled intermediate states and mobile WebGL screens as well as the reduced-motion scenes. The 2D fallback preserves the explanatory flow without claiming exact secondary-structure rendering.
