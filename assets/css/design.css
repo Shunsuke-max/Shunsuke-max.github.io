@@ -55,3 +55,5 @@
 .design-compare-options{margin-top:7px}
 .design-eval-line .design-dot.hollow{background:#e2bb82;border:none}
 @media(max-width:800px){.design-legend{font-size:10px;margin-top:6px}.design-sequence,.design-evaluate{max-height:36%;overflow:auto}.design-choice{margin-top:6px;font-size:10px}}
+
+.design-sidechain{flex:0 0 76px;height:38px}.design-sidechain g{display:none}.design-stage[data-aa-choice=A] .side-a,.design-stage[data-aa-choice=V] .side-v,.design-stage[data-aa-choice=S] .side-s{display:block}
