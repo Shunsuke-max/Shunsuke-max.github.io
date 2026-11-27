@@ -12,9 +12,18 @@ try{
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    await page.locator('[data-design-jump="2"]').click();
+    await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='2');
+    await page.locator('#designResidueSelect').selectOption('9');
+    assert.equal(await page.locator('#design').getAttribute('data-focus-residue'),'10');
+    await page.locator('#designMessageToggle').click();
+    assert.equal(await page.locator('#designMessageToggle').getAttribute('aria-pressed'),'false');
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
+    assert.equal(await page.locator('#designSequence button.focused').getAttribute('data-residue'),'9');
+    await page.locator('#designSequence button[data-residue="5"]').click();
+    assert.equal(await page.locator('#design').getAttribute('data-focus-residue'),'6');
     await page.locator('[data-aa-choice="V"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-aa-choice'),'V');
     assert.match(await page.locator('#designChoiceNote').innerText(),/バリン/);
