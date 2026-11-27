@@ -46,7 +46,7 @@ jobs:
       - name: Fetch experimental structures from RCSB
         run: |
           mkdir -p /tmp/curiosity-pdb
-          for pdb in 4HHB 1UBQ; do
+          for pdb in 4HHB 1UBQ 1CRN; do
             curl --fail --location --retry 3 --max-time 45 "https://files.rcsb.org/download/$pdb.pdb" -o "/tmp/curiosity-pdb/$pdb.pdb"
           done
       - name: Render and test 3D scenes
