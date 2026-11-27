@@ -33,6 +33,7 @@ try {
     await page.waitForFunction(n=>document.querySelector('#design').dataset.designStep===String(n),n);
     await page.waitForTimeout(200);
     if(n===1){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');assert.ok(Number(await page.locator('#design').getAttribute('data-secondary-count'))>0);const stage=page.locator('#design');const all=Number(await stage.getAttribute('data-atomic-count')),local=Number(await stage.getAttribute('data-atomic-visible-count'));assert.ok(all>250&&local>15&&local<all);assert.match(await page.locator('#designAtomicFocus').innerText(),/S–S/);await page.locator('[data-atomic-mode="all"]').click();assert.equal(await stage.getAttribute('data-atomic-visible-count'),String(all));await page.waitForTimeout(150);await stage.screenshot({path:'artifacts/screenshots/design-02-all-atoms.png'});await page.locator('[data-atomic-mode="local"]').click();assert.equal(await stage.getAttribute('data-atomic-visible-count'),String(local));}
+    if(n===2){const stage=page.locator('#design');await page.waitForFunction(()=>document.querySelector('#design').dataset.graphSource==='1CRN');assert.equal(await stage.getAttribute('data-graph-neighbor-count'),'6');assert.equal(await stage.getAttribute('data-graph-focus'),'4');assert.equal(await stage.getAttribute('data-graph-pair'),'32');assert.equal(await page.locator('#designGraphDistance').innerText(),'4.09 Å');assert.equal(await page.locator('#designGraphSeparation').innerText(),'28');assert.equal(await page.locator('#designGraphNeighbors').innerText(),'P5 · C3 · C32 · N46 · Y44 · R10');await page.locator('#designGraphLabels').waitFor({state:'visible'});}
     if(n===3){assert.equal(await page.locator('#designSequence .on').count(),46);await page.locator('[data-aa-choice="S"]').click();assert.match(await page.locator('#designChoiceNote').innerText(),/セリン/);}
     if(n===4){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
     await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
@@ -70,14 +71,14 @@ try {
     await page.waitForTimeout(250);
     assert.ok(await page.locator('#design').evaluate(e=>e.classList.contains('design-gl')));
   }
-  for(const [name,p] of [['noise',.02],['diffusion-mid',.11],['ribbon-transition',.27],['ribbon-final',.36]]){
+  for(const [name,p] of [['noise',.02],['diffusion-mid',.11],['ribbon-transition',.27],['ribbon-final',.36],['graph',.50]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/motion-'+name+'.png'});
   }
   await page.setViewportSize({width:390,height:844});
-  for(const [name,p] of [['intro',.02],['ribbon',.36],['sequence',.76],['compare',.92]]){
+  for(const [name,p] of [['intro',.02],['ribbon',.36],['graph',.50],['sequence',.76],['compare',.92]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-'+name+'.png'});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);
-    if(name==='ribbon'||name==='sequence'||name==='compare'){const panel=page.locator(name==='ribbon'?'#designAtomicPanel':name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
+    if(name==='graph'||name==='ribbon'||name==='sequence'||name==='compare'){const panel=page.locator(name==='graph'?'#designGraphPanel':name==='ribbon'?'#designAtomicPanel':name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
   }
   assert.deepEqual(errors,[]);
   console.log('Real libraries + RCSB PDB data: WebGL scene navigation and molecular controls passed');

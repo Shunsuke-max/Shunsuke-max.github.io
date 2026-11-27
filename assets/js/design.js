@@ -5,7 +5,7 @@ const motion=matchMedia('(prefers-reduced-motion: reduce)');
 const chapters=[
  ['DIFFUSION','タンパク質を、\n設計する。','欲しい機能から、分子の形を考える。AIはどのようにタンパク質を設計するのか。','X<sub>t</sub> → X<sub>0</sub>'],
  ['RFD3','原子の配置を\n設計する。','ランダムな原子配置から、設計条件に合う立体構造へ。RFD3は主鎖と側鎖を含む原子配置を生成します。','p<sub>θ</sub>(X | C)'],
- ['GEOMETRY','形を、\nグラフに。','離れた配列位置でも、立体構造では隣り合います。主鎖の幾何情報を空間グラフとして扱います。','G = (V, E)'],
+ ['GEOMETRY','形を、\nグラフに。','配列上では離れていても、空間では隣り合う。残基の位置から、近傍関係を取り出します。','G = (V, E)'],
  ['PROTEINMPNN','骨格から\n配列へ。','形を固定し、各位置に合うアミノ酸を選ぶ。ProteinMPNNは骨格構造から配列を設計します。','p<sub>φ</sub>(S | X<sub>bb</sub>)'],
  ['VALIDATION','設計は、\n検証から。','設計した配列から構造を再予測し、元の形と比べます。一致しない候補は見直し、最終確認は実験で行います。','S → X&#x2032; → RMSD']
 ];
@@ -64,6 +64,51 @@ function buildAtomicStudy(center,max){
 function visibleAtomic(a){return atomicMode==='all'||a.focus;}
 function updateAtomicMode(){const count=detailAtoms.filter(visibleAtomic).length;stage.dataset.atomicMode=atomicMode;stage.dataset.atomicVisibleCount=String(count);by('designAtomicCount').textContent=count?count+' / '+detailAtoms.length+' 重原子':'参照構造を取得できません';for(const b of stage.querySelectorAll('[data-atomic-mode]')){b.disabled=!detailAtoms.length;b.setAttribute('aria-pressed',String(b.dataset.atomicMode===atomicMode));}by('designAtomicFocus').hidden=atomicMode==='all'||!detailAtoms.length;}
 for(const b of stage.querySelectorAll('[data-atomic-mode]'))b.addEventListener('click',()=>{atomicMode=b.dataset.atomicMode;updateAtomicMode();schedule();});
+// Gate 02: fixed editorial composition, no picking or selection controls yet.
+const graphFocus=3,graphPair=31,graphK=6;
+let graphGeometry=null,graphModel=null,geometryModule=null,graphAngle=.61,graphNeighbors=new Set();
+function updateGraphStudy(){
+ graphGeometry=real&&geometryModule?geometryModule.buildGeometry(raw):null;
+ graphModel=graphGeometry?geometryModule.buildKnn(graphGeometry,graphK):null;
+ graphNeighbors=new Set(graphModel?.neighbors[graphFocus]||[]);
+ edges=graphModel?graphModel.neighbors[graphFocus].map(j=>[graphFocus,j]):[];
+ stage.dataset.graphSource=graphModel?'1CRN':'unavailable';
+ stage.dataset.graphFocus=graphModel?String(graphFocus+1):'';
+ stage.dataset.graphPair=graphModel?String(graphPair+1):'';
+ stage.dataset.graphNeighborCount=String(edges.length);
+ const pair=graphModel?geometryModule.describePair(graphGeometry,graphModel,graphFocus,graphPair):null;
+ by('designGraphDistance').textContent=pair?pair.distance.toFixed(2)+' Å':'—';
+ by('designGraphSeparation').textContent=pair?String(pair.sequenceSeparation):'—';
+ by('designGraphStatus').textContent=pair?'46残基 · k=6 · 自己ノード除外':'参照構造を取得できないため、近傍は表示しません。';
+ by('designGraphNeighbors').textContent=graphModel?graphModel.neighbors[graphFocus].map(j=>raw[j].aa+(j+1)).join(' · '):'—';
+ by('designGraphMetrics').hidden=!pair;
+ by('designGraphLabels').hidden=step!==2||!pair;
+ if(pair){
+  // Seek a front-facing direction with separated focus, pair and nearby residues.
+  const ids=[graphFocus,...graphNeighbors],f=points[graphFocus],p=points[graphPair];
+  let best=-Infinity;
+  for(let i=0;i<72;i++){
+   const angle=i*Math.PI/36,c=Math.cos(angle),sn=Math.sin(angle);
+   const projected=v=>[v.x*c+v.z*sn,v.y*.98-(-v.x*sn+v.z*c)*.198,-v.x*sn+v.z*c];
+   const a=projected(f),b=projected(p);
+   const separation=Math.hypot(a[0]-b[0],a[1]-b[1]);
+   const minNear=Math.min(...ids.filter(j=>j!==graphFocus).map(j=>{const q=projected(points[j]);return Math.hypot(a[0]-q[0],a[1]-q[1]);}));
+   const score=separation*1.5+minNear*.9+(a[2]+b[2])*.22;
+   if(score>best){best=score;graphAngle=angle;}
+  }
+ }
+}
+function graphLabelPositions(project){
+ const labels=by('designGraphLabels');labels.hidden=step!==2||!graphModel;
+ if(labels.hidden)return;
+ const a=project(points[graphFocus]),b=project(points[graphPair]);
+ for(const [id,p,other] of [['designGraphFocusLabel',a,b],['designGraphPairLabel',b,a]]){
+  const el=by(id),sign=p.x>=other.x?1:-1;
+  el.style.left=Math.max(8,Math.min(width-8,p.x+sign*11))+'px';
+  el.style.top=Math.max(8,Math.min(height-8,p.y-12))+'px';
+  el.style.transform=sign<0?'translate(-100%,-100%)':'translate(0,-100%)';
+ }
+}
 let compare='close',choice='A';
 const selectedResidue=17;
 const legends=[
@@ -98,11 +143,7 @@ function rebuild(){
  points=raw.map(p=>({x:(p.x-center[0])*scaleFactor,y:(p.y-center[1])*scaleFactor,z:(p.z-center[2])*scaleFactor,aa:p.aa,ss:p.ss||'loop'}));
  buildAtomicStudy(center,max);
  noise=points.map((p,i)=>({x:(random(i*3+1)-.5)*15.5,y:(random(i*3+2)-.5)*15.5,z:(random(i*3+3)-.5)*15.5}));
- edges=[];
- for(let i=0;i<raw.length;i++)for(let j=i+3;j<raw.length;j++){
-  const a=raw[i],b=raw[j];
-  if(Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z)<8)edges.push([i,j]);
- }
+ updateGraphStudy();
  by('designSequence').replaceChildren(...raw.map(()=>{const s=document.createElement('span');s.textContent='·';return s;}));
  updateSequence();
  if(gl)gl.rebuild();
@@ -117,7 +158,7 @@ function updateSequence(){
 
 function setStep(n){
  if(n===step)return;step=n;stage.dataset.designStep=String(n);
- by('designIntent').hidden=n!==0;by('designAtomicPanel').hidden=n!==1;updateLegend(n);
+ by('designIntent').hidden=n!==0;by('designAtomicPanel').hidden=n!==1;by('designGraphPanel').hidden=n!==2;by('designGraphLabels').hidden=n!==2||!graphModel;updateLegend(n);
  const c=chapters[n];
  by('designKicker').textContent='0'+(n+1)+' / 05 — '+c[0];
  by('designTitle').textContent=c[1];
@@ -177,24 +218,25 @@ function draw(now){
  raf=0;if(!visible||document.hidden||!width||!height)return;
  if(!motion.matches&&now-lastFrame<24){raf=requestAnimationFrame(draw);return;}
  lastFrame=now;
- const g=geometry();const angle=step===1&&real&&atomicMode==='local'?atomicAngle+(motion.matches?0:.18*Math.sin(now*.00035)):.52+(motion.matches?0:now*.00012);
+ const g=geometry();const angle=step===2?graphAngle:step===1&&real&&atomicMode==='local'?atomicAngle+(motion.matches?0:.18*Math.sin(now*.00035)):.52+(motion.matches?0:now*.00012);
  if(gl){try{gl.draw(g,angle);stage.classList.add('design-gl');}catch{gl.dispose();gl=null;stage.classList.remove('design-gl');}}
  if(!gl&&ctx){
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
-  const portrait=width<801,cx=width*(portrait?.50:.67),cy=height*(portrait?(step===1?.49:step>=3?.47:.54):step>=3?.34:.45);
+  const portrait=width<801,cx=width*(portrait?.50:.67),cy=height*(portrait?(step===1?.49:step===2?.49:step>=3?.47:.54):step===2?.43:step>=3?.34:.45);
   const scale=Math.min(width*(portrait?.043:.037),height*(portrait?.029:.048))*(step===1&&real&&portrait&&atomicMode==='local'?1.35:1);
   const a=Math.cos(angle),b=Math.sin(angle);
-  const project=v=>{const x=v.x*a+v.z*b,z=-v.x*b+v.z*a;const k=1/(1+z*.025);return {x:cx+x*scale*k,y:cy-v.y*scale*k,z,k};};
+  const project=v=>{const x=v.x*a+v.z*b,z=-v.x*b+v.z*a;const k=1/(1+(step===2?-z:z)*.025);return {x:cx+x*scale*k,y:cy-v.y*scale*k,z,k};};
   const p=g.coords.map(project);
   const line=(i,j,color,w)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(p[i].x,p[i].y);ctx.lineTo(p[j].x,p[j].y);ctx.stroke();};
-  if(step===2)for(const [i,j] of edges)line(i,j,'rgba(228,190,132,.52)',1.5);
+  if(step===2)for(const [i,j] of edges)line(i,j,j===graphPair?'#fff0c7':'rgba(228,190,132,.82)',j===graphPair?2.5:1.6);
   const trace=(q,color,w)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(q[0].x,q[0].y);for(let i=1;i<q.length-1;i++)ctx.quadraticCurveTo(q[i].x,q[i].y,(q[i].x+q[i+1].x)/2,(q[i].y+q[i+1].y)/2);ctx.lineTo(q.at(-1).x,q.at(-1).y);ctx.stroke();};
   if(step===4)trace(comparisonPoints(g.coords).map(project),'rgba(228,190,132,.85)',5);
-  if(g.u>.12)trace(p,'rgba(127,212,209,'+(Math.pow(g.u,1.6)*.88)+')',step===1||step===4?5:2.6);
+  if(g.u>.12)trace(p,'rgba(127,212,209,'+(Math.pow(g.u,1.6)*(step===2?.30:.88))+')',step===1||step===4?5:2.6);
   const count=step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*p.length):0;
   if(step===0){ctx.fillStyle='#96bac7';ctx.globalAlpha=.24*(1-g.u);for(let i=0;i<220;i++){const v=project({x:(random(i*3+500)-.5)*24,y:(random(i*3+501)-.5)*22,z:(random(i*3+502)-.5)*25});ctx.beginPath();ctx.arc(v.x,v.y,.6+random(i+750)*1.3,0,Math.PI*2);ctx.fill();}}
-  p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
+  p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===2?(v.i===graphFocus?8:v.i===graphPair?6:graphNeighbors.has(v.i)?5:2.8):step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===2?(v.i===graphFocus?'#ffe1a6':v.i===graphPair?'#fff0c7':graphNeighbors.has(v.i)?'#d5b17c':'#63939d'):step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
   ctx.globalAlpha=1;
+  if(step===2)graphLabelPositions(project);
   if(step===1&&real&&g.ribbon>.94){const q=detailAtoms.map(project);for(const [i,j] of detailBonds){if(!visibleAtomic(detailAtoms[i])||!visibleAtomic(detailAtoms[j]))continue;ctx.strokeStyle='#8a989b';ctx.lineWidth=atomicMode==='local'?2.5:1.4;ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[j].x,q[j].y);ctx.stroke();}q.map((p,i)=>({...p,i})).filter(p=>visibleAtomic(detailAtoms[p.i])).sort((a,b)=>b.z-a.z).forEach(p=>{const a=detailAtoms[p.i];ctx.fillStyle=elementColors[a.element];ctx.beginPath();ctx.arc(p.x,p.y,(atomicMode==='local'?3.5:2.7)*(a.element==='S'?1.25:1)*p.k,0,Math.PI*2);ctx.fill();});}
  }
  if(!motion.matches)raf=requestAnimationFrame(draw);
@@ -326,7 +368,9 @@ function initGL(T){
  const rodMat=new T.MeshPhysicalMaterial({color:0x76c2c4,roughness:.32,metalness:.06,clearcoat:.35});
 
  const yAxis=new T.Vector3(0,1,0),from=new T.Vector3(),to=new T.Vector3(),delta=new T.Vector3();
- const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971');
+ const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971'),graphMuted=new T.Color('#527985'),graphGold=new T.Color('#d6ac6d'),graphIvory=new T.Color('#fff0c7'),projected=new T.Vector3();
+ const graphRodGeo=new T.CylinderGeometry(.027,.027,1,12),graphRodMat=new T.MeshBasicMaterial({color:0xffffff});
+ let graphRods=null;
  let spheres=null,lines=null,links=null,trails=null,compareLine=null,backbone=null,ribbon=null,comparisonRibbon=null,atomDetail=null,bondDetail=null,atomicRenderMode=null,lastCompare=null;
 
  function updateAtomicMeshes(){
@@ -350,7 +394,7 @@ function initGL(T){
     updateAtomicMeshes();
    }
   }
-  for(const m of [spheres,backbone])if(m){group.remove(m);m.dispose();}
+  for(const m of [spheres,backbone,graphRods])if(m){group.remove(m);m.dispose();}
   for(const m of [compareLine,lines,links,trails])if(m){group.remove(m);m.geometry.dispose();m.material.dispose();}
   backbone=new T.InstancedMesh(rodGeo,rodMat,points.length-1);backbone.frustumCulled=false;group.add(backbone);
   const cmpGeo=new T.BufferGeometry();cmpGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*3),3));
@@ -358,6 +402,7 @@ function initGL(T){
   spheres=new T.InstancedMesh(geom,mat,points.length);spheres.frustumCulled=false;group.add(spheres);
   const lineGeo=new T.BufferGeometry();lineGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*3),3));
   lines=new T.Line(lineGeo,new T.LineBasicMaterial({color:0x7fd4d1,transparent:true,opacity:.75}));lines.frustumCulled=false;group.add(lines);
+  graphRods=new T.InstancedMesh(graphRodGeo,graphRodMat,Math.max(1,edges.length));graphRods.frustumCulled=false;graphRods.count=edges.length;group.add(graphRods);
   const edgeGeo=new T.BufferGeometry();edgeGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(edges.length*6),3));
   links=new T.LineSegments(edgeGeo,new T.LineBasicMaterial({color:0xedc484,transparent:true,opacity:.56}));links.frustumCulled=false;group.add(links);
   const trailGeo=new T.BufferGeometry();trailGeo.setAttribute('position',new T.BufferAttribute(new Float32Array(points.length*6),3));
@@ -370,17 +415,17 @@ function initGL(T){
   const portrait=width<801;
   const depth=step===0?1-ease(local):0;
   const mobileDistance=Math.max(31,9.4/(Math.tan(camera.fov*Math.PI/360)*camera.aspect));
-  const desktopDistance=step>=3?22.5:20.2;
-  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?mobileDistance:desktopDistance))+depth*3.2);
+  const desktopDistance=step===2?20.8:step>=3?22.5:20.2;
+  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?(step===2?Math.max(23,mobileDistance*.78):mobileDistance):desktopDistance))+depth*3.2);
   camera.lookAt(0,0,0);
   camera.setViewOffset(
    width,height,
    portrait?0:-Math.round(width*.17),
-   portrait?Math.round(height*(step===1?.015:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
+   portrait?Math.round(height*(step===1?.015:step===2?.025:step>=3?.015:-.075)):Math.round(height*(step>=3?.14:.035)),
    width,height
   );
   group.rotation.y=angle;
-  group.rotation.x=step===1&&real?.12:.22+.12*Math.sin(progress*Math.PI);
+  group.rotation.x=step===2?.20:step===1&&real?.12:.22+.12*Math.sin(progress*Math.PI);
   key.color.set(step===1?0xf1f6ff:0xfff1dc);rim.intensity=step===1?1.3:2.4;
   dust.visible=step===0;
   dustMat.opacity=.48*(1-g.u*.75);
@@ -397,10 +442,10 @@ function initGL(T){
   const count=step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*points.length):0;
   g.coords.forEach((p,i)=>{
    obj.position.set(p.x,p.y,p.z);obj.rotation.set(0,0,0);
-   obj.scale.setScalar(step===3&&i===selectedResidue?2.85:.88+g.u*.75);
+   obj.scale.setScalar(step===2?(graphModel&&i===graphFocus?3.45:graphModel&&i===graphPair?2.65:graphNeighbors.has(i)?2.05:1.02):step===3&&i===selectedResidue?2.85:.88+g.u*.75);
    obj.updateMatrix();
    spheres.setMatrixAt(i,obj.matrix);
-   spheres.setColorAt(i,step===3&&(i<count||i===selectedResidue)?gold:teal);
+   spheres.setColorAt(i,step===2?(graphModel&&i===graphFocus?graphIvory:graphModel&&i===graphPair?graphIvory:graphNeighbors.has(i)?graphGold:graphMuted):step===3&&(i<count||i===selectedResidue)?gold:teal);
    lines.geometry.attributes.position.setXYZ(i,p.x,p.y,p.z);
   });
   spheres.visible=!(real&&(step===1||step===4)&&g.ribbon>.94);
@@ -409,8 +454,8 @@ function initGL(T){
   lines.geometry.attributes.position.needsUpdate=true;
   lines.visible=g.u>.12&&step<2&&!(step===1&&real&&g.ribbon>.94);
   lines.material.opacity=Math.pow(g.u,1.6)*.86;
-  backbone.visible=step>=1&&(!real||g.ribbon<.15||step===2||step===3);
-  if(ribbon){ribbon.visible=(step===1||step===4)&&g.ribbon>.02;ribbonMat.opacity=step===1?g.ribbon*(atomicMode==='all'?.16:.38):g.ribbon;ribbonMat.depthWrite=step!==1&&g.ribbon>.85;}
+  backbone.visible=step>=1&&(!real||g.ribbon<.15||step===3);
+  if(ribbon){ribbon.visible=(step===1||step===2||step===4)&&g.ribbon>.02;ribbonMat.opacity=step===1?g.ribbon*(atomicMode==='all'?.16:.38):step===2?.22:g.ribbon;ribbonMat.depthWrite=step!==1&&step!==2&&g.ribbon>.85;}
   const showDetail=step===1&&g.ribbon>.94;
   if(atomDetail){updateAtomicMeshes();atomDetail.visible=showDetail;}
   if(bondDetail)bondDetail.visible=showDetail;
@@ -437,13 +482,21 @@ function initGL(T){
    comparisonPoints(g.coords).forEach((v,i)=>compareLine.geometry.attributes.position.setXYZ(i,v.x,v.y,v.z));
    compareLine.geometry.attributes.position.needsUpdate=true;
   }
-  links.visible=step===2;
-  edges.forEach(([i,j],k)=>{
-   const a=g.coords[i],b=g.coords[j];
-   links.geometry.attributes.position.setXYZ(k*2,a.x,a.y,a.z);
-   links.geometry.attributes.position.setXYZ(k*2+1,b.x,b.y,b.z);
-  });
-  links.geometry.attributes.position.needsUpdate=true;
+  links.visible=false;
+  graphRods.visible=step===2&&!!graphModel;
+  if(graphRods.visible){
+   edges.forEach(([i,j],k)=>{
+    const a=g.coords[i],b=g.coords[j];
+    from.set(a.x,a.y,a.z);to.set(b.x,b.y,b.z);delta.subVectors(to,from);
+    const len=delta.length();obj.position.copy(from).add(to).multiplyScalar(.5);
+    obj.quaternion.setFromUnitVectors(yAxis,delta.normalize());
+    const weight=j===graphPair?1.65:1;
+    obj.scale.set(weight,len,weight);obj.updateMatrix();
+    graphRods.setMatrixAt(k,obj.matrix);graphRods.setColorAt(k,j===graphPair?graphIvory:graphGold);
+   });
+   graphRods.instanceMatrix.needsUpdate=true;graphRods.instanceColor.needsUpdate=true;
+  }
+  if(step===2){group.updateMatrixWorld(true);camera.updateMatrixWorld(true);graphLabelPositions(p=>{projected.set(p.x,p.y,p.z).applyMatrix4(group.matrixWorld).project(camera);return {x:(projected.x+1)*width/2,y:(1-projected.y)*height/2};});}
   renderer.render(scene,camera);
  }
 
@@ -463,5 +516,5 @@ if('IntersectionObserver' in window)new IntersectionObserver(entries=>{visible=e
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&raf){cancelAnimationFrame(raf);raf=0;}else schedule();});
 motion.addEventListener?.('change',()=>{updateSequence();schedule();});
 const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),15000);
-fetch('https://files.rcsb.org/download/1CRN.pdb',{signal:controller.signal}).then(r=>{if(!r.ok)throw Error('PDB unavailable');return r.text();}).then(pdb=>{raw=parsePDB(pdb);real=true;stage.dataset.secondaryCount=String(raw.filter(p=>p.ss!=='loop').length);stage.dataset.designSource='1CRN';by('designDataStatus').textContent='模式図 · 構造の参考：PDB 1CRN';rebuild();schedule();}).catch(()=>{stage.dataset.designSource='schematic';by('designDataStatus').textContent='模式図 · 参照構造なしでも探索できます';schedule();}).finally(()=>clearTimeout(timeout));
+Promise.all([fetch('https://files.rcsb.org/download/1CRN.pdb',{signal:controller.signal}).then(r=>{if(!r.ok)throw Error('PDB unavailable');return r.text();}),import('./design-geometry.mjs').catch(()=>null)]).then(([pdb,module])=>{geometryModule=module;raw=parsePDB(pdb);real=true;stage.dataset.secondaryCount=String(raw.filter(p=>p.ss!=='loop').length);stage.dataset.designSource='1CRN';by('designDataStatus').textContent='模式図 · 構造の参考：PDB 1CRN';rebuild();schedule();}).catch(()=>{stage.dataset.designSource='schematic';by('designDataStatus').textContent='模式図 · 参照構造なしでも探索できます';updateGraphStudy();schedule();}).finally(()=>clearTimeout(timeout));
 import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js').then(T=>{try{gl=initGL(T);schedule();}catch{webgl.replaceChildren();}}).catch(()=>{});

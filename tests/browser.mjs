@@ -12,6 +12,11 @@ try{
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    await page.locator('[data-design-jump="2"]').click();
+    await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='2');
+    assert.equal(await page.locator('#design').getAttribute('data-graph-source'),'unavailable');
+    assert.equal(await page.locator('#design').getAttribute('data-graph-neighbor-count'),'0');
+    assert.equal(await page.locator('#designGraphMetrics').isVisible(),false);
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);

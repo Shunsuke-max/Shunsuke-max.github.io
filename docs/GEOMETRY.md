@@ -17,3 +17,6 @@ The existing WebGL CI job downloads 1CRN and verifies all distances against a se
 Static composition using the current main ribbon and lighting: fixed focus Cys4, selected Cys32, six neighbor edges, real 46×46 matrix, one-dimensional sequence track. Validate desktop/mobile screenshots before adding picking, controls or message animations. Later: shared selection state; per-pair backbone/virtual-Cβ distances and RBF; handoff to chapter 04.
 
 References: https://www.rcsb.org/structure/1CRN ; https://files.rcsb.org/download/1CRN.pdb ; https://github.com/dauparas/ProteinMPNN/blob/main/protein_mpnn_utils.py
+
+## Gate 02 first visual pass
+Fixed Cys4 focus, Cys32 comparison; six directed neighborhood edges only. Reuse studio ribbon at 22% opacity; background nodes subdued, pair and focus ivory; deterministic camera searches 72 yaw angles. Pair distances and neighbor labels come from the shared numerical module. No false Å values if the PDB/module is unavailable. Capture desktop and mobile graph frames in CI. No matrix/picking/rotation controls yet. Review actual screenshots before moving on.

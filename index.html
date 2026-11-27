@@ -49,6 +49,16 @@
       <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 原子位置のイメージ</span></div>
     </div>
     <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span>ATOMIC STUDY / 1CRN</span><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="原子表示の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験構造の座標・距離から推定した結合。水素は非表示。</p></div>
+    <div id="designGraphLabels" class="design-graph-labels" aria-hidden="true" hidden><span id="designGraphFocusLabel">CYS 04</span><span id="designGraphPairLabel">CYS 32</span></div>
+    <aside id="designGraphPanel" class="design-graph-panel" aria-label="残基間の空間的近傍" hidden>
+      <div class="design-graph-eyebrow"><span>SPATIAL NEIGHBORHOOD</span><span>PDB 1CRN</span></div>
+      <div id="designGraphMetrics">
+        <div class="design-graph-pair">Cys4 <span>—</span> Cys32</div>
+        <div class="design-graph-metrics"><div><small>Cα間距離</small><strong id="designGraphDistance">—</strong></div><div><small>配列上の位置差</small><strong id="designGraphSeparation">—</strong></div></div>
+        <div class="design-graph-neighbors"><small>6近傍（距離順）</small><span id="designGraphNeighbors">—</span></div>
+      </div>
+      <p id="designGraphStatus" role="status">参照構造を読み込み中</p>
+    </aside>
     <div id="designSequencePanel" class="design-sequence" hidden>
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div>
       <div id="designSequence" class="design-residues"></div>
