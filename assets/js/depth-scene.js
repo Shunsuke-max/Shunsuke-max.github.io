@@ -35,14 +35,14 @@ function init(T){
   for(let i=0;i<43;i++){const angle=random()*Math.PI*2,rad=2.9+random()*4.3,z=-30+random()*45;const m=new T.Mesh(disc,cellMaterial);m.position.set(Math.cos(angle)*rad,Math.sin(angle)*rad,z);m.rotation.set(random()*Math.PI,random()*Math.PI,random()*Math.PI);m.scale.setScalar(.85+random()*.9);vessel.add(m);cells.push({m,z,phase:random()*Math.PI*2});}
   const wall=new T.Mesh(new T.CylinderGeometry(9,9,90,56,1,true),new T.MeshStandardMaterial({color:0x54202b,roughness:.95,side:T.BackSide}));wall.rotation.x=Math.PI/2;wall.position.z=-15;vessel.add(wall);
   // Four-lobed shapes are symbolic hemoglobin molecules, not experimental coordinates.
-  const sphere=new T.IcosahedronGeometry(.48,2);
-  const lobes=new T.InstancedMesh(sphere,new T.MeshStandardMaterial({roughness:.53,color:0xffffff}),320);
+  const sphere=new T.IcosahedronGeometry(.40,1);
+  const lobes=new T.InstancedMesh(sphere,new T.MeshStandardMaterial({roughness:.53,color:0xffffff}),1600);
   const matrix=new T.Object3D(),colors=[new T.Color(0xc98a7c),new T.Color(0x77b3b5),new T.Color(0xd3b080),new T.Color(0x8894ae)];
   let instance=0;
-  for(let i=0;i<80;i++){const x=(random()-.5)*16,y=(random()-.5)*11,z=-17+random()*20;const center=new T.Vector3(x,y,z);for(let j=0;j<4;j++){const a=j*Math.PI/2;matrix.position.set(center.x+.46*Math.cos(a),center.y+.46*Math.sin(a),center.z+(j%2?.22:-.22));matrix.rotation.set(random(),random(),random());matrix.scale.setScalar(.76+random()*.25);matrix.updateMatrix();lobes.setMatrixAt(instance,matrix.matrix);lobes.setColorAt(instance,colors[j]);instance++;}}
+  for(let i=0;i<80;i++){const x=(random()-.5)*16,y=(random()-.5)*11,z=-17+random()*20;const center=new T.Vector3(x,y,z);for(let j=0;j<4;j++){const a=j*Math.PI/2;for(let k=0;k<5;k++){matrix.position.set(center.x+.42*Math.cos(a)+(random()-.5)*.52,center.y+.42*Math.sin(a)+(random()-.5)*.52,center.z+(j%2?.22:-.22)+(random()-.5)*.50);matrix.rotation.set(random(),random(),random());matrix.scale.setScalar(.68+random()*.38);matrix.updateMatrix();lobes.setMatrixAt(instance,matrix.matrix);lobes.setColorAt(instance,colors[j]);instance++;}}}
   interior.add(lobes);
   const featured=new T.Group();
-  for(let j=0;j<4;j++){const a=j*Math.PI/2,m=new T.Mesh(sphere,new T.MeshStandardMaterial({color:colors[j],roughness:.4}));m.position.set(.5*Math.cos(a),.5*Math.sin(a),j%2?.22:-.22);featured.add(m);}
+  for(let j=0;j<4;j++){const a=j*Math.PI/2,mat=new T.MeshStandardMaterial({color:colors[j],roughness:.62});for(let k=0;k<5;k++){const m=new T.Mesh(sphere,mat);m.position.set(.42*Math.cos(a)+(random()-.5)*.52,.42*Math.sin(a)+(random()-.5)*.52,(j%2?.22:-.22)+(random()-.5)*.50);m.scale.setScalar(.72+random()*.32);featured.add(m);}}
   featured.position.set(0,0,-3);featured.scale.setScalar(1.7);interior.add(featured);
   let visible=true,frame=0,last=0,failed=false;
   function size(){const w=host.clientWidth,h=host.clientHeight;if(w<2||h<2)return false;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();return true;}
@@ -53,7 +53,8 @@ function init(T){
     const u=motion.matches?0:p*p*(3-2*p);
     const portrait=camera.aspect<.85;
     const distance=portrait?1.26:1;
-    camera.setViewOffset(1000,1000,portrait?0:-62,0,1000,1000);
+    const w=host.clientWidth,h=host.clientHeight;
+    if(portrait)camera.clearViewOffset();else camera.setViewOffset(w,h,-Math.round(w*.06),0,w,h);
     if(scene===0){camera.position.set(1.1*(1-u),.65*(1-u),-2+(15-9.1*u)*distance);camera.lookAt(0,0,-2);if(!motion.matches){for(const c of cells)c.m.position.z=c.z+Math.sin(now*.00032+c.phase)*.52;}}
     else{camera.position.set(.7*(1-u),.55*(1-u),-3+(14-8.7*u)*distance);camera.lookAt(0,0,-3);if(!motion.matches)featured.rotation.y=now*.00019;}
     try{renderer.render(scene===0?vessel:interior,camera);gallery.classList.add('depth-ready');}catch{fallback();return;}
