@@ -3,16 +3,16 @@
 const get=id=>document.getElementById(id);
 const datasets={
  fold:[
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png",alt:'FoldLensの実データ解析ワークスペース',caption:'3D構造と予測誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-models.png",alt:'FoldLensの5モデル比較画面',caption:'5モデルの界面はよく一致しますが、界面PAEの中央値は11.0 Å。形状の一致と予測誤差を分けて見ます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case2-divergence.png",alt:'FoldLensの3鎖複合体の配置比較画面',caption:'別の3鎖複合体では、モデル間で配置が大きく異なりました。単一の予測構造だけで結論を出すことには注意が必要です。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/demo-tour-step5-agent.png",alt:'FoldLensの6ツール根拠付きAI研究エージェント画面',caption:'APIキー不要の事前設計リプレイで、6つの決定論ツールによる根拠付き回答とスコープ遮断を体験できます。'}
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png",alt:'FoldLensの実データ解析ワークスペース',caption:'3D構造と予測位置誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-models.png",alt:'FoldLensの5モデル比較画面',caption:'5モデルの結合界面はよく一致していますが、界面の PAE 中央値は 11.0 Å と高めです。構造の一致度と予測誤差を分けて評価します。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case2-divergence.png",alt:'FoldLensの3鎖複合体の配置比較画面',caption:'別の3鎖複合体では、モデル間で鎖の配置が大きく異なりました。単一の予測構造だけで結論を出すことには注意が必要です。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/demo-tour-step5-agent.png",alt:'FoldLensの根拠提示型AIエージェント画面',caption:'APIキー不要の事前収録デモで、6つの解析ツールに基づく根拠付き回答と、対象外の質問を遮断する挙動を確認できます。'}
  ],
  part:[
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg",alt:'Part5 Proのホーム画面',title:'学習の入口',caption:'実力診断と短時間の演習から、次に行う学習を選べます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/training.jpg",alt:'Part5 Proのトレーニング画面',title:'目的別の演習',caption:'学習の目的に合わせて、文法・語彙や復習などの演習を選べます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/mock-question.png",alt:'Part5 Proの模試問題画面',title:'本番を想定する',caption:'時間制約のある四択演習で、現在の理解度を確認します。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/feedback.png",alt:'Part5 Proの回答・解説画面',title:'解いて終わらない',caption:'正答、語の意味、解説を確認し、次の学習につなげます。'}
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg",alt:'Part5 Proのホーム画面',title:'学習の入口',caption:'実力診断と短時間の演習から、次に取るべき学習を選べます。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/training.jpg",alt:'Part5 Proのトレーニング画面',title:'目的別の演習',caption:'弱点や学習目的に合わせて、文法・語彙・復習などの演習を選べます。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/mock-question.png",alt:'Part5 Proの模試問題画面',title:'本番を想定した模試',caption:'制限時間付きの四択演習で、現在の実力と時間配分を確認できます。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/feedback.png",alt:'Part5 Proの回答・解説画面',title:'解いて終わらない',caption:'正答だけでなく語の意味や解説を確認し、次の復習につなげます。'}
  ]
 };
 const galleries=Array.from(document.querySelectorAll('[data-gallery]'));
@@ -35,20 +35,20 @@ for(const img of document.querySelectorAll('.image-area img')){
 }
 
 const contacts=[84,104,103,92,81,110,81,80];
-const clashNotes={0:'（局所クラッシュ 2.02 Å 検知）',7:'（局所クラッシュ 1.62 Å 検知）'};
+const clashNotes={0:'（局所的な原子衝突 2.02 Å を検出）',7:'（局所的な原子衝突 1.62 Å を検出）'};
 const frames=Array.from(document.querySelectorAll('[data-frame]'));
 frames.forEach(b=>b.addEventListener('click',()=>{
  const i=Number(b.dataset.frame);
- get('ensembleFrame').textContent='構造候補 '+(i+1)+' / 8'+(clashNotes[i]||'（2.2 Å 未満の衝突なし）');
+ get('ensembleFrame').textContent='構造候補 '+(i+1)+' / 8'+(clashNotes[i]||'（2.2 Å 未満の原子衝突なし）');
  get('ensembleContacts').textContent=contacts[i]+' ペア';
  frames.forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
 }));
 
 const phases=[
- ['まず、何を作るのか。','標的や必要な性質を文献・公開構造から整理し、ホットスポットと幾何制約を定義します。'],
- ['形の候補を生成する。','RFdiffusion 系の生成モデルで、設計条件に対応する骨格候補をノイズから収束させます。'],
- ['形を支える配列を考える。','ProteinMPNN / LigandMPNN で、固定した骨格構造に対応するアミノ酸配列を設計します。'],
- ['別のモデルで確かめる。','AlphaFold 3 や Boltz-2 などの独立モデルで再予測し、RMSD・PAE・衝突検査で候補を選別します。計算結果だけでは結合や機能は証明できません。']
+ ['標的と設計条件を定義する','文献や公開構造から標的の結合部位（ホットスポット）や必要な性質を整理し、幾何学的な制約条件を定めます。'],
+ ['条件を満たす構造候補を生成する','RFdiffusion 系の拡散モデルを用い、定めた設計条件を満たす立体構造の候補をノイズから段階的に生成します。'],
+ ['構造に合うアミノ酸配列を設計する','ProteinMPNN や LigandMPNN を用い、生成した立体構造を安定に保てるアミノ酸配列を推論します。'],
+ ['独立モデルで再予測して候補を選別する','AlphaFold 3 や Boltz-2 などの独立した予測モデルで構造を再予測し、RMSD・PAE・原子衝突の有無から候補を絞り込みます。計算上の整合だけで結合や機能は証明できないため、最終検証には実験が必要です。']
 ];
 const phaseButtons=Array.from(document.querySelectorAll('[data-phase-button]'));
 phaseButtons.forEach(b=>b.addEventListener('click',()=>{
