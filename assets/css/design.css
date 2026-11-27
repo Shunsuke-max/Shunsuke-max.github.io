@@ -92,3 +92,6 @@
 .design-residues button.on{background:#20373d;color:#d8f0e9;border-color:#6da4a6}.design-residues button.focused{border-color:#e2bb82;color:#ffe4bc;background:#423627;outline:1px solid #e2bb82}
 .design-sampling{display:flex;gap:8px;margin-top:8px}.design-prob{position:relative;flex:1;font:10px var(--font-mono);color:#b7c7c8;padding-bottom:5px;border-bottom:2px solid #31424b}.design-prob i{position:absolute;bottom:-2px;left:0;height:2px;background:#83c6c5}.design-prob.chosen{color:#e2bb82}.design-prob.chosen i{background:#e2bb82}
 @media(max-width:800px){.design-graph-panel{left:20px;right:20px;bottom:calc(var(--design-nav-height,112px) + 10px);max-height:min(26svh,210px);overflow-y:auto;overscroll-behavior:contain;padding:8px 10px}.design-graph-panel p{font-size:10px}.design-residues button{font-size:10px;min-width:16px;padding:2px}.design-sampling{gap:4px}.design-prob{font-size:9px}}
+
+.design-sampling-label{font-size:10px;color:#a9bec1;margin-top:7px}.design-sampling{margin-top:4px}.design-residue-control button:disabled{opacity:.4;cursor:default}.design-residues button:focus-visible,.design-graph-panel button:focus-visible,.design-residue-control select:focus-visible{outline:2px solid #e2bb82;outline-offset:2px}
+@media(min-width:801px){.design-graph-panel,.design-sequence{bottom:145px;max-height:32vh;overflow-y:auto}}
