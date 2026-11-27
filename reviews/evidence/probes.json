@@ -1,0 +1,1078 @@
+{
+  "run": "46001084992",
+  "browser": "134.0.6998.35",
+  "load": [
+    {
+      "kind": "local-network",
+      "trial": 1,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": true,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 2021.2000000000116,
+        "ready": {
+          "reference": 768.8000000000175,
+          "gl": 811.9000000000233
+        },
+        "vitals": {
+          "lcp": [
+            236,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 236,
+        "nav": {
+          "name": "http://127.0.0.1:4173/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 285.4000000000233,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "http/1.0",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0.10000000000582077,
+          "domainLookupStart": 1.1000000000058208,
+          "domainLookupEnd": 1.1000000000058208,
+          "connectStart": 1.1000000000058208,
+          "secureConnectionStart": 0,
+          "connectEnd": 1.400000000023283,
+          "requestStart": 1.5,
+          "responseStart": 34.5,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 34.5,
+          "responseEnd": 35.20000000001164,
+          "transferSize": 42512,
+          "encodedBodySize": 42212,
+          "decodedBodySize": 42212,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 49.20000000001164,
+          "domContentLoadedEventStart": 285,
+          "domContentLoadedEventEnd": 285,
+          "domComplete": 285.1000000000058,
+          "loadEventStart": 285.4000000000233,
+          "loadEventEnd": 285.4000000000233,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:4173/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 42400
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2729
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 7452
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 11598
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 18499
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 28388
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 6885
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5495
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 14300
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128295
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108114
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 207832
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11147
+        }
+      ]
+    },
+    {
+      "kind": "local-network",
+      "trial": 2,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": true,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 1926.1000000000058,
+        "ready": {
+          "reference": 532.5,
+          "gl": 719.5
+        },
+        "vitals": {
+          "lcp": [
+            64,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 64,
+        "nav": {
+          "name": "http://127.0.0.1:4173/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 155.89999999999418,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "http/1.0",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0.20000000001164153,
+          "domainLookupStart": 1.2000000000116415,
+          "domainLookupEnd": 1.2000000000116415,
+          "connectStart": 1.2000000000116415,
+          "secureConnectionStart": 0,
+          "connectEnd": 1.3999999999941792,
+          "requestStart": 1.3999999999941792,
+          "responseStart": 2.2999999999883585,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 2.2999999999883585,
+          "responseEnd": 3.3999999999941792,
+          "transferSize": 42512,
+          "encodedBodySize": 42212,
+          "decodedBodySize": 42212,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 13.60000000000582,
+          "domContentLoadedEventStart": 155.60000000000582,
+          "domContentLoadedEventEnd": 155.60000000000582,
+          "domComplete": 155.60000000000582,
+          "loadEventStart": 155.89999999999418,
+          "loadEventEnd": 155.89999999999418,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:4173/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 42400
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2729
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 11598
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 7452
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 18499
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 6885
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 28388
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 14300
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5495
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128291
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108111
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11148
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 208029
+        }
+      ]
+    },
+    {
+      "kind": "local-network",
+      "trial": 3,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": true,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 1797.5,
+        "ready": {
+          "reference": 429.5,
+          "gl": 579.3999999999942
+        },
+        "vitals": {
+          "lcp": [
+            92,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 92,
+        "nav": {
+          "name": "http://127.0.0.1:4173/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 144.89999999999418,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "http/1.0",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0,
+          "domainLookupStart": 0.6999999999825377,
+          "domainLookupEnd": 0.6999999999825377,
+          "connectStart": 0.6999999999825377,
+          "secureConnectionStart": 0,
+          "connectEnd": 0.7999999999883585,
+          "requestStart": 1,
+          "responseStart": 1.6000000000058208,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 1.6000000000058208,
+          "responseEnd": 6,
+          "transferSize": 42512,
+          "encodedBodySize": 42212,
+          "decodedBodySize": 42212,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 21.29999999998836,
+          "domContentLoadedEventStart": 144.29999999998836,
+          "domContentLoadedEventEnd": 144.5,
+          "domComplete": 144.60000000000582,
+          "loadEventStart": 144.89999999999418,
+          "loadEventEnd": 144.89999999999418,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:4173/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 42400
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2729
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 11598
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 18499
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 7452
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 28388
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 6885
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 14300
+        },
+        {
+          "url": "http://127.0.0.1:4173/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5495
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128295
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108121
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11148
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 208030
+        }
+      ]
+    },
+    {
+      "kind": "published",
+      "trial": 1,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": false,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 2079.5,
+        "ready": {
+          "reference": 389.5999999999767,
+          "gl": 874.6999999999825
+        },
+        "vitals": {
+          "lcp": [
+            152,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 152,
+        "nav": {
+          "name": "https://shunsuke-max.github.io/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 364.8999999999942,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "h2",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0,
+          "domainLookupStart": 2.599999999976717,
+          "domainLookupEnd": 4.899999999994179,
+          "connectStart": 4.899999999994179,
+          "secureConnectionStart": 6.599999999976717,
+          "connectEnd": 11.099999999976717,
+          "requestStart": 11.199999999982538,
+          "responseStart": 33.19999999998254,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 33.19999999998254,
+          "responseEnd": 34,
+          "transferSize": 10984,
+          "encodedBodySize": 10684,
+          "decodedBodySize": 41009,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 43,
+          "domContentLoadedEventStart": 364.5999999999767,
+          "domContentLoadedEventEnd": 364.5999999999767,
+          "domComplete": 364.5999999999767,
+          "loadEventStart": 364.8999999999942,
+          "loadEventEnd": 364.8999999999942,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "https://shunsuke-max.github.io/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 11104
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 8618
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 2464
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128297
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 1293
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2712
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2961
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 4635
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5274
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 3059
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108115
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11148
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 207830
+        }
+      ]
+    },
+    {
+      "kind": "published",
+      "trial": 2,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": false,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 1938.6000000000058,
+        "ready": {
+          "reference": 511.3999999999942,
+          "gl": 733.7999999999884
+        },
+        "vitals": {
+          "lcp": [
+            92,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 92,
+        "nav": {
+          "name": "https://shunsuke-max.github.io/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 201.10000000000582,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "h2",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0.10000000000582077,
+          "domainLookupStart": 2,
+          "domainLookupEnd": 2.6999999999825377,
+          "connectStart": 2.6999999999825377,
+          "secureConnectionStart": 5.100000000005821,
+          "connectEnd": 9.39999999999418,
+          "requestStart": 9.39999999999418,
+          "responseStart": 13.10000000000582,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 13.10000000000582,
+          "responseEnd": 13.699999999982538,
+          "transferSize": 10984,
+          "encodedBodySize": 10684,
+          "decodedBodySize": 41009,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 29.699999999982538,
+          "domContentLoadedEventStart": 197.39999999999418,
+          "domContentLoadedEventEnd": 200.79999999998836,
+          "domComplete": 200.79999999998836,
+          "loadEventStart": 201.10000000000582,
+          "loadEventEnd": 201.10000000000582,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "https://shunsuke-max.github.io/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 11102
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 1292
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2961
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 4635
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 8837
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2509
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 2837
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 2464
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5494
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128297
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108112
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11149
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 208044
+        }
+      ]
+    },
+    {
+      "kind": "published",
+      "trial": 3,
+      "metrics": {
+        "title": "Curiosity Lab — Shunsuke",
+        "scene": "0",
+        "hasGraph": false,
+        "reference": "1CRN",
+        "gl": true,
+        "tEnd": 1931.8999999999942,
+        "ready": {
+          "reference": 243.29999999998836,
+          "gl": 724.5
+        },
+        "vitals": {
+          "lcp": [
+            92,
+            "designTitle",
+            63492
+          ],
+          "layout": 0.002673258589128408
+        },
+        "fcp": 92,
+        "nav": {
+          "name": "https://shunsuke-max.github.io/",
+          "entryType": "navigation",
+          "startTime": 0,
+          "duration": 210.5,
+          "initiatorType": "navigation",
+          "deliveryType": "",
+          "nextHopProtocol": "h2",
+          "renderBlockingStatus": "non-blocking",
+          "workerStart": 0,
+          "redirectStart": 0,
+          "redirectEnd": 0,
+          "fetchStart": 0.09999999997671694,
+          "domainLookupStart": 0.6999999999825377,
+          "domainLookupEnd": 1.599999999976717,
+          "connectStart": 1.599999999976717,
+          "secureConnectionStart": 3.7999999999883585,
+          "connectEnd": 8.39999999999418,
+          "requestStart": 8.5,
+          "responseStart": 12.799999999988358,
+          "firstInterimResponseStart": 0,
+          "finalResponseHeadersStart": 12.799999999988358,
+          "responseEnd": 13.39999999999418,
+          "transferSize": 10984,
+          "encodedBodySize": 10684,
+          "decodedBodySize": 41009,
+          "responseStatus": 200,
+          "serverTiming": [],
+          "unloadEventStart": 0,
+          "unloadEventEnd": 0,
+          "domInteractive": 21.5,
+          "domContentLoadedEventStart": 210.19999999998254,
+          "domContentLoadedEventEnd": 210.29999999998836,
+          "domComplete": 210.29999999998836,
+          "loadEventStart": 210.5,
+          "loadEventEnd": 210.5,
+          "type": "navigate",
+          "redirectCount": 0,
+          "activationStart": 0,
+          "criticalCHRestart": 0,
+          "notRestoredReasons": null
+        }
+      },
+      "resources": [
+        {
+          "url": "https://shunsuke-max.github.io/",
+          "status": 200,
+          "type": "Document",
+          "bytes": 11104
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/base.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 1294
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/design.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2962
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/exhibition.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 2727
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/exhibition.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 2491
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/css/journey.css",
+          "status": 200,
+          "type": "Stylesheet",
+          "bytes": 4654
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/design.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 8575
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/depth-scene.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 3058
+        },
+        {
+          "url": "https://shunsuke-max.github.io/assets/js/journey.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 5274
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/3dmol@2.5.5/build/3Dmol-min.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 128298
+        },
+        {
+          "url": "https://files.rcsb.org/download/4HHB.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 108114
+        },
+        {
+          "url": "https://files.rcsb.org/download/1CRN.pdb",
+          "status": 200,
+          "type": "Fetch",
+          "bytes": 11149
+        },
+        {
+          "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "status": 200,
+          "type": "Script",
+          "bytes": 207823
+        }
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "name": "wheel across design and free exploration",
+      "result": [
+        [
+          "design",
+          2,
+          967,
+          1307
+        ],
+        [
+          "scale",
+          3,
+          5436,
+          5776
+        ],
+        [
+          "scale",
+          5,
+          6444,
+          6444
+        ]
+      ]
+    },
+    {
+      "name": "invisible view in keyboard navigation",
+      "result": {
+        "active": "molView",
+        "visibility": "visible",
+        "opacity": "1",
+        "pointer": "none",
+        "scene": "0"
+      }
+    },
+    {
+      "name": "context loss design and depth",
+      "result": {
+        "before": "design-stage design-gl",
+        "beforeDepth": "protein-hero depth-ready",
+        "after": "design-stage",
+        "afterDepth": "protein-hero"
+      }
+    },
+    {
+      "name": "touch panel and canvas",
+      "result": {
+        "before": [
+          1786,
+          0,
+          208,
+          210
+        ],
+        "after": [
+          1786,
+          2,
+          208,
+          210
+        ],
+        "end": [
+          1786,
+          2,
+          208,
+          210
+        ],
+        "outside": [
+          1786,
+          2,
+          208,
+          210
+        ],
+        "afterOutside": [
+          2001,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "contrast and target centers",
+      "result": {
+        "styles": {
+          ".design-copy p": {
+            "color": "rgb(199, 210, 212)",
+            "background": "rgba(0, 0, 0, 0)",
+            "font": "12px",
+            "rect": [
+              20,
+              177.25,
+              290,
+              42
+            ]
+          },
+          ".design-kicker": {
+            "color": "rgb(131, 198, 197)",
+            "background": "rgba(0, 0, 0, 0)",
+            "font": "11px",
+            "rect": [
+              20,
+              68,
+              350,
+              16.5
+            ]
+          },
+          ".design-prob": {
+            "color": "rgb(226, 187, 130)",
+            "background": "rgba(0, 0, 0, 0)",
+            "font": "9px",
+            "rect": [
+              31,
+              652,
+              79,
+              20
+            ]
+          },
+          "#designSequence button.on": {
+            "color": "rgb(216, 240, 233)",
+            "background": "rgb(32, 55, 61)",
+            "font": "10px",
+            "rect": [
+              31,
+              524,
+              16,
+              17
+            ]
+          },
+          "#designSequence button.focused": {
+            "color": "rgb(255, 228, 188)",
+            "background": "rgb(66, 54, 39)",
+            "font": "10px",
+            "rect": [
+              337,
+              524,
+              16,
+              17
+            ]
+          },
+          ".design-step-nav button span": {
+            "color": "rgb(166, 182, 187)",
+            "background": "rgba(0, 0, 0, 0)",
+            "font": "8px",
+            "rect": [
+              20,
+              735.203125,
+              66.796875,
+              24
+            ]
+          },
+          ".design-step-nav button:not([aria-current]) span": {
+            "color": "rgb(166, 182, 187)",
+            "background": "rgba(0, 0, 0, 0)",
+            "font": "8px",
+            "rect": [
+              20,
+              735.203125,
+              66.796875,
+              24
+            ]
+          }
+        },
+        "centers": [
+          [
+            39,
+            532.5
+          ],
+          [
+            57,
+            532.5
+          ],
+          [
+            75,
+            532.5
+          ]
+        ]
+      }
+    },
+    {
+      "name": "same focus in two chapters",
+      "result": {
+        "graph": "R13 ↔ R9 · R10 · R16 · R17 · R26 · R27 · R29 · R30 · R32",
+        "seq": "残基 13 F"
+      }
+    }
+  ],
+  "errors": [
+    [
+      "live preference in free exploration",
+      "page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n"
+    ]
+  ]
+}
