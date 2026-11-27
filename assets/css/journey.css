@@ -89,13 +89,13 @@
   top: 56px;
   left: clamp(20px, 4vw, 64px);
   z-index: 5;
-  max-width: 280px;
+  max-width: 340px;
   pointer-events: none;
   text-shadow: 0 4px 18px color-mix(in oklab, var(--background) 90%, transparent);
 }
 
 .gallery-heading .kicker { color: var(--accent); font-size: 0.65rem; }
-.gallery-heading h2 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem); line-height: 1.16; font-weight: 600; letter-spacing: -0.04em; margin: 8px 0 10px; }
+.gallery-heading h2 { font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem); line-height: 1.16; font-weight: 600; letter-spacing: -0.04em; margin: 8px 0 10px; word-break: keep-all; }
 .gallery-heading p { font-size: 0.84rem; line-height: 1.75; color: #c4d1d6; margin: 0; max-width: 240px; }
 
 .gallery-tools {

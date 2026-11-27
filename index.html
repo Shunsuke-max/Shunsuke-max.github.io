@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="タンパク質を設計する。構造生成、配列設計、検証から研究とソフトウェア開発へ。">
+<meta name="description" content="AIによるタンパク質設計の仕組みを、拡散モデルによる構造生成、グラフ表現、配列設計、構造再予測による検証の5工程で解説するインタラクティブ展示と研究開発ポートフォリオ。">
 <title>Curiosity Lab — Shunsuke</title>
 <link rel="icon" href="assets/mark.svg" type="image/svg+xml">
 <meta name="theme-color" content="#070c12">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Curiosity Lab — Shunsuke">
-<meta property="og:description" content="タンパク質を設計する。構造生成、配列設計、検証から研究とソフトウェア開発へ。">
+<meta property="og:description" content="AIによるタンパク質設計の仕組みを、拡散モデルによる構造生成、グラフ表現、配列設計、構造再予測による検証の5工程で解説するインタラクティブ展示と研究開発ポートフォリオ。">
 <meta property="og:url" content="https://shunsuke-max.github.io/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://shunsuke-max.github.io/">
@@ -27,66 +27,66 @@
 <header class="top">
   <a class="wordmark" href="./">Curiosity Lab<span class="wordmark-dot">.</span></a>
   <nav aria-label="メインナビゲーション">
-    <a href="#designJourney">設計の旅</a>
-    <a href="#scaleJourney">分子探索</a>
-    <a href="#works">作品</a>
+    <a href="#designJourney">設計の流れ</a>
+    <a href="#scaleJourney">分子観察</a>
+    <a href="#works">研究と開発</a>
     <a href="https://github.com/Shunsuke-max">GitHub ↗</a>
   </nav>
 </header>
 <main id="main">
 <div id="designJourney" class="design-journey">
-  <section id="design" class="design-stage" data-design-step="0" data-aa-choice="A" data-compare="close" aria-label="タンパク質設計の体験">
+  <section id="design" class="design-stage" data-design-step="0" data-aa-choice="A" data-compare="close" aria-label="AIタンパク質設計の5工程解説">
     <div class="design-visual" aria-hidden="true"><canvas id="designCanvas"></canvas><div id="designWebGL"></div></div>
     <div class="design-shade" aria-hidden="true"></div>
     <div class="design-top"><span>CURIOSITY LAB / PROTEIN DESIGN</span><a href="#works">研究と開発へ ↗</a></div>
     <div class="design-copy">
       <div class="design-kicker" id="designKicker">01 / 05 — DIFFUSION</div>
-      <h1 id="designTitle">タンパク質を、<br>設計する。</h1>
-      <p id="designDescription">原子の配置から立体構造へ。立体構造からアミノ酸配列へ。スクロールして、設計の流れをたどる。</p>
-      <div id="designIntent" class="design-intent"><span>DESIGN INTENT</span><strong>例：46残基の小型タンパク質</strong></div>
+      <h1 id="designTitle">ノイズから<br>構造を生成する</h1>
+      <p id="designDescription">拡散モデルは、ノイズを含む無秩序な状態から少しずつ誤差を取り除き、タンパク質の立体構造を生成します。スクロールすると、点が収束する過程を確認できます。</p>
+      <div id="designIntent" class="design-intent"><span>DESIGN TARGET</span><strong>46残基の小型タンパク質（PDB 1CRN）</strong></div>
       <div id="designFormula" class="design-formula">X<sub>t</sub> → X<sub>0</sub></div>
-      <div id="designDataStatus" class="design-data" role="status">設計過程の模式図</div>
-      <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 原子位置のイメージ</span></div>
+      <div id="designDataStatus" class="design-data" role="status">解説用の模式図 · 参照構造を読み込み中</div>
+      <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> 明るい点：各残基のCα位置（模式）</span></div>
     </div>
-    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span>ATOMIC STUDY / 1CRN</span><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="原子表示の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験構造の座標・距離から推定した結合。水素は非表示。</p></div>
+    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span>ATOMIC STUDY / 1CRN</span><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造を表示</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子を表示</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>参照構造（PDB 1CRN）の重原子座標を表示し、結合は距離から推定しています（水素は非表示）。</p></div>
     <div id="designGraphLabels" class="design-graph-labels" aria-hidden="true" hidden><i id="designGraphFocusRing" class="design-graph-ring"></i><i id="designGraphFocusLeader" class="design-graph-leader"></i><i id="designGraphPairLeader" class="design-graph-leader"></i><span id="designGraphFocusLabel">CYS 04</span><span id="designGraphPairLabel">CYS 32</span></div>
     <aside id="designGraphPanel" class="design-graph-panel" aria-label="残基間の空間的近傍" hidden>
-      <div class="design-graph-eyebrow"><span>SPATIAL NEIGHBORHOOD</span><span>PDB 1CRN</span></div>
+      <div class="design-graph-eyebrow"><span>SPATIAL NEIGHBORHOOD</span><span>PDB 1CRN 実座標</span></div>
       <div id="designGraphMetrics">
         <div class="design-graph-pair" id="designGraphPairTitle">Cys4 — Cys32</div>
         <div class="design-graph-metrics"><div><small>Cα間距離</small><strong id="designGraphDistance">—</strong></div><div><small>配列上の位置差</small><strong id="designGraphSeparation">—</strong></div></div>
-        <div class="design-graph-neighbors"><small id="designGraphRank">近傍（距離順）</small><span id="designGraphNeighbors">—</span></div>
+        <div class="design-graph-neighbors"><small id="designGraphRank">空間的に近い残基（距離順）</small><span id="designGraphNeighbors">—</span></div>
       </div>
       <p id="designGraphStatus" role="status">参照構造を読み込み中</p>
-      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近傍数 k <output id="designGraphKValue">6</output><input id="designGraphK" type="range" min="1" max="45" value="6" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を探索</button><button id="designGraphDetailOpen" type="button">原子間距離</button><button id="designGraphMessage" type="button" aria-pressed="false">情報伝達</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>近傍から注目残基への情報伝達の模式演出。光点は学習済み重み・推論結果ではありません。</p></div>
+      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近傍数 k <output id="designGraphKValue">6</output><input id="designGraphK" type="range" min="1" max="45" value="6" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を表示</button><button id="designGraphDetailOpen" type="button">原子間距離・RBF</button><button id="designGraphMessage" type="button" aria-pressed="false">メッセージ伝達</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>メッセージパッシングの模式表現です。近傍残基から注目残基へ立体環境を集約する流れを示します（推論結果ではありません）。</p></div>
     </aside>
-    <div id="designGraphHit" class="design-graph-hit" hidden aria-label="分子をドラッグで回転、残基をクリックで選択"></div>
-    <aside id="designGraphMatrix" class="design-graph-matrix" aria-label="残基間の行列" hidden>
-      <div class="design-graph-eyebrow"><span>GEOMETRIC REPRESENTATION</span><button id="designGraphMatrixClose" type="button" aria-label="行列を閉じる">閉じる ×</button></div>
-      <div class="design-matrix-switch" role="group" aria-label="行列の種類"><button type="button" data-matrix-mode="adj" aria-pressed="true">近接行列</button><button type="button" data-matrix-mode="dist" aria-pressed="false">距離行列</button></div>
+    <div id="designGraphHit" class="design-graph-hit" hidden aria-label="3D分子をドラッグで回転、残基をクリックして選択"></div>
+    <aside id="designGraphMatrix" class="design-graph-matrix" aria-label="残基間の行列と配列" hidden>
+      <div class="design-graph-eyebrow"><span>GEOMETRIC REPRESENTATION</span><button id="designGraphMatrixClose" type="button" aria-label="行列パネルを閉じる">閉じる ×</button></div>
+      <div class="design-matrix-switch" role="group" aria-label="行列の表示切替"><button type="button" data-matrix-mode="adj" aria-pressed="true">近接行列</button><button type="button" data-matrix-mode="dist" aria-pressed="false">距離行列</button></div>
       <canvas id="designMatrixCanvas" width="320" height="320" tabindex="0" aria-label="残基間行列。矢印キーで残基ペアを選択"></canvas>
-      <p id="designMatrixLegend">行 i → 列 j：k近傍に含まれる関係</p>
+      <p id="designMatrixLegend">近接行列：行 i の k近傍を 1（青緑）、他を 0（暗色）で表し、グラフの辺を定義します。</p>
       <div id="designMatrixReadout" role="status"></div>
       <div class="design-graph-eyebrow"><span>REFERENCE SEQUENCE</span><span>1–46</span></div>
       <div id="designGraphSequence" class="design-graph-sequence" aria-label="参照配列から注目残基を選択"></div>
-      <p class="design-matrix-help">セルを選ぶと3Dと配列が連動。金＝注目行の近傍、白枠＝比較ペア。</p>
+      <p class="design-matrix-help">セルや配列を選ぶと 3D 表示と連動します（金＝注目残基の近傍、白枠＝比較ペア）。</p>
     </aside>
     <dialog id="designGraphDetail" class="design-graph-detail" aria-labelledby="designGraphDetailTitle">
       <div class="design-graph-eyebrow"><span>EDGE FEATURE INSPECTOR</span><button id="designGraphDetailClose" type="button">閉じる ×</button></div>
-      <h2 id="designGraphDetailTitle">残基間の幾何情報</h2><p>行の原子（残基 i）と列の原子（残基 j）の距離（Å）。Cβ* は N・Cα・C から計算した仮想原子です。</p>
-      <div id="designGraphAtomTable"></div><p id="designGraphRbfLabel"></p><div id="designGraphRbf" class="design-rbf-bars"></div><p>16個のRBF基底（中心 2–22 Å、幅1.25 Å）。学習済みモデルの出力ではありません。</p>
+      <h2 id="designGraphDetailTitle">残基ペアの原子間距離と RBF 特徴量</h2><p>Cα間の距離だけでは残基どうしの向きが分からないため、主鎖4原子（N・Cα・C・O）と仮想原子 Cβ*（N・Cα・C から算出）の計25通りの距離（Å）を使います。セルを選ぶと、その距離に対応する下の RBF 特徴量が切り替わります。</p>
+      <div id="designGraphAtomTable"></div><p id="designGraphRbfLabel"></p><div id="designGraphRbf" class="design-rbf-bars"></div><p>RBF（放射基底関数）特徴量：1つの距離を、中心 2–22 Å（幅 1.25 Å）の16個の応答値へ展開し、ニューラルネットワークが距離の違いを滑らかに識別できるようにします。ここでは数式による計算値を示しており、学習済みモデルの出力ではありません。</p>
     </dialog>
     <div id="designSequencePanel" class="design-sequence" hidden>
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 46</span></div>
       <div id="designSequence" class="design-residues"></div>
       <div class="design-choice">
-        <span id="designSequenceFocus">ある残基の選択例</span>
+        <span id="designSequenceFocus">注目残基の候補例</span>
         <div class="design-choice-options" aria-label="アミノ酸の選択例">
           <button type="button" data-aa-choice="A" aria-pressed="true">A</button>
           <button type="button" data-aa-choice="V" aria-pressed="false">V</button>
           <button type="button" data-aa-choice="S" aria-pressed="false">S</button>
         </div>
-        <svg class="design-sidechain" viewBox="0 0 88 46" width="88" height="46" role="img" aria-label="側鎖の違いを表す模式図">
+        <svg class="design-sidechain" viewBox="0 0 88 46" width="88" height="46" role="img" aria-label="選択したアミノ酸による側鎖構造の違いを表す模式図">
           <path d="M8 23H30" stroke="#7fd4d1" stroke-width="2.5"/>
           <circle cx="8" cy="23" r="4" fill="#7fd4d1"/>
           <circle cx="30" cy="23" r="5" fill="#e4be84"/>
@@ -94,31 +94,31 @@
           <g class="side-v"><path d="M30 23H48M48 23L69 10M48 23L69 36" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="48" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="10" r="6" fill="#e4be84"/><circle cx="69" cy="36" r="6" fill="#e4be84"/></g>
           <g class="side-s"><path d="M30 23H49M49 23L69 13" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="49" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="13" r="6" fill="#e88f7f"/><text x="69" y="16" font-size="8" fill="#101b23" text-anchor="middle">O</text></g>
         </svg>
-        <span id="designChoiceNote" aria-live="polite">A：アラニン</span>
+        <span id="designChoiceNote" aria-live="polite">A：アラニン（小型・疎水性）</span>
       </div>
-      <p>選択の概念図。参照配列・候補文字は実際のProteinMPNN出力ではありません。</p>
+      <p>A・V・S を切り替えると側鎖の大きさと性質の違いを確認できます。参照配列と候補は説明用であり、実際の ProteinMPNN の出力ではありません。</p>
     </div>
     <div id="designEvaluate" class="design-evaluate" hidden>
-      <div class="design-eval-line"><span class="design-dot"></span> 設計構造 <small>入力</small></div>
+      <div class="design-eval-line"><span class="design-dot"></span> 設計構造 <small>設計目標</small></div>
       <div class="design-eval-line"><span class="design-dot hollow"></span> 再予測構造 <small>模式例</small></div>
-      <div class="design-compare-options" aria-label="模式的な構造比較">
-        <button type="button" data-compare="close" aria-pressed="true">形が近い例</button>
-        <button type="button" data-compare="different" aria-pressed="false">形が異なる例</button>
+      <div class="design-compare-options" aria-label="模式的な構造比較の切替">
+        <button type="button" data-compare="close" aria-pressed="true">構造が一致する例</button>
+        <button type="button" data-compare="different" aria-pressed="false">構造がずれる例</button>
       </div>
-      <p>配列から再予測した形と設計時の形を比較する。ここでの差は説明用で、実測・予測結果ではありません。</p>
-      <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで予測構造の比較を体験 ↗</a>
+      <p>ボタンを切り替えると、設計構造と再予測構造の重なり方の違いを確認できます。表示のずれは説明用の模式例であり、実際の予測結果ではありません。</p>
+      <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLens で実際の予測構造比較を見る ↗</a>
     </div>
     <div class="design-bottom">
-      <div class="design-step-nav" aria-label="設計の工程">
-        <button type="button" data-design-jump="0" aria-current="step"><span>01 / DIFFUSION</span><strong>ノイズから、形へ。</strong></button>
-        <button type="button" data-design-jump="1"><span>02 / RFD3</span><strong>原子の配置を設計する。</strong></button>
-        <button type="button" data-design-jump="2"><span>03 / GEOMETRY</span><strong>形を、グラフに。</strong></button>
-        <button type="button" data-design-jump="3"><span>04 / PROTEINMPNN</span><strong>骨格から配列へ。</strong></button>
-        <button type="button" data-design-jump="4"><span>05 / VALIDATION</span><strong>設計は、検証から。</strong></button>
+      <div class="design-step-nav" aria-label="設計の5工程">
+        <button type="button" data-design-jump="0" aria-current="step"><span>01 / DIFFUSION</span><strong>ノイズから構造を生成する</strong></button>
+        <button type="button" data-design-jump="1"><span>02 / RFD3</span><strong>主鎖と側鎖の原子を配置する</strong></button>
+        <button type="button" data-design-jump="2"><span>03 / GEOMETRY</span><strong>立体構造をグラフで表す</strong></button>
+        <button type="button" data-design-jump="3"><span>04 / PROTEINMPNN</span><strong>構造に合う配列を設計する</strong></button>
+        <button type="button" data-design-jump="4"><span>05 / VALIDATION</span><strong>構造を再予測して検証する</strong></button>
       </div>
       <div class="design-bottom-line">
-        <span id="designDisclosure">設計の流れを示す模式図 · 実際のAI出力ではありません</span>
-        <button id="designNext" type="button">スクロールして始める ↓</button>
+        <span id="designDisclosure">PDB 1CRN を参照した解説用可視化 · AIの実推論出力ではありません</span>
+        <button id="designNext" type="button">次へ：原子配置 ↓</button>
       </div>
       <div class="design-track" aria-hidden="true"><span id="designProgress"></span></div>
     </div>
@@ -127,29 +127,30 @@
       <a href="https://www.rcsb.org/structure/1CRN">RCSB PDB 1CRN（天然クランビンの実験構造）</a>
       <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
       <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
-      <p>公開構造を参考にした概念可視化です。リボンはCα座標とPDBの二次構造注釈を基にした模式表現です。工程02の重原子は参照実験構造由来で、結合は原子名・残基・共有結合半径に基づき距離から推定しています。淡い背景粒子は空間演出です。工程03のCα距離・近傍・原子間距離は実験座標から計算した教育用グラフです（自己ノードを除外）。情報伝達、配列選択、再予測との比較は説明用であり、実際の推論出力ではありません。</p>
+      <p>天然クランビンの実験構造（PDB 1CRN）を参照した教育用の可視化です。工程02の重原子座標（結合は共有結合半径による距離推定）と、工程03の Cα間距離・k近傍（自己ノード除外）・主鎖原子間距離・RBF 値は実験座標から算出しています。</p>
+      <p>リボン形状、工程01のノイズ収束と背景粒子、工程03のメッセージ伝達演出、工程04の参照配列・側鎖候補、工程05の再予測比較は仕組みを伝えるための模式表現であり、AIモデルの実際の推論出力ではありません。</p>
     </details>
   </section>
 </div>
 
-<section class="design-bridge" aria-label="続きの探索">
+<section class="design-bridge" aria-label="実在する分子の観察へ">
   <div>
     <span class="design-kicker">NEXT / MOLECULAR EXPLORATION</span>
-    <h2>実在する分子を、観察する。</h2>
-    <p>設計を考える前に、実際の構造を知る。血液からヘモグロビンへの旅と自由探索。</p>
+    <h2>実在するタンパク質の構造を観察する</h2>
+    <p>設計の流れを確認した次は、生体内で働く実在のタンパク質を観察しましょう。血液や赤血球のスケールから、ヘモグロビンの実験構造まで拡大して見られます。</p>
   </div>
-  <a href="#scaleJourney">分子の旅へ ↓</a>
+  <a href="#scaleJourney">分子観察へ進む ↓</a>
   <a href="#works">研究と開発へ ↓</a>
 </section>
 
 <div class="scale-journey" id="scaleJourney">
-  <section class="protein-hero" id="protein" data-scene="0" aria-label="分子の展示室">
+  <section class="protein-hero" id="protein" data-scene="0" aria-label="分子の観察室">
     <div class="molecule-stage">
       <div class="molecule-view" id="molView" tabindex="0" aria-label="タンパク質の3D表示。ドラッグまたは矢印キーで回転、プラスとマイナスキーで拡大縮小。">
         <div id="molHost" class="mol-host"></div>
         <div class="mol-vignette" aria-hidden="true"></div>
         <div class="view-caption" id="viewCaption">PDB 4HHB / EXPERIMENTAL STRUCTURE</div>
-        <div class="view-hint">ドラッグで回転 · スクロール / ピンチで拡大縮小 · 分子をクリックして観察</div>
+        <div class="view-hint">ドラッグで回転 · スクロール / ピンチで拡大縮小 · 残基をクリックして詳細を表示</div>
         <div class="mol-status" id="molStatus" role="status">分子データを読み込んでいます…</div>
       </div>
       <div id="depthScene" class="depth-scene" aria-hidden="true"></div>
@@ -161,30 +162,30 @@
       </div>
       <div class="scale-story-copy">
         <div class="scale-index" id="scaleIndex">01 / 05 · BLOOD</div>
-        <h1 id="scaleTitle">血液の中へ。</h1>
-        <p id="scaleText">酸素を運ぶ赤血球。その一つに近づいてみましょう。</p>
+        <h1 id="scaleTitle">血管の中を見る</h1>
+        <p id="scaleText">血液の中には、酸素を運ぶ赤血球が流れています。その1つに近づいて内部を観察しましょう。</p>
         <span class="scale-kind" id="scaleKind">模式的な可視化</span>
       </div>
-      <button class="scale-next scale-skip" id="scaleSkip" type="button">自由に探索する ↗</button>
-      <div class="scale-caption" id="scaleCaption">血管内の模式表現 / 縮尺は実際と異なります</div>
+      <button class="scale-next scale-skip" id="scaleSkip" type="button">自由に観察する ↗</button>
+      <div class="scale-caption" id="scaleCaption">血管内の模式表現 · 縮尺は実際と異なります</div>
       <div class="scale-progress">
         <div class="scale-timeline" aria-label="観察するスケール">
           <button class="scale-step" data-step="0" aria-current="step" type="button"><span>01</span>血液</button>
           <button class="scale-step" data-step="1" type="button"><span>02</span>赤血球</button>
           <button class="scale-step" data-step="2" type="button"><span>03</span>タンパク質</button>
           <button class="scale-step" data-step="3" type="button"><span>04</span>ヘム</button>
-          <button class="scale-step" data-step="4" type="button"><span>05</span>自由探索</button>
+          <button class="scale-step" data-step="4" type="button"><span>05</span>自由観察</button>
         </div>
-        <button class="scale-next" id="scaleNext" type="button">スクロールして近づく ↓</button>
+        <button class="scale-next" id="scaleNext" type="button">さらに近づく ↓</button>
       </div>
       <div class="gallery-heading">
         <div class="kicker">Curiosity Lab / Molecular gallery</div>
         <h2 id="molName">ヘモグロビン</h2>
-        <p>いろいろな角度から、<br>生命の形を眺めてみる。</p>
+        <p>ドラッグで回転し、表示形式や分子を切り替えながら観察できます。</p>
       </div>
       <div class="gallery-tools">
-        <button id="scaleRestart" class="mol-button" type="button">旅の最初へ</button>
-        <a class="mol-button scale-exit" href="#works">作品を見る ↓</a>
+        <button id="scaleRestart" class="mol-button" type="button">最初から見る</button>
+        <a class="mol-button scale-exit" href="#works">研究と開発へ ↓</a>
         <button id="molImmersive" class="mol-button" type="button" aria-pressed="false">分子だけ見る</button>
         <button id="molFullscreen" class="mol-button" type="button" aria-pressed="false">全画面 ⛶</button>
       </div>
@@ -192,9 +193,9 @@
       <details class="gallery-info">
         <summary>この分子について</summary>
         <div id="molMeta" class="mol-legend">4HHB / X線結晶構造</div>
-        <p id="molDescription">赤血球の中で酸素を運ぶタンパク質です。4つのサブユニットそれぞれにヘムがあります。この構造は脱酸素型です。</p>
-        <a id="molSource" href="https://www.rcsb.org/structure/4HHB" target="_blank" rel="noopener">RCSB PDBで詳細を見る ↗</a>
-        <p class="small" id="molStyleNote">主鎖の形を見やすく表示しています。</p>
+        <p id="molDescription">赤血球の中で酸素を運ぶタンパク質です。4つのサブユニットそれぞれにヘムを含み、ここでは酸素が結合していない脱酸素型の構造を表示しています。</p>
+        <a id="molSource" href="https://www.rcsb.org/structure/4HHB" target="_blank" rel="noopener">RCSB PDB で詳細を見る ↗</a>
+        <p class="small" id="molStyleNote">主鎖の立体構造をリボン形式で表示しています。</p>
       </details>
       <div class="gallery-dock" aria-label="分子の操作">
         <div>
@@ -225,8 +226,8 @@
       </div>
     </div>
     <div class="gallery-foot">
-      <span>実験構造：RCSB Protein Data Bank / 3Dmol.js · 回転は分子の実際の運動ではありません。</span>
-      <a href="#works">作品を見る ↓</a>
+      <span>実験構造：RCSB Protein Data Bank（3Dmol.js で描画）· 自動回転は観察用の演出であり、分子の実際の運動ではありません。</span>
+      <a href="#works">研究と開発へ ↓</a>
     </div>
   </section>
 </div>
@@ -237,25 +238,25 @@
       <div class="exhibit-index">SHUNSUKE / SELECTED WORKS</div>
       <h2>研究と開発</h2>
     </div>
-    <p>構造生物学の検証基盤から、AI 研究エージェント、日常の学習を支えるアプリまで。実データと自動テストで裏づけた記録です。</p>
+    <p>構造生物学の検証ツールや計算解析パイプラインから、日常の英語学習を支える iOS アプリまで、実データと自動テストで検証しながら開発した成果をまとめています。</p>
   </header>
 
   <article class="exhibit" id="work-foldlens">
     <div class="exhibit-copy">
       <div class="exhibit-index">01 / STRUCTURAL AI &amp; GROUNDED AGENT</div>
       <h3>FoldLens</h3>
-      <p>AlphaFold 3 の複数予測を比較し、ipTM などの単一スコアでは見落としやすい「形状一致と PAE 誤差の食い違い」や重複座標を可視化する解析ツールです。決定論エンジンと 6 ツール根拠付き AI エージェントを MIT コアとして公開しています。</p>
+      <p>AlphaFold 3 の複数予測モデルを比較し、ipTM などの単一指標だけでは見落としやすい「予測構造は一致しているのに予測位置誤差（PAE）が大きい領域」や原子座標の重複を可視化する解析ツールです。再現性のある解析エンジンと、6つの解析ツールを参照して根拠を示す AI エージェントを MIT ライセンスで公開しています。</p>
       <div class="exhibit-badges" aria-label="主な技術要素">
         <span class="exhibit-badge">AF3 実データ比較</span>
-        <span class="exhibit-badge">6ツール根拠付きAI</span>
+        <span class="exhibit-badge">根拠提示型 AI エージェント</span>
         <span class="exhibit-badge">145 自動テスト / CI</span>
       </div>
       <div class="exhibit-actions">
         <a class="exhibit-link" href="https://shunsuke-max.github.io/foldlens-portfolio/">ライブデモを体験する ↗</a>
       </div>
       <div class="exhibit-secondary-links">
-        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-core">コアコード（foldlens-core / MIT）↗</a>
-        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-portfolio">設計と検証結果を読む ↗</a>
+        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-core">コア実装（foldlens-core / MIT）↗</a>
+        <a class="secondary-link" href="https://github.com/Shunsuke-max/foldlens-portfolio">設計と検証結果を見る ↗</a>
       </div>
     </div>
     <div class="exhibit-visual">
@@ -273,7 +274,7 @@
           </a>
           <p class="image-unavailable" hidden>画像を読み込めませんでした。公開デモをご覧ください。</p>
         </div>
-        <p class="visual-caption" id="foldCaption" aria-live="polite">3D構造と予測誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。</p>
+        <p class="visual-caption" id="foldCaption" aria-live="polite">3D構造と予測位置誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。</p>
       </div>
     </div>
   </article>
@@ -281,12 +282,12 @@
   <article class="exhibit reverse" id="work-ensemble">
     <div class="exhibit-copy">
       <div class="exhibit-index">02 / CONFORMATIONAL ENSEMBLE &amp; QC</div>
-      <h3 class="jp">タンパク質は<br>一つの形ではない。</h3>
-      <p>BioEmu-2 で生成した VAMP721–PICALM1a 複合体の 8 構造候補を定量解析しました。モデル標準チェック（8/8 合格）を通過した構造に対し、独自の重原子衝突検査で 2 フレームの局所クラッシュを特定し、型付き Python モジュール＋CI へ切り出しています。</p>
+      <h3 class="jp">構造ゆらぎの解析と<br>独立した品質検査</h3>
+      <p>構造生成モデル BioEmu-2 で得た VAMP721–PICALM1a 複合体の8つの構造候補を定量解析しました。モデル標準の品質検査（8/8 合格）を通過した候補に対して独自の重原子衝突検査を実施し、2つの構造で局所的な原子衝突を検出しました。解析処理は型付き Python モジュールにまとめ、CI で自動検証しています。</p>
       <div class="exhibit-metrics" aria-label="定量結果サマリー">
-        <div class="exhibit-metric"><strong>8</strong><span>構造候補 (A100)</span></div>
+        <div class="exhibit-metric"><strong>8</strong><span>構造候補（A100）</span></div>
         <div class="exhibit-metric"><strong>2,411<small> Å²</small></strong><span>平均片側 BSA</span></div>
-        <div class="exhibit-metric"><strong>2 / 8</strong><span>独立クラッシュ検知</span></div>
+        <div class="exhibit-metric"><strong>2 / 8</strong><span>独自検査で衝突検出</span></div>
       </div>
       <div class="exhibit-actions">
         <a class="exhibit-link" href="https://github.com/Shunsuke-max/vamp721-structural-ensemble">解析コードとCIを見る ↗</a>
@@ -307,7 +308,7 @@
             <button type="button" class="frame-bar" data-frame="6" aria-pressed="false" aria-label="構造 7、接触数 81"><span>81</span><span class="bar" style="--bar:61%"></span><span>7</span></button>
             <button type="button" class="frame-bar" data-frame="7" aria-pressed="false" aria-label="構造 8、接触数 80"><span>80</span><span class="bar" style="--bar:60%"></span><span>8</span></button>
           </div>
-          <div class="ensemble-selection" aria-live="polite"><span id="ensembleFrame">構造候補 1 / 8（局所クラッシュ 2.02 Å 検知）</span><strong id="ensembleContacts">84 ペア</strong></div>
+          <div class="ensemble-selection" aria-live="polite"><span id="ensembleFrame">構造候補 1 / 8（局所的な原子衝突 2.02 Å を検出）</span><strong id="ensembleContacts">84 ペア</strong></div>
         </div>
         <div class="figure-card">
           <a href="https://raw.githubusercontent.com/Shunsuke-max/vamp721-structural-ensemble/main/assets/interface_contact_map.png">
@@ -315,7 +316,7 @@
           </a>
           <div class="figure-card-label"><span>FIG. 2D INTERCHAIN CONTACT MAP</span><span>VAMP721 × PICALM1a (N = 8)</span></div>
         </div>
-        <p class="visual-caption">棒を選ぶと各構造候補の接触数と独立 QC 結果を確認できます。図版は 8 構造全体の接触頻度マップであり、生成構造は分子動力学の時間軌跡ではありません。</p>
+        <p class="visual-caption">各棒をクリックすると、その構造候補の接触ペア数と独自の品質検査結果を確認できます。下の図は8構造全体の接触頻度マップです（生成された候補の集合であり、分子動力学計算の時間変化ではありません）。</p>
       </div>
     </div>
   </article>
@@ -350,10 +351,10 @@
           </div>
           <div class="phone-copy" aria-live="polite">
             <strong id="partTitle">学習の入口</strong>
-            <p id="partCaption">実力診断と短時間の演習から、次に行う学習を選べます。</p>
+            <p id="partCaption">実力診断と短時間の演習から、次に取るべき学習を選べます。</p>
           </div>
         </div>
-        <p class="visual-caption">公開ポートフォリオの画面資料です。現在の配信版と異なる場合があります。</p>
+        <p class="visual-caption">公開ポートフォリオ用の画面資料です。App Store の最新配信版とは一部異なる場合があります。</p>
       </div>
     </div>
   </article>
@@ -361,8 +362,8 @@
   <article class="exhibit reverse" id="work-design">
     <div class="exhibit-copy">
       <div class="exhibit-index">04 / COMPUTATIONAL DESIGN</div>
-      <h3 class="jp">タンパク質を<br>設計する。</h3>
-      <p>狙った機能を持つタンパク質を AI で設計できるのか。標的解析、骨格生成、逆折り畳み配列設計、そして独立モデルによる再予測・スクリーニングを一貫した計算パイプラインとして整理しました。</p>
+      <h3 class="jp">タンパク質設計の<br>計算パイプライン</h3>
+      <p>狙った機能を持つタンパク質を設計するため、標的と制約条件の整理、拡散モデルによる構造生成、逆折り畳みによる配列設計、独立モデルを用いた再予測と候補選別までを、一貫した計算パイプラインとして体系化しました。</p>
       <div class="exhibit-badges" aria-label="設計パイプライン要素">
         <span class="exhibit-badge">RFdiffusion</span>
         <span class="exhibit-badge">ProteinMPNN</span>
@@ -377,10 +378,10 @@
         <div class="visual-toolbar"><span><i class="live-mark"></i>計算設計パイプライン</span><span>4-Stage Schematic</span></div>
         <div class="pipeline">
           <div class="pipeline-track" aria-label="設計の工程">
-            <button class="pipeline-step" data-phase-button="0" type="button" aria-pressed="true"><span>01</span>課題設定</button>
-            <button class="pipeline-step" data-phase-button="1" type="button" aria-pressed="false"><span>02</span>骨格生成</button>
+            <button class="pipeline-step" data-phase-button="0" type="button" aria-pressed="true"><span>01</span>条件設定</button>
+            <button class="pipeline-step" data-phase-button="1" type="button" aria-pressed="false"><span>02</span>構造生成</button>
             <button class="pipeline-step" data-phase-button="2" type="button" aria-pressed="false"><span>03</span>配列設計</button>
-            <button class="pipeline-step" data-phase-button="3" type="button" aria-pressed="false"><span>04</span>予測・検証</button>
+            <button class="pipeline-step" data-phase-button="3" type="button" aria-pressed="false"><span>04</span>再予測・検証</button>
           </div>
           <svg class="pipeline-graphic" viewBox="0 0 560 250" role="img" aria-label="タンパク質設計工程の概念図。実際の設計候補の構造ではありません。">
             <defs>
@@ -469,7 +470,7 @@
               </g>
               <rect x="372" y="34" width="160" height="34" rx="6" fill="#13212c" stroke="#7fd4d1" stroke-opacity=".5"/>
               <text x="384" y="49" fill="#7fd4d1" font-family="monospace" font-size="9.5" font-weight="600">DE NOVO BACKBONE</text>
-              <text x="384" y="61" fill="#cbd8dc" font-size="9">ノイズから骨格座標を収束</text>
+              <text x="384" y="61" fill="#cbd8dc" font-size="9">ノイズから構造座標を収束</text>
             </g>
 
             <!-- Phase 2: Inverse Folding Sequence Design -->
@@ -515,19 +516,19 @@
             </g>
           </svg>
           <div class="pipeline-detail" aria-live="polite">
-            <strong id="phaseTitle">まず、何を作るのか。</strong>
-            <span id="phaseText">標的や必要な性質を文献・公開構造から整理し、設計条件を定義します。</span>
+            <strong id="phaseTitle">標的と設計条件を定義する</strong>
+            <span id="phaseText">文献や公開構造から標的の結合部位（ホットスポット）や必要な性質を整理し、幾何学的な制約条件を定めます。</span>
           </div>
         </div>
-        <p class="visual-caption">工程を選ぶと説明と図版が切り替わります。図は模式的なもので、候補構造や実験的な結合・機能の実証を示していません。</p>
+        <p class="visual-caption">各工程を選ぶと説明と模式図が切り替わります。図は仕組みを示す概念図であり、実際の設計候補や実験による機能実証を示すものではありません。</p>
       </div>
     </div>
   </article>
 
   <div class="exhibit-ending">
     <span>Curiosity Lab — 研究と開発の記録</span>
-    <a href="#designJourney">設計の旅へ戻る ↑</a>
-    <a href="https://github.com/Shunsuke-max">GitHubですべての公開作品を見る ↗</a>
+    <a href="#designJourney">設計解説の最初へ戻る ↑</a>
+    <a href="https://github.com/Shunsuke-max">GitHub ですべての公開リポジトリを見る ↗</a>
   </div>
 </section>
 </main>
