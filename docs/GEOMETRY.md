@@ -20,3 +20,6 @@ References: https://www.rcsb.org/structure/1CRN ; https://files.rcsb.org/downloa
 
 ## Gate 02 first visual pass
 Fixed Cys4 focus, Cys32 comparison; six directed neighborhood edges only. Reuse studio ribbon at 22% opacity; background nodes subdued, pair and focus ivory; deterministic camera searches 72 yaw angles. Pair distances and neighbor labels come from the shared numerical module. No false Å values if the PDB/module is unavailable. Capture desktop and mobile graph frames in CI. No matrix/picking/rotation controls yet. Review actual screenshots before moving on.
+
+### Gate 02 first render review
+CI 46019533729 passed. Desktop and 390px mobile screenshots show readable pair metrics and six local edges, but ribbon competes with nodes, Cys4 label sits over a neighbor, mobile molecule is too small. Revision: 14% ribbon opacity, slightly smaller focus and neighbors, stronger pair hierarchy, projected label placement and leader lines, focus ring, closer mobile camera. Camera scoring now also considers angular separation between edges. Re-run screenshot QA; do not claim visual gate complete until second render is inspected.

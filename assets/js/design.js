@@ -93,7 +93,10 @@ function updateGraphStudy(){
    const a=projected(f),b=projected(p);
    const separation=Math.hypot(a[0]-b[0],a[1]-b[1]);
    const minNear=Math.min(...ids.filter(j=>j!==graphFocus).map(j=>{const q=projected(points[j]);return Math.hypot(a[0]-q[0],a[1]-q[1]);}));
-   const score=separation*1.5+minNear*.9+(a[2]+b[2])*.22;
+   const vectors=ids.filter(j=>j!==graphFocus).map(j=>{const q=projected(points[j]);return Math.atan2(q[1]-a[1],q[0]-a[0]);});
+   let minAngular=Math.PI;
+   for(let j=0;j<vectors.length;j++)for(let k=j+1;k<vectors.length;k++){const d=Math.abs(vectors[j]-vectors[k]);minAngular=Math.min(minAngular,d,2*Math.PI-d);}
+   const score=separation*1.5+minNear*1.3+minAngular*.65+(a[2]+b[2])*.22;
    if(score>best){best=score;graphAngle=angle;}
   }
  }
@@ -101,12 +104,30 @@ function updateGraphStudy(){
 function graphLabelPositions(project){
  const labels=by('designGraphLabels');labels.hidden=step!==2||!graphModel;
  if(labels.hidden)return;
- const a=project(points[graphFocus]),b=project(points[graphPair]);
- for(const [id,p,other] of [['designGraphFocusLabel',a,b],['designGraphPairLabel',b,a]]){
-  const el=by(id),sign=p.x>=other.x?1:-1;
-  el.style.left=Math.max(8,Math.min(width-8,p.x+sign*11))+'px';
-  el.style.top=Math.max(8,Math.min(height-8,p.y-12))+'px';
-  el.style.transform=sign<0?'translate(-100%,-100%)':'translate(0,-100%)';
+ const projected=points.map(project);
+ const a=projected[graphFocus],b=projected[graphPair],portrait=width<801;
+ const ring=by('designGraphFocusRing');ring.style.left=a.x+'px';ring.style.top=a.y+'px';
+ const placed=[];
+ for(const [id,lineId,p,other] of [['designGraphFocusLabel','designGraphFocusLeader',a,b],['designGraphPairLabel','designGraphPairLeader',b,a]]){
+  const el=by(id),leader=by(lineId),w=el.offsetWidth||58,h=el.offsetHeight||20;
+  const offset=portrait?19:29;let best=null,bestScore=Infinity;
+  for(let i=0;i<16;i++){
+   const angle=i*Math.PI/8,dx=Math.cos(angle),dy=Math.sin(angle);
+   const x=p.x+dx*(offset+w/2)-w/2,y=p.y+dy*(offset+h/2)-h/2;
+   if(x<8||x+w>width-8||y<8||y+h>height-8)continue;
+   const overlap=(q,r)=>Math.max(0,Math.min(q.x+q.w,r.x+r.w+8)-Math.max(q.x,r.x-8))*Math.max(0,Math.min(q.y+q.h,r.y+r.h+8)-Math.max(q.y,r.y-8));
+   const rect={x,y,w,h};
+   let penalty=placed.reduce((v,r)=>v+overlap(rect,r)*2,0);
+   for(const q of projected){const ddx=Math.max(x-q.x,0,q.x-x-w),ddy=Math.max(y-q.y,0,q.y-y-h);const distance=Math.hypot(ddx,ddy);penalty+=Math.max(0,14-distance)*4;}
+   const outward=(p.x-other.x)*dx+(p.y-other.y)*dy;
+   const score=penalty-outward*.09+Math.abs(dy)*2;
+   if(score<bestScore){bestScore=score;best=rect;}
+  }
+  const r=best||{x:Math.max(8,Math.min(width-w-8,p.x+offset)),y:Math.max(8,Math.min(height-h-8,p.y-h-offset)),w,h};
+  placed.push(r);el.style.left=r.x+'px';el.style.top=r.y+'px';el.style.transform='none';
+  const ex=Math.max(r.x,Math.min(r.x+r.w,p.x)),ey=Math.max(r.y,Math.min(r.y+r.h,p.y));
+  const dx=ex-p.x,dy=ey-p.y,len=Math.hypot(dx,dy),inset=portrait?11:19;
+  leader.style.left=(p.x+dx/Math.max(1,len)*inset)+'px';leader.style.top=(p.y+dy/Math.max(1,len)*inset)+'px';leader.style.width=Math.max(0,len-inset)+'px';leader.style.transform='rotate('+Math.atan2(dy,dx)+'rad)';
  }
 }
 let compare='close',choice='A';
@@ -231,7 +252,7 @@ function draw(now){
   if(step===2)for(const [i,j] of edges)line(i,j,j===graphPair?'#fff0c7':'rgba(228,190,132,.82)',j===graphPair?2.5:1.6);
   const trace=(q,color,w)=>{ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(q[0].x,q[0].y);for(let i=1;i<q.length-1;i++)ctx.quadraticCurveTo(q[i].x,q[i].y,(q[i].x+q[i+1].x)/2,(q[i].y+q[i+1].y)/2);ctx.lineTo(q.at(-1).x,q.at(-1).y);ctx.stroke();};
   if(step===4)trace(comparisonPoints(g.coords).map(project),'rgba(228,190,132,.85)',5);
-  if(g.u>.12)trace(p,'rgba(127,212,209,'+(Math.pow(g.u,1.6)*(step===2?.30:.88))+')',step===1||step===4?5:2.6);
+  if(g.u>.12)trace(p,'rgba(127,212,209,'+(Math.pow(g.u,1.6)*(step===2?.22:.88))+')',step===1||step===4?5:2.6);
   const count=step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*p.length):0;
   if(step===0){ctx.fillStyle='#96bac7';ctx.globalAlpha=.24*(1-g.u);for(let i=0;i<220;i++){const v=project({x:(random(i*3+500)-.5)*24,y:(random(i*3+501)-.5)*22,z:(random(i*3+502)-.5)*25});ctx.beginPath();ctx.arc(v.x,v.y,.6+random(i+750)*1.3,0,Math.PI*2);ctx.fill();}}
   p.map((v,i)=>({...v,i})).sort((a,b)=>b.z-a.z).forEach(v=>{const r=(step===2?(v.i===graphFocus?8:v.i===graphPair?6:graphNeighbors.has(v.i)?5:2.8):step===3&&v.i===selectedResidue?7:2.4+g.u*2.2)*v.k;ctx.beginPath();ctx.arc(v.x,v.y,r,0,Math.PI*2);ctx.fillStyle=step===2?(v.i===graphFocus?'#ffe1a6':v.i===graphPair?'#fff0c7':graphNeighbors.has(v.i)?'#d5b17c':'#63939d'):step===3&&(v.i<count||v.i===selectedResidue)?'#e4be84':'#7fd4d1';ctx.globalAlpha=.7+.25*g.u;ctx.fill();});
@@ -368,7 +389,7 @@ function initGL(T){
  const rodMat=new T.MeshPhysicalMaterial({color:0x76c2c4,roughness:.32,metalness:.06,clearcoat:.35});
 
  const yAxis=new T.Vector3(0,1,0),from=new T.Vector3(),to=new T.Vector3(),delta=new T.Vector3();
- const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971'),graphMuted=new T.Color('#527985'),graphGold=new T.Color('#d6ac6d'),graphIvory=new T.Color('#fff0c7'),projected=new T.Vector3();
+ const obj=new T.Object3D(),teal=new T.Color('#80d4d1'),gold=new T.Color('#ebb971'),graphMuted=new T.Color('#426675'),graphGold=new T.Color('#d6ac6d'),graphIvory=new T.Color('#fff0c7'),projected=new T.Vector3();
  const graphRodGeo=new T.CylinderGeometry(.027,.027,1,12),graphRodMat=new T.MeshBasicMaterial({color:0xffffff});
  let graphRods=null;
  let spheres=null,lines=null,links=null,trails=null,compareLine=null,backbone=null,ribbon=null,comparisonRibbon=null,atomDetail=null,bondDetail=null,atomicRenderMode=null,lastCompare=null;
@@ -416,7 +437,7 @@ function initGL(T){
   const depth=step===0?1-ease(local):0;
   const mobileDistance=Math.max(31,9.4/(Math.tan(camera.fov*Math.PI/360)*camera.aspect));
   const desktopDistance=step===2?20.8:step>=3?22.5:20.2;
-  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?(step===2?Math.max(23,mobileDistance*.78):mobileDistance):desktopDistance))+depth*3.2);
+  camera.position.set(0,0,(step===1&&real?(portrait?(atomicMode==='local'?Math.max(21,mobileDistance*.70):mobileDistance*.93):19.6):(portrait?(step===2?Math.max(23,mobileDistance*.66):mobileDistance):desktopDistance))+depth*3.2);
   camera.lookAt(0,0,0);
   camera.setViewOffset(
    width,height,
@@ -442,7 +463,7 @@ function initGL(T){
   const count=step===3?Math.round((motion.matches?1:Math.min(1,local*1.35))*points.length):0;
   g.coords.forEach((p,i)=>{
    obj.position.set(p.x,p.y,p.z);obj.rotation.set(0,0,0);
-   obj.scale.setScalar(step===2?(graphModel&&i===graphFocus?3.45:graphModel&&i===graphPair?2.65:graphNeighbors.has(i)?2.05:1.02):step===3&&i===selectedResidue?2.85:.88+g.u*.75);
+   obj.scale.setScalar(step===2?(graphModel&&i===graphFocus?2.9:graphModel&&i===graphPair?2.3:graphNeighbors.has(i)?1.75:.95):step===3&&i===selectedResidue?2.85:.88+g.u*.75);
    obj.updateMatrix();
    spheres.setMatrixAt(i,obj.matrix);
    spheres.setColorAt(i,step===2?(graphModel&&i===graphFocus?graphIvory:graphModel&&i===graphPair?graphIvory:graphNeighbors.has(i)?graphGold:graphMuted):step===3&&(i<count||i===selectedResidue)?gold:teal);
@@ -455,7 +476,7 @@ function initGL(T){
   lines.visible=g.u>.12&&step<2&&!(step===1&&real&&g.ribbon>.94);
   lines.material.opacity=Math.pow(g.u,1.6)*.86;
   backbone.visible=step>=1&&(!real||g.ribbon<.15||step===3);
-  if(ribbon){ribbon.visible=(step===1||step===2||step===4)&&g.ribbon>.02;ribbonMat.opacity=step===1?g.ribbon*(atomicMode==='all'?.16:.38):step===2?.22:g.ribbon;ribbonMat.depthWrite=step!==1&&step!==2&&g.ribbon>.85;}
+  if(ribbon){ribbon.visible=(step===1||step===2||step===4)&&g.ribbon>.02;ribbonMat.opacity=step===1?g.ribbon*(atomicMode==='all'?.16:.38):step===2?.14:g.ribbon;ribbonMat.depthWrite=step!==1&&step!==2&&g.ribbon>.85;}
   const showDetail=step===1&&g.ribbon>.94;
   if(atomDetail){updateAtomicMeshes();atomDetail.visible=showDetail;}
   if(bondDetail)bondDetail.visible=showDetail;
@@ -490,7 +511,7 @@ function initGL(T){
     from.set(a.x,a.y,a.z);to.set(b.x,b.y,b.z);delta.subVectors(to,from);
     const len=delta.length();obj.position.copy(from).add(to).multiplyScalar(.5);
     obj.quaternion.setFromUnitVectors(yAxis,delta.normalize());
-    const weight=j===graphPair?1.65:1;
+    const weight=j===graphPair?1.55:.84;
     obj.scale.set(weight,len,weight);obj.updateMatrix();
     graphRods.setMatrixAt(k,obj.matrix);graphRods.setColorAt(k,j===graphPair?graphIvory:graphGold);
    });
