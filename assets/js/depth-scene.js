@@ -51,8 +51,11 @@ function init(T){
     const scene=Number(gallery.dataset.scene);if(scene!==0&&scene!==1)return;
     const p=Math.max(0,Math.min(1,Number(gallery.dataset.sceneProgress)||0));
     const u=motion.matches?0:p*p*(3-2*p);
-    if(scene===0){camera.position.set(1.1*(1-u),.65*(1-u),13-9.1*u);camera.lookAt(0,0,-2);if(!motion.matches){for(const c of cells)c.m.position.z=c.z+Math.sin(now*.00032+c.phase)*.52;}}
-    else{camera.position.set(.7*(1-u),.55*(1-u),11-8.7*u);camera.lookAt(0,0,-3);if(!motion.matches)featured.rotation.y=now*.00019;}
+    const portrait=camera.aspect<.85;
+    const distance=portrait?1.26:1;
+    camera.setViewOffset(1000,1000,portrait?0:-62,0,1000,1000);
+    if(scene===0){camera.position.set(1.1*(1-u),.65*(1-u),-2+(15-9.1*u)*distance);camera.lookAt(0,0,-2);if(!motion.matches){for(const c of cells)c.m.position.z=c.z+Math.sin(now*.00032+c.phase)*.52;}}
+    else{camera.position.set(.7*(1-u),.55*(1-u),-3+(14-8.7*u)*distance);camera.lookAt(0,0,-3);if(!motion.matches)featured.rotation.y=now*.00019;}
     try{renderer.render(scene===0?vessel:interior,camera);gallery.classList.add('depth-ready');}catch{fallback();return;}
     if(!motion.matches)frame=requestAnimationFrame(tick);
   }
