@@ -95,3 +95,26 @@
 
 .design-sampling-label{font-size:10px;color:#a9bec1;margin-top:7px}.design-sampling{margin-top:4px}.design-residue-control button:disabled{opacity:.4;cursor:default}.design-residues button:focus-visible,.design-graph-panel button:focus-visible,.design-residue-control select:focus-visible{outline:2px solid #e2bb82;outline-offset:2px}
 @media(min-width:801px){.design-graph-panel,.design-sequence{bottom:145px;max-height:32vh;overflow-y:auto}}
+
+/* Chapter 02 — atomic study; other chapters retain their own layout. */
+.design-stage[data-design-step="1"]{background:radial-gradient(ellipse at 70% 43%,#263a44 0%,#14232c 38%,#080e14 79%)}
+.design-stage[data-design-step="1"] .design-copy h1{font-size:clamp(34px,4.2vw,64px)}
+.design-stage[data-design-step="1"] .design-legend{display:none}
+.design-atomic-panel{position:absolute;z-index:3;right:clamp(20px,5vw,80px);bottom:calc(var(--design-nav-height,120px) + 16px);width:min(345px,37vw);padding:13px 0 0;border-top:1px solid #a4b8bc80;color:#c7d6d8}
+.design-atomic-panel[hidden]{display:none}
+.design-atomic-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font:10px/1.5 var(--font-mono);letter-spacing:.04em}
+#designAtomicCount{color:#e5e9e7;letter-spacing:0}
+.design-atomic-controls{display:flex;gap:8px;margin:9px 0}
+.design-atomic-controls button{min-height:36px;padding:6px 12px;border:1px solid #789099;background:#101c25;color:#d9e6e5;border-radius:2px;font:12px var(--font-body)}
+.design-atomic-controls button[aria-pressed=true]{border-color:#b8d4d3;color:#e8f7f1;background:#29424a}
+.design-atomic-controls button:disabled{opacity:.45}
+.design-atomic-controls button:focus-visible{outline:2px solid #e2bb82;outline-offset:3px}
+.design-atomic-panel p{font-size:11px;line-height:1.5;margin:5px 0;color:#c4d0d1}
+.design-elements{display:flex;gap:16px;margin:6px 0;font:11px var(--font-mono)}
+.design-elements span{display:inline-flex;gap:6px;align-items:center}
+.design-elements i{width:8px;height:8px;border-radius:50%;background:var(--element)}
+@media(max-width:800px){.design-stage[data-design-step="1"] .design-copy h1{font-size:clamp(26px,7.6vw,45px)}.design-atomic-panel{left:20px;right:20px;width:auto;bottom:calc(var(--design-nav-height,112px) + 10px);padding:7px 0 0;background:linear-gradient(0deg,#080e14 70%,#080e1400)}.design-atomic-controls{margin:4px 0}.design-atomic-controls button{min-height:32px;font-size:11px}.design-atomic-panel p{font-size:10px;margin:3px 0}.design-elements{margin:4px 0}}
+
+/* Render review: keep desktop controls in the text column, outside the molecule. */
+@media(min-width:801px){.design-atomic-panel{left:clamp(20px,5vw,80px);right:auto;width:min(345px,34vw);bottom:calc(var(--design-nav-height,120px) + 16px)}}
+@media(min-width:801px) and (max-height:700px){.design-stage[data-design-step="1"] .design-copy{top:62px}.design-stage[data-design-step="1"] .design-copy h1{font-size:clamp(28px,3.5vw,46px);margin:10px 0}.design-stage[data-design-step="1"] .design-copy p{font-size:12px;line-height:1.65}.design-stage[data-design-step="1"] .design-formula{margin:8px 0}}
