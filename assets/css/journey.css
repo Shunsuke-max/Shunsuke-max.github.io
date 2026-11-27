@@ -83,3 +83,13 @@
 .scale-next:hover{background:#263e48}
 @media(max-width:800px){.scale-journey .molecule-stage:after{background:linear-gradient(180deg,#080e1488,transparent 42%),linear-gradient(0deg,#080e14b0,transparent 25%)}.scale-story-copy h1{font-size:clamp(26px,6.8vw,42px)}}
 @media(prefers-reduced-motion:reduce){.scale-progress .scale-step{transition:none}}
+
+/* Visual review: legible copy without hiding the main scientific object. */
+@media(min-width:801px){
+ .scale-story-copy{max-width: min(31vw,390px);top:clamp(42px,9vh,95px);}
+ .scale-story-copy h1{font-size:clamp(28px,3.55vw,57px);line-height:1.24;}
+ .scale-story-copy p{max-width:270px;font-size:14px;}
+ .protein-hero[data-scene="2"] .scale-story-copy,.protein-hero[data-scene="3"] .scale-story-copy{background:linear-gradient(90deg,#080e14ed,#080e1400);padding:12px 20px 12px 0;}
+}
+.scale-journey .protein-hero[data-scene="3"] .molecule-stage:after{opacity:.45}
+.scale-caption{max-width:55vw;text-align:right}

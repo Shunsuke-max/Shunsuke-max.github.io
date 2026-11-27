@@ -8,7 +8,7 @@
   --accent: #83c6c5;
   --gold: #d4b384;
   --orange: var(--gold);
-  --font-body: system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  --font-body: system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans CJK JP","Noto Sans JP",Meiryo,sans-serif;
   --font-mono: ui-monospace,SFMono-Regular,Consolas,monospace;
   --page-gutter: clamp(20px,4vw,48px);
   --page-width: 1280px;

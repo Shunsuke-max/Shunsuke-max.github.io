@@ -36,9 +36,10 @@ try {
   await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='2'&&document.querySelector('#molStatus').hidden&&document.querySelector('#molHost canvas')?.width>0,{},{timeout:30000});
   await stage.screenshot({path:'artifacts/screenshots/03-protein.png'});
   await page.locator('#scaleNext').click();
-  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='3');
+  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='3'&&document.querySelector('#protein').dataset.hemeFocus==='true');
   await page.waitForTimeout(350);
   await stage.screenshot({path:'artifacts/screenshots/04-heme.png'});
+  assert.equal(await page.locator('#protein').getAttribute('data-heme-focus'),'true');
   await page.locator('#scaleNext').click();
   await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='4');
   await page.locator('[data-style="stick"]').click();
