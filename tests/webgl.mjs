@@ -75,6 +75,7 @@ try {
   for(const [name,p] of [['intro',.02],['ribbon',.36],['sequence',.76],['compare',.92]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-'+name+'.png'});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);
+    if(name==='sequence'||name==='compare'){const panel=page.locator(name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
   }
   assert.deepEqual(errors,[]);
   console.log('Real libraries + RCSB PDB data: WebGL scene navigation and molecular controls passed');
