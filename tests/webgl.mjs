@@ -11,9 +11,6 @@ try {
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   // Real, pinned library builds served locally for reproducible testing.
-  await page.route('https://cdn.jsdelivr.net/npm/3dmol@2.5.5/**',async route=>{
-    await route.fulfill({path:resolve('node_modules/3dmol/build/3Dmol-min.js'),contentType:'application/javascript',headers:{'access-control-allow-origin':'*'}});
-  });
   await page.route('https://cdn.jsdelivr.net/npm/three@0.170.0/build/**',async route=>{
     const name=new URL(route.request().url()).pathname.split('/').pop();
     assert.match(name,/^three[.\w-]+\.js$/);
@@ -57,31 +54,12 @@ try {
     if(n===4){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
     await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
   }
-  await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
-  await page.waitForFunction(()=>document.querySelector('#protein').classList.contains('depth-ready'),{},{timeout:30000});
-  const stage=page.locator('#protein');
-  await stage.screenshot({path:'artifacts/screenshots/01-blood.png'});
-  await page.locator('#scaleNext').click();
-  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='1');
-  await page.waitForTimeout(350);
-  await stage.screenshot({path:'artifacts/screenshots/02-cell.png'});
-  await page.locator('#scaleNext').click();
-  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='2'&&document.querySelector('#molStatus').hidden&&document.querySelector('#molHost canvas')?.width>0,{},{timeout:30000});
-  await stage.screenshot({path:'artifacts/screenshots/03-protein.png'});
-  await page.locator('#scaleNext').click();
-  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='3'&&document.querySelector('#protein').dataset.hemeFocus==='true');
-  await page.waitForTimeout(350);
-  await stage.screenshot({path:'artifacts/screenshots/04-heme.png'});
-  assert.equal(await page.locator('#protein').getAttribute('data-heme-focus'),'true');
-  await page.locator('#scaleNext').click();
-  await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='4');
-  await page.locator('[data-style="stick"]').click();
-  assert.equal(await page.locator('[data-style="stick"]').getAttribute('aria-pressed'),'true');
-  await page.locator('#molSelect').selectOption('1UBQ');
-  await page.waitForFunction(()=>document.querySelector('#molStatus').hidden&&document.querySelector('#molMeta').textContent.includes('1UBQ'));
-  await page.locator('[data-style="cartoon"]').click();
-  await page.locator('#molReset').click();
-  await stage.screenshot({path:'artifacts/screenshots/05-explore.png'});
+  await page.locator('[data-design-jump="0"]').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='0');
+  await page.locator('#designAutoplay').click();
+  assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
+  await page.locator('#designAutoplay').click();
+  assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'false');
   // Capture the actual scroll transition with motion enabled, then mobile composition.
   await page.emulateMedia({reducedMotion:'no-preference'});
   async function goDesign(p){

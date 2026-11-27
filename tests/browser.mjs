@@ -12,8 +12,12 @@ try{
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    await page.locator('#designAutoplay').click();
+    assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
+    assert.match(await page.locator('#designAutoplay').innerText(),/一時停止/);
     await page.locator('[data-design-jump="2"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='2');
+    assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'false');
     assert.equal(await page.locator('#design').getAttribute('data-graph-source'),'unavailable');
     assert.equal(await page.locator('#design').getAttribute('data-graph-neighbor-count'),'0');
     assert.equal(await page.locator('#designGraphMetrics').isVisible(),false);assert.equal(await page.locator('#designGraphControls').isVisible(),false);assert.equal(await page.locator('#designGraphMatrix').isVisible(),false);
@@ -27,14 +31,6 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
     await page.locator('[data-compare="different"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');
-    await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
-    await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='0');
-    await page.locator('#scaleNext').click();
-    await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='1');
-    await page.locator('#scaleSkip').click();
-    await page.waitForFunction(()=>document.querySelector('#protein').dataset.scene==='4');
-    await page.locator('#molRetry').waitFor({state:'visible'});
-    await page.locator('#molStatus').waitFor({state:'visible'});
     await page.locator('#work-foldlens').scrollIntoViewIfNeeded();
     await page.locator('[data-gallery="fold"][data-index="2"]').click();
     assert.match(await page.locator('#foldCaption').innerText(),/3鎖/);
