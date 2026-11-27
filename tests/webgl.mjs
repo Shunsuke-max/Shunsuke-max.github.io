@@ -2,6 +2,8 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import {verifyReferenceGeometry} from './geometry-reference.mjs';
+await verifyReferenceGeometry();
 await mkdir('artifacts/screenshots',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 try {

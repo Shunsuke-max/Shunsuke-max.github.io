@@ -9,3 +9,5 @@ test('all local assets exist and are referenced',()=>{for(const p of paths){asse
 test('IDs are unique and internal anchors resolve',()=>{assert.equal(new Set(ids).size,ids.length);for(const m of html.matchAll(/\bhref="#([^"]+)"/g))assert.ok(ids.includes(m[1]),m[1]);});
 test('JavaScript parses and literal element references resolve',()=>{for(const p of paths.filter(p=>p.endsWith('.js'))){const js=readFileSync(p,'utf8');new Script(js);for(const m of js.matchAll(/\b(?:by|get)\('([^']+)'\)/g))assert.ok(ids.includes(m[1]),m[1]);}});
 test('existing exhibits and molecular viewer remain present',()=>{for(const id of ['designJourney','design','designCanvas','protein','scaleJourney','depthScene','molHost','molSelect','work-foldlens','work-ensemble','work-part5','work-design'])assert.ok(ids.includes(id),id);assert.ok(!ids.includes('experiments'));assert.match(html,/lang="ja"/);});
+
+import './geometry.test.mjs';
