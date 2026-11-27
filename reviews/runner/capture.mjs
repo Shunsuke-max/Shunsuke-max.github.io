@@ -8,7 +8,8 @@ const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-u
 const devices={pc:[1440,900],tablet:[768,1024],phone:[390,844]};
 const modes=['no-preference','reduce'];
 const results={environment:{browser:browser.version(),node:process.version,os:os.release(),cpu:os.cpus()[0].model,logicalCpus:os.cpus().length,run:process.env.GITHUB_RUN_ID,sha:'2779261bba791209b8244f2e3eba9910c4e87fcd'},states:[],loads:[],events:[],perf:[],checks:{},errors:[]};
-const write=()=>writeFile(out+'/measurements.json',JSON.stringify(results,null,2));
+const segment=process.env.REVIEW_SEGMENT||'full';
+const write=()=>writeFile(out+'/measurements-'+segment+'.json',JSON.stringify(results,null,2));
 const flush=async()=>{await write();console.log('Recorded',results.states.length,'states');};
 async function env(view,mode,{fault='',instrument=false}={}){
  const [width,height]=devices[view];
@@ -35,7 +36,7 @@ async function env(view,mode,{fault='',instrument=false}={}){
   if(fault==='pdb'&&name==='1CRN.pdb')return r.abort('failed');
   await r.fulfill({path:'/tmp/exhibit-pdb/'+name,contentType:'text/plain',headers:cors});
  });
- const p=await ctx.newPage(); const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text().slice(0,230));});
+ const p=await ctx.newPage(); p.setDefaultTimeout(8000);const errors=[];p.on('pageerror',e=>errors.push(e.message));p.on('console',m=>{if(m.type()==='error')errors.push(m.text().slice(0,230));});
  await p.goto(url,{waitUntil:'domcontentloaded'});
  await p.waitForFunction(()=>document.querySelector('#design').dataset.designSource);
  if(fault!=='webgl')await p.waitForFunction(()=>document.querySelector('#design').classList.contains('design-gl'));
@@ -47,7 +48,23 @@ async function go(p,group,chapter,phase){
  await p.waitForFunction(({ids,chapter})=>Number(document.getElementById(ids[1]).dataset[ids[2]])===chapter,{ids,chapter});
  await p.evaluate(()=>new Promise(ok=>requestAnimationFrame(()=>requestAnimationFrame(ok))));
 }
-async function shot(p,file){await p.screenshot({path:raw+'/'+file+'.jpg',type:'jpeg',quality:86,timeout:20000});}
+const sessions=new WeakMap();
+async function shot(p,file){
+ if(!sessions.has(p))sessions.set(p,await p.context().newCDPSession(p));
+ const session=sessions.get(p);
+ try{
+  const rec=await Promise.race([session.send('Page.captureScreenshot',{format:'jpeg',quality:86,captureBeyondViewport:false,optimizeForSpeed:true}),new Promise((_,no)=>{const t=setTimeout(()=>no(Error('compositor capture timeout')),6000);t.unref();})]);
+  await writeFile(raw+'/'+file+'.jpg',Buffer.from(rec.data,'base64'));
+ }catch(e){
+  try{
+   const event=session.once?new Promise((ok,no)=>{let t;const cb=msg=>{clearTimeout(t);ok(msg);};t=setTimeout(()=>{session.off('Page.screencastFrame',cb);no(Error('screencast timeout'));},6500);session.once('Page.screencastFrame',cb);}):null;
+   await session.send('Page.startScreencast',{format:'jpeg',quality:86});
+   const result=await event;await session.send('Page.screencastFrameAck',{sessionId:result.sessionId});await writeFile(raw+'/'+file+'.jpg',Buffer.from(result.data,'base64'));
+   results.events.push({file,method:'screencast'});
+  }catch(f){results.errors.push({file,capture:String(f)});}
+  finally {await session.send('Page.stopScreencast').catch(()=>{});}
+ }
+}
 async function state(p){
  return p.evaluate(()=>{
   const rect=s=>{const el=document.querySelector(s);if(!el||!el.getClientRects().length)return null;const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height].map(Math.round);};
@@ -61,6 +78,7 @@ async function timing(p){
 async function imgsLoaded(p){await p.waitForTimeout(250);return p.locator('#works img').evaluateAll(xs=>xs.map(x=>[x.id||x.className,x.complete,x.naturalWidth]));}
 try{
  for(const [view,wh] of Object.entries(devices))for(const mode of modes){
+  if(segment!=='full'&&segment!==view+'-'+mode)continue;
   const {p,ctx,errors}=await env(view,mode);results.loads.push({view,mode,...await timing(p)});
   if(view==='pc'&&mode==='no-preference')await shot(p,'entry');
   for(const group of ['design','scale'])for(let i=0;i<5;i++)for(const [phase,f] of [['start',.015],['mid',.50],['end',.98]]){
@@ -83,6 +101,7 @@ try{
   }
   results.errors.push({view,mode,errors});await ctx.close();await flush();
  }
+ if(segment==='extras'||segment==='full'){
  const {p,ctx}=await env('phone','reduce');await go(p,'design',2,.5);
  await p.locator('#designResidueSelect').focus();await p.keyboard.press('Home');await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');
  await p.locator('#designMessageToggle').tap();results.checks.touchGraph=await p.locator('#designMessageToggle').getAttribute('aria-pressed');
@@ -95,12 +114,16 @@ try{
  await go(p,'scale',4,.50);for(const id of ['1MBN','1UBQ','1LYZ','1CRN','4HHB']){
   await p.locator('#molSelect').selectOption(id);await p.waitForFunction(()=>molStatus.hidden);results.events.push({id,meta:await p.locator('#molMeta').innerText()});
  }await p.locator('#molView').focus();await p.keyboard.press('ArrowRight');await p.keyboard.press('+');results.checks.galleryFocus=await p.evaluate(()=>document.activeElement.id);await ctx.close();
+ }
+ if(segment==='fault'||segment==='full'){
  for(const fault of ['webgl','pdb']){
   const {p,ctx,errors}=await env('pc','reduce',{fault});
   for(const [group,i] of [['design',1],['design',2],['design',3],['scale',0],['scale',2],['scale',4]]){
    await go(p,group,i,.5);await shot(p,'fault_'+fault+'_'+group+'_'+(i+1));results.events.push({fault,group,i,...await state(p),neighbors:await p.locator('#designNeighbors').textContent(),status:await p.locator('#molStatus').textContent(),retryVisible:await p.locator('#molRetry').isVisible()});
   }results.errors.push({fault,errors});await ctx.close();
  }
+ }
+ if(segment==='perf'||segment==='full'){
  const e=await env('pc','no-preference',{instrument:true});const pg=e.p;
  async function profile(label,scroll=false){
   const m=await pg.evaluate(async(scroll)=>{
@@ -125,4 +148,5 @@ try{
  const cdp=await pg.context().newCDPSession(pg);const gpu=await pg.evaluate(()=>{const gl=document.querySelector('#designWebGL canvas').getContext('webgl2');const info=gl.getExtension('WEBGL_debug_renderer_info');return gl.getParameter(info.UNMASKED_RENDERER_WEBGL);});results.environment.gl=gpu;
  await pg.setViewportSize({width:320,height:568});await go(pg,'design',3,.95);await shot(pg,'small-sequence');results.checks.small=await state(pg);
  await e.ctx.close();await flush();
-} finally {await write();await browser.close();}
+ }
+} catch(e){results.errors.push({segment,error:String(e),stack:e.stack?.split('\n').slice(0,8)});console.error(e.message);}finally {await write();await browser.close();}

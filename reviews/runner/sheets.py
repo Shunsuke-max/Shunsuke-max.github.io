@@ -16,6 +16,8 @@ def sheet(name, entries, columns, tile):
     for j,(label,file) in enumerate(entries):
         x=j%columns*w;y=j//columns*(h+30)
         d.text((x+6,y+4),label,font=font,fill='#152027')
+        if not (src/(file+'.jpg')).exists():
+            d.text((x+6,y+48),'Capture unavailable',font=font,fill='#662222');continue
         with Image.open(src/(file+'.jpg')) as img:
             img.thumbnail((w,h),Image.Resampling.LANCZOS)
             out.paste(img,(x+(w-img.width)//2,y+26))
@@ -32,3 +34,13 @@ for fault in ['webgl','pdb']:
     if all((src/(f+'.jpg')).exists() for _,f in entries):sheet('fault-'+fault,entries,2,(520,325))
 for file in ['entry','seq-scroll-phone','different-phone','small-sequence','design_2_pc_reduce_end','design_4_phone_reduce_mid','scale_4_pc_reduce_mid','design_3_pc_reduce_mid','design_5_pc_reduce_mid']:
     if (src/(file+'.jpg')).exists():shutil.copy(src/(file+'.jpg'),dst/(file+'.jpg'))
+
+files=list(sorted(dst.glob('measurements-*.json')))
+data={'environment':{},'loads':[],'states':[],'events':[],'perf':[],'checks':{},'errors':[]}
+for f in files:
+    obj=json.loads(f.read_text())
+    for k,v in obj.items():
+        if isinstance(v,dict):data[k].update(v)
+        elif isinstance(v,list):data[k].extend(v)
+    f.unlink()
+(dst/'measurements.json').write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')))

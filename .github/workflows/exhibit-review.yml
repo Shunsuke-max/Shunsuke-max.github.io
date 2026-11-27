@@ -7,8 +7,12 @@ permissions:
   contents: read
 jobs:
   capture:
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [pc-no-preference, pc-reduce, tablet-no-preference, tablet-reduce, phone-no-preference, phone-reduce, extras, fault, perf, probes]
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
         with:
@@ -16,31 +20,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install review dependencies
+      - name: Install the same pinned libraries as the exhibit
         run: |
           npm install --no-save playwright@1.51.1 three@0.170.0 3dmol@2.5.5
           npx playwright install chromium
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update -qq
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install -y fonts-noto-cjk
-      - name: Run the exhibit from a local server
+      - name: Inspect the unmodified exhibit over loopback
+        env:
+          REVIEW_SEGMENT: ${{ matrix.part }}
         run: |
           mkdir -p /tmp/exhibit-pdb
           for id in 1CRN 4HHB 1MBN 1UBQ 1LYZ; do
-            curl -fsSL --retry 3 --max-time 45 "https://files.rcsb.org/download/$id.pdb" -o "/tmp/exhibit-pdb/$id.pdb"
+            curl -fsSL --retry 3 --max-time 40 "https://files.rcsb.org/download/$id.pdb" -o "/tmp/exhibit-pdb/$id.pdb"
           done
           python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/exhibit-http.log 2>&1 &
           trap 'kill "$!" || true' EXIT
-          node reviews/runner/capture.mjs
-          python3 reviews/runner/sheets.py
+          if [ "$REVIEW_SEGMENT" = "probes" ]; then node reviews/runner/probes.mjs; else node reviews/runner/capture.mjs; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: exhibit-review-captures
+          name: exhibit-${{ matrix.part }}
           path: |
             review-result/
             review-raw/
-          if-no-files-found: warn
   record:
+    if: always()
     runs-on: ubuntu-24.04
     needs: capture
     permissions:
@@ -49,12 +54,22 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: exhibit-review-captures
-          path: /tmp/exhibit-output
-      - name: Record public evidence on the capture branch
+          pattern: exhibit-*
+          path: /tmp/review-parts
+      - name: Assemble chapters and record public evidence
         run: |
-          mkdir -p reviews/evidence
-          cp -r /tmp/exhibit-output/review-result/. reviews/evidence/
+          mkdir -p review-raw review-result reviews/evidence
+          find /tmp/review-parts -type f -path '*/review-raw/*' -exec cp -t review-raw {} +
+          find /tmp/review-parts -type f -path '*/review-result/*' -exec cp -t review-result {} +
+          find /tmp/review-parts -mindepth 2 -maxdepth 2 -type f -exec cp -t review-result {} +
+          python3 reviews/runner/sheets.py
+          cp -r review-result/. reviews/evidence/
           git add -- reviews/evidence
-          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m 'Record browser measurements and review contact sheets'
+          git -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m 'Record independent render matrix and browser measurements'
           git push origin HEAD:refs/heads/qa/curiosity-exhibit-capture-2779261
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-review
+          path: |
+            review-result/
+            review-raw/
