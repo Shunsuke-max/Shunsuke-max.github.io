@@ -30,8 +30,9 @@ try {
     if(n)await page.locator('[data-design-jump="'+n+'"]').click();
     await page.waitForFunction(n=>document.querySelector('#design').dataset.designStep===String(n),n);
     await page.waitForTimeout(200);
+    if(n===1){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');assert.ok(Number(await page.locator('#design').getAttribute('data-secondary-count'))>0);}
     if(n===3){assert.equal(await page.locator('#designSequence .on').count(),46);await page.locator('[data-aa-choice="S"]').click();assert.match(await page.locator('#designChoiceNote').innerText(),/セリン/);}
-    if(n===4){await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
+    if(n===4){await page.waitForFunction(()=>document.querySelector('#design').dataset.ribbonVisible==='true');await page.locator('[data-compare="different"]').click();assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');await page.waitForTimeout(150);await page.locator('#design').screenshot({path:'artifacts/screenshots/design-05-different.png'});await page.locator('[data-compare="close"]').click();}
     await page.locator('#design').screenshot({path:'artifacts/screenshots/design-0'+(n+1)+'.png'});
   }
   await page.locator('#scaleJourney').evaluate(el=>el.scrollIntoView({behavior:'instant'}));
@@ -59,6 +60,23 @@ try {
   await page.locator('[data-style="cartoon"]').click();
   await page.locator('#molReset').click();
   await stage.screenshot({path:'artifacts/screenshots/05-explore.png'});
+  // Capture the actual scroll transition with motion enabled, then mobile composition.
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  async function goDesign(p){
+    await page.evaluate(p=>{const story=document.getElementById('designJourney'),stage=document.getElementById('design');const top=scrollY+story.getBoundingClientRect().top;scrollTo({top:top+(story.offsetHeight-stage.offsetHeight)*p,behavior:'instant'});},p);
+    await page.waitForFunction(n=>Number(document.querySelector('#design').dataset.designStep)===n,Math.min(4,Math.floor(p*5)));
+    await page.waitForTimeout(250);
+    assert.ok(await page.locator('#design').evaluate(e=>e.classList.contains('design-gl')));
+  }
+  for(const [name,p] of [['noise',.02],['diffusion-mid',.11],['ribbon-transition',.27],['ribbon-final',.36]]){
+    await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/motion-'+name+'.png'});
+  }
+  await page.setViewportSize({width:390,height:844});
+  for(const [name,p] of [['intro',.02],['ribbon',.36],['sequence',.76],['compare',.92]]){
+    await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-'+name+'.png'});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);
+    if(name==='sequence'||name==='compare'){const panel=page.locator(name==='sequence'?'#designSequencePanel':'#designEvaluate');const a=await panel.boundingBox(),b=await page.locator('.design-bottom').boundingBox();assert.ok(a.y+a.height<=b.y-4,'mobile panel must not overlap navigation: '+name);}
+  }
   assert.deepEqual(errors,[]);
   console.log('Real libraries + RCSB PDB data: WebGL scene navigation and molecular controls passed');
 } finally {await browser.close();}
