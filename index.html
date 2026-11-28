@@ -43,13 +43,13 @@
       <div class="design-kicker" id="designKicker">01 / 05 — DIFFUSION</div>
       <h1 id="designTitle">ノイズから<br>構造を生成する</h1>
       <p id="designDescription">ノイズを含む状態から、残基の位置を段階的に更新します。</p>
-          <div id="designDataStatus" class="design-data" role="status">参照構造を読み込み中</div>
+      <div id="designDataStatus" class="design-data" role="status">参照構造を読み込み中</div>
       <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> Cαの位置（模式）</span></div>
     </div>
-    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験座標 · 結合は距離から推定 · 水素非表示</p></div>
+    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>局所構造</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>全重原子</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p class="design-atomic-disclosure">実験座標 · 結合は距離から推定 · 水素非表示</p></div>
     <div id="designGraphLabels" class="design-graph-labels" aria-hidden="true" hidden><i id="designGraphFocusRing" class="design-graph-ring"></i><i id="designGraphFocusLeader" class="design-graph-leader"></i><i id="designGraphPairLeader" class="design-graph-leader"></i><span id="designGraphFocusLabel">CYS 04</span><span id="designGraphPairLabel">CYS 32</span></div>
     <aside id="designGraphPanel" class="design-graph-panel" aria-label="残基間の空間的近傍" hidden>
-      <div class="design-graph-eyebrow"><span>実験座標から計算</span></div>
+      <div class="design-graph-eyebrow design-graph-disclosure"><span>実験座標から計算</span></div>
       <div id="designGraphMetrics">
         <div class="design-graph-pair" id="designGraphPairTitle">Cys4 — Cys32</div>
         <div class="design-graph-metrics"><div><small>Cα間距離</small><strong id="designGraphDistance">—</strong></div><div><small>配列上の位置差</small><strong id="designGraphSeparation">—</strong></div></div>
@@ -63,7 +63,7 @@
       <div class="design-graph-eyebrow"><button id="designGraphMatrixClose" type="button" aria-label="行列パネルを閉じる">閉じる ×</button></div>
       <div class="design-matrix-switch" role="group" aria-label="行列の表示切替"><button type="button" data-matrix-mode="adj" aria-pressed="true">近接行列</button><button type="button" data-matrix-mode="dist" aria-pressed="false">距離行列</button></div>
       <canvas id="designMatrixCanvas" width="320" height="320" tabindex="0" aria-label="残基間行列。矢印キーで残基ペアを選択"></canvas>
-      <p id="designMatrixLegend">各行の近傍：1 ／ 非近傍：0（対角は自己残基）</p>
+      <p id="designMatrixLegend">近傍：1（青緑・金）／ 非近傍：0（暗色）／ 自己残基：灰色</p>
       <div id="designMatrixReadout" role="status"></div>
       <div class="design-graph-eyebrow"><span>参照配列</span><span>1–46</span></div>
       <div id="designGraphSequence" class="design-graph-sequence" aria-label="参照配列から注目残基を選択"></div>
@@ -72,7 +72,7 @@
     <dialog id="designGraphDetail" class="design-graph-detail" aria-labelledby="designGraphDetailTitle">
       <div class="design-graph-eyebrow"><button id="designGraphDetailClose" type="button">閉じる ×</button></div>
       <h2 id="designGraphDetailTitle">残基ペアの原子間距離と RBF 特徴量</h2><p>Cα間距離だけでは残基どうしの向きは分かりません。N・Cα・C・O・仮想Cβ* の25通りの距離（Å）を計算します。セルを選択するとRBFが切り替わります。</p>
-      <div id="designGraphAtomTable"></div><p id="designGraphRbfLabel"></p><div id="designGraphRbf" class="design-rbf-bars"></div><p>RBF（放射基底関数）は距離を16個の特徴量に展開します（中心2–22 Å、幅1.25 Å）。数式による計算値であり、推論出力ではありません。</p>
+      <div id="designGraphAtomTable"></div><p id="designGraphRbfLabel"></p><div id="designGraphRbf" class="design-rbf-bars"></div><p>RBF（放射基底関数）は距離を16個の特徴量に展開し、距離の違いを滑らかに表現します（中心2–22 Å、幅1.25 Å）。数式による計算値であり、推論出力ではありません。</p>
     </dialog>
     <div id="designSequencePanel" class="design-sequence" hidden>
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span></div>
@@ -104,7 +104,7 @@
         <button type="button" data-compare="different" aria-pressed="false">ずれが大きい例</button>
       </div>
       <p>構造比較は模式例。結合・発現・機能の実証には実験が必要です。</p>
-      <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで実データを見る ↗</a>
+      <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで実際の予測構造を見る ↗</a>
     </div>
     <div class="design-bottom">
       <div class="design-step-nav" aria-label="設計の5工程">
