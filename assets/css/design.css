@@ -1818,3 +1818,5 @@
     box-shadow: 0 0 0 100vmax #000a
   }
 }
+.design-replay[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.design-replay:disabled { opacity: .45; cursor: not-allowed; }
