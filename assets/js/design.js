@@ -4,7 +4,7 @@ const by = id => document.getElementById(id);
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const DEFAULT_FOCUS = 7, DEFAULT_PAIR = 45, DEFAULT_K = 8;
 const chapters = [
-    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的 PD-L1 に結合する人工タンパク質を設計します。拡散モデルは、無秩序なノイズ状態から少しずつ誤差を取り除き、標的のそばに収まる立体構造を生成します。', 'X<sub>t</sub> → X<sub>0</sub>'],
+    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'PD-L1の結合面に合わせて、バインダーの構造を生成します。', 'X<sub>t</sub> → X<sub>0</sub>'],
     ['RFD3', '標的に合わせて\n原子を配置する', 'RFdiffusion3（RFD3）は、標的 PD-L1 の結合面（設計条件 C）をもとに、バインダーの主鎖と側鎖の原子配置（X）を一体で生成します。側鎖まで扱うことで、界面の相互作用を精密に設計できます。', 'p<sub>θ</sub>(X | C)'],
     ['GEOMETRY', '立体構造を\nグラフで表す', '折り畳みにより、配列上で離れた残基も空間で近接します。バインダー各残基の位置から近傍関係を抽出し、次工程の配列設計に使います。', 'G = (V, E)'],
     ['PROTEINMPNN', '立体構造に合う\n配列を設計する', 'バインダーの主鎖構造（X<sub>bb</sub>）を固定し、前工程で捉えた空間的な近傍環境をもとに、各位置に適したアミノ酸配列（S）を ProteinMPNN で推論します。', 'p<sub>φ</sub>(S | X<sub>bb</sub>)'],
@@ -50,6 +50,32 @@ let width = 0, height = 0, dpr = 1, detailAtoms = [], detailBonds = [], interfac
 const elementColors = { C: '#d2c5ac', N: '#82a9e2', O: '#e18a7b', S: '#e5c47f' }, targetElementColors = { C: '#8ea5b5', N: '#7ea4dc', O: '#d48680', S: '#d4bd82' }, radii = { C: .76, N: .71, O: .66, S: 1.05 };
 const binderInterfaceSet = new Set([6, 9, 10, 29, 33]);
 const targetInterfaceSet = new Set([70, 114, 118, 124, 126]);
+// Display-only van der Waals spheres, not a solvent-excluded surface.
+const surfaceRadii = { C: 1.70, N: 1.55, O: 1.52, S: 1.80 };
+let targetSurfaceAtoms = [], targetSiteYaw = .52;
+function buildTargetSurface(center, scaleFactor) {
+    targetSurfaceAtoms = [];
+    const binder = raw.flatMap(r => r.atoms).filter(a => surfaceRadii[a.element]);
+    const contact = [];
+    const transform = (a, site) => ({
+        x: (a.x - center[0]) * scaleFactor, y: (a.y - center[1]) * scaleFactor,
+        z: (a.z - center[2]) * scaleFactor, radius: surfaceRadii[a.element] * scaleFactor, site
+    });
+    if (real && binder.length) {
+        for (const r of targetRaw) {
+            const atoms = r.atoms.filter(a => surfaceRadii[a.element]);
+            const site = atoms.some(a => binder.some(b => (a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2 <= 16));
+            if (site) contact.push(r.resseq);
+            targetSurfaceAtoms.push(...atoms.map(a => transform(a, site)));
+        }
+        // Orient binder to the right of PD-L1 and slightly towards the viewer.
+        const mean = key => targetPoints.reduce((sum,p)=>sum+p[key],0)/targetPoints.length;
+        targetSiteYaw = Math.atan2(-mean('z'), -mean('x')) - .45;
+    }
+    stage.dataset.targetContactResidues = contact.join(',');
+    stage.dataset.targetSurfaceAtoms = String(targetSurfaceAtoms.length);
+    updateLegend(Math.max(0,step));
+}
 
 function buildAtomicStudy(center, scaleFactor) {
     const collect = (list, chain, focusSet) => list.flatMap((r, idx) => {
@@ -203,7 +229,7 @@ function graphLabelPositions(project) {
 let compare = 'close', choice = 'A';
 let selectedResidue = DEFAULT_FOCUS;
 const legends = [
-    ['青緑の点：バインダー Cα（模式）', '薄藍：標的 PD-L1'],
+    ['バインダー（模式）', 'PD-L1', '結合面（接触残基）'],
     ['青緑：バインダー主鎖', '薄藍：標的 PD-L1', '金点線：界面の極性接触'],
     ['青緑：バインダー主鎖', '金：空間的に近いk近傍の辺'],
     ['青緑：固定した主鎖', '金：近傍残基と 3D 側鎖例（A/V/S）'],
@@ -211,9 +237,9 @@ const legends = [
 ];
 function updateLegend(n) {
     const e = by('designLegend');
-    e.replaceChildren(...legends[n].map((label, i) => {
+    e.replaceChildren(...legends[n].filter((_,i)=>!(n===0 && i>0 && !targetSurfaceAtoms.length)).map((label, i) => {
         const s = document.createElement('span'), dot = document.createElement('i');
-        const cls = i === 0 ? '' : (n === 0 || (n === 1 && i === 1) || (n === 4 && i === 2)) ? ' target' : ' amber';
+        const cls = i === 0 ? '' : ((n === 0 && i === 1) || (n === 1 && i === 1) || (n === 4 && i === 2)) ? ' target' : ' amber';
         dot.className = 'design-dot' + cls;
         s.append(dot, document.createTextNode(label));
         return s;
@@ -261,8 +287,11 @@ function rebuild() {
     } else {
         complexShift = { x: 0, y: 0, z: 0 };
     }
+    buildTargetSurface(center, scaleFactor);
     buildAtomicStudy(center, scaleFactor);
-    noise = points.map((p, i) => ({ x: (random(i * 3 + 1) - .5) * 15.5, y: (random(i * 3 + 2) - .5) * 15.5, z: (random(i * 3 + 3) - .5) * 15.5 }));
+    // Keep illustrative noise near the known binder pose; this is not collision-aware diffusion.
+    const spread = real ? 10.5 : 15.5;
+    noise = points.map((p, i) => ({ x: (random(i * 3 + 1) - .5) * spread, y: (random(i * 3 + 2) - .5) * spread, z: (random(i * 3 + 3) - .5) * spread }));
     updateGraphStudy();
     by('designSequence').replaceChildren(...raw.map(() => { const s = document.createElement('span'); s.textContent = '·'; return s; }));
     updateSequence();
@@ -383,15 +412,19 @@ const clamp = x => Math.max(0, Math.min(1, x));
 const ease = x => { x = clamp(x); return x * x * (3 - 2 * x); };
 
 function geometry(now = performance.now()) {
-    let u = 1;
+    let u = 1, siteOnly = false;
     if (step === 0) {
-        if (motion.matches) { u = 0; }
+        if (motion.matches) { u = .90; }
         else if (autoplay) {
-            const t = clamp((now - autoplayStepStart) / 4800);
+            const elapsed = now - autoplayStepStart;
+            siteOnly = real && elapsed < 850;
+            const t = clamp((elapsed - (real ? 850 : 0)) / 4800);
             u = .90 * ease(t);
         } else if (local < .02) {
             if (step0IntroStart === null) step0IntroStart = now;
-            const t = clamp((now - step0IntroStart) / 4500);
+            const elapsed = now - step0IntroStart;
+            siteOnly = real && elapsed < 850;
+            const t = clamp((elapsed - (real ? 850 : 0)) / 4500);
             u = .90 * ease(t);
         } else {
             u = .90 * ease(local);
@@ -401,7 +434,7 @@ function geometry(now = performance.now()) {
     }
     const ribbon = real && step >= 1 ? (step === 1 ? ease((u - .94) / .06) : 1) : 0;
     const coords = points.map((p, i) => { const swirl = (1 - u) * u * 1.2; return { x: noise[i].x + (p.x - noise[i].x) * u + Math.sin(i * .73) * swirl, y: noise[i].y + (p.y - noise[i].y) * u + Math.cos(i * .49) * swirl, z: noise[i].z + (p.z - noise[i].z) * u }; });
-    return { u, ribbon, coords };
+    return { u, ribbon, coords, siteOnly };
 }
 
 let lastFrame = -Infinity;
@@ -421,7 +454,8 @@ function draw(now) {
         const tVal = Math.max(0, 1 - g.u / .90);
         by('designTimeStep').textContent = 't = ' + tVal.toFixed(2);
     }
-    const angle = step === 2 ? graphAngle : step === 1 && real && atomicMode === 'local' ? atomicAngle + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : .52 + (motion.matches ? 0 : now * .00012);
+    stage.dataset.siteOnly = String(g.siteOnly);
+    const angle = step === 0 && real ? targetSiteYaw + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : step === 2 ? graphAngle : step === 1 && real && atomicMode === 'local' ? atomicAngle + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : .52 + (motion.matches ? 0 : now * .00012);
     if (gl) { try { gl.draw(g, angle); stage.classList.add('design-gl'); } catch { gl.dispose(); gl = null; stage.classList.remove('design-gl'); } }
     if (!gl && ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height);
@@ -432,7 +466,18 @@ function draw(now) {
         const a = Math.cos(angle), b = Math.sin(angle);
         const project = v => { const vx = v.x - shift.x, vy = v.y - shift.y, vz = v.z - shift.z; const x = vx * a + vz * b, z = -vx * b + vz * a; const k = 1 / (1 + (step === 2 ? -z : z) * .025); return { x: cx + x * scale * k, y: cy - (step === 2 ? vy * Math.cos(graphPitch) - z * Math.sin(graphPitch) : vy) * scale * k, z, k }; };
         const trace = (q, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y); for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2); ctx.lineTo(q.at(-1).x, q.at(-1).y); ctx.stroke(); };
-        if (showTarget) trace(targetPoints.map(project), 'rgba(110,148,174,.30)', 4.5);
+        const showSurface = step === 0 && real && targetSurfaceAtoms.length > 0;
+        stage.dataset.targetSurfaceVisible = String(showSurface);
+        if (showSurface) {
+            const atoms = targetSurfaceAtoms.map(a=>({...project(a), radius:a.radius, site:a.site})).sort((a,b)=>a.z-b.z);
+            for (const a of atoms) {
+                const radius = a.radius * scale * a.k;
+                const gradient = ctx.createRadialGradient(a.x-radius*.30,a.y-radius*.35,0,a.x,a.y,radius);
+                gradient.addColorStop(0,a.site?'#f2d39a':'#94aebc');
+                gradient.addColorStop(1,a.site?'#98713e':'#344e61');
+                ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(a.x,a.y,radius,0,Math.PI*2);ctx.fill();
+            }
+        } else if (showTarget) trace(targetPoints.map(project), 'rgba(110,148,174,.30)', 4.5);
         const p = g.coords.map(project);
         const line = (i, j, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(p[j].x, p[j].y); ctx.stroke(); };
         if (step === 2) { for (const [i, j] of edges) { line(i, j, j === graphPair ? '#fff0c7' : 'rgba(228,190,132,.82)', j === graphPair ? 2.5 : 1.6); if (graphMessage) { const pa = p[j], pb = p[i]; ctx.fillStyle = '#fff0c7'; ctx.beginPath(); ctx.arc(pa.x + (pb.x - pa.x) * graphPhase, pa.y + (pb.y - pa.y) * graphPhase, 3, 0, Math.PI * 2); ctx.fill(); } } if (graphModel && graphPair !== graphFocus && !graphNeighbors.has(graphPair)) { ctx.setLineDash([4, 5]); line(graphFocus, graphPair, '#b2c1c8', 1.4); ctx.setLineDash([]); } }
@@ -444,8 +489,8 @@ function draw(now) {
         }
         if (g.u > .12) trace(p, 'rgba(127,212,209,' + (Math.pow(g.u, 1.6) * (step === 2 ? .22 : .88)) + ')', step === 1 || step === 4 ? 5 : 2.6);
         const count = step === 3 ? Math.round((motion.matches ? 1 : Math.min(1, local * 1.35)) * p.length) : 0;
-        if (step === 0) { ctx.fillStyle = '#96bac7'; ctx.globalAlpha = .24 * (1 - g.u); for (let i = 0; i < 220; i++) { const v = project({ x: (random(i * 3 + 500) - .5) * 24, y: (random(i * 3 + 501) - .5) * 22, z: (random(i * 3 + 502) - .5) * 25 }); ctx.beginPath(); ctx.arc(v.x, v.y, .6 + random(i + 750) * 1.3, 0, Math.PI * 2); ctx.fill(); } }
-        p.map((v, i) => ({ ...v, i })).sort((a, b) => b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
+        if (step === 0 && !g.siteOnly) { ctx.fillStyle = '#96bac7'; ctx.globalAlpha = .24 * (1 - g.u); for (let i = 0; i < 220; i++) { const v = project({ x: (random(i * 3 + 500) - .5) * 24, y: (random(i * 3 + 501) - .5) * 22, z: (random(i * 3 + 502) - .5) * 25 }); ctx.beginPath(); ctx.arc(v.x, v.y, .6 + random(i + 750) * 1.3, 0, Math.PI * 2); ctx.fill(); } }
+        if (!g.siteOnly) p.map((v, i) => ({ ...v, i })).sort((a, b) => b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
         ctx.globalAlpha = 1;
         if (step === 2) graphLabelPositions(project);
         if (step === 1 && real && g.ribbon > .94) { const q = detailAtoms.map(project); for (const [i, j] of detailBonds) { if (!visibleAtomic(detailAtoms[i]) || !visibleAtomic(detailAtoms[j])) continue; ctx.strokeStyle = detailAtoms[i].chain === 'B' ? '#708798' : '#8a989b'; ctx.lineWidth = atomicMode === 'local' ? 2.4 : 1.3; ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } if (atomicMode === 'local') { ctx.setLineDash([4, 4]); ctx.strokeStyle = '#f2cc84'; ctx.lineWidth = 1.6; for (const [i, j] of interfaceContacts) { ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } ctx.setLineDash([]); } q.map((pt, i) => ({ ...pt, i })).filter(pt => visibleAtomic(detailAtoms[pt.i])).sort((a, b) => b.z - a.z).forEach(pt => { const at = detailAtoms[pt.i]; ctx.fillStyle = (at.chain === 'B' ? targetElementColors : elementColors)[at.element]; ctx.beginPath(); ctx.arc(pt.x, pt.y, (atomicMode === 'local' ? 3.5 : 2.5) * (at.element === 'S' ? 1.25 : 1) * pt.k, 0, Math.PI * 2); ctx.fill(); }); }
@@ -574,6 +619,9 @@ function initGL(T) {
     const dustMat = new T.PointsMaterial({ map: glowTex, color: 0xaad8de, size: .28, transparent: true, opacity: .45, depthWrite: false, blending: T.AdditiveBlending });
     const dust = new T.Points(dustGeo, dustMat); group.add(dust);
 
+    const surfaceGeo = new T.SphereGeometry(1, 16, 12);
+    const surfaceMat = new T.MeshStandardMaterial({ roughness: .72, metalness: .02 });
+    let targetSurface = null;
     const atomGeo = new T.SphereGeometry(.13, 18, 12);
     const atomMat = new T.MeshPhysicalMaterial({ roughness: .26, metalness: .08, clearcoat: .5, clearcoatRoughness: .2 });
     const bondGeo = new T.CylinderGeometry(.042, .042, 1, 10);
@@ -661,6 +709,18 @@ function initGL(T) {
     }
 
     function rebuildGL() {
+        if (targetSurface) { inner.remove(targetSurface); targetSurface.dispose(); targetSurface = null; }
+        if (targetSurfaceAtoms.length) {
+            targetSurface = new T.InstancedMesh(surfaceGeo, surfaceMat, targetSurfaceAtoms.length);
+            targetSurface.frustumCulled = false;
+            const blue = new T.Color('#648498'), site = new T.Color('#e5bc78');
+            targetSurfaceAtoms.forEach((a,i)=>{
+                obj.position.set(a.x,a.y,a.z); obj.rotation.set(0,0,0); obj.scale.setScalar(a.radius); obj.updateMatrix();
+                targetSurface.setMatrixAt(i,obj.matrix); targetSurface.setColorAt(i,a.site?site:blue);
+            });
+            targetSurface.instanceMatrix.needsUpdate = true; targetSurface.instanceColor.needsUpdate = true;
+            inner.add(targetSurface);
+        }
         for (const m of [ribbon, targetRibbon, comparisonRibbon]) if (m) { inner.remove(m); m.geometry.dispose(); }
         ribbon = null; targetRibbon = null; comparisonRibbon = null; lastCompare = null;
         for (const m of [atomDetail, bondDetail, devBeams]) if (m) { inner.remove(m); m.dispose(); }
@@ -731,12 +791,14 @@ function initGL(T) {
         key.color.set(step === 1 ? 0xf1f6ff : 0xfff1dc); rim.intensity = step === 1 ? 1.35 : 2.4;
 
         if (targetRibbon) {
-            targetRibbon.visible = showTarget;
+            targetRibbon.visible = showTarget && !(step === 0 && targetSurface);
             targetRibbonMat.opacity = step === 1 ? (atomicMode === 'local' ? .38 : .26) : step === 0 ? .34 : .26;
         }
-        dust.visible = step === 0;
+        if (targetSurface) targetSurface.visible = step === 0 && real;
+        stage.dataset.targetSurfaceVisible = String(!!targetSurface && targetSurface.visible);
+        dust.visible = step === 0 && !g.siteOnly;
         dustMat.opacity = .48 * (1 - g.u * .75);
-        trails.visible = step === 0 && g.u < .92;
+        trails.visible = step === 0 && !g.siteOnly && g.u < .92;
         if (trails.visible) {
             g.coords.forEach((p, i) => {
                 const t0 = noise[i];
@@ -756,7 +818,7 @@ function initGL(T) {
             spheres.setColorAt(i, step === 2 ? (graphModel && i === graphFocus ? graphIvory : graphModel && i === graphPair ? graphIvory : graphNeighbors.has(i) ? graphGold : graphMuted) : step === 3 ? (i === selectedResidue ? graphIvory : graphNeighbors.has(i) || i < count ? gold : teal) : teal);
             lines.geometry.attributes.position.setXYZ(i, p.x, p.y, p.z);
         });
-        spheres.visible = !(real && (step === 1 || step === 4) && g.ribbon > .94);
+        spheres.visible = !g.siteOnly && !(real && (step === 1 || step === 4) && g.ribbon > .94);
         spheres.instanceMatrix.needsUpdate = true;
         spheres.instanceColor.needsUpdate = true;
         lines.geometry.attributes.position.needsUpdate = true;
@@ -837,7 +899,7 @@ function initGL(T) {
 
     function dispose() {
         scene.traverse(o => { if (o.isInstancedMesh) o.dispose(); if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
-        glowTex.dispose(); envRT.dispose(); renderer.dispose(); webgl.replaceChildren();
+        surfaceGeo.dispose(); surfaceMat.dispose(); glowTex.dispose(); envRT.dispose(); renderer.dispose(); webgl.replaceChildren();
     }
     renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); dispose(); gl = null; stage.classList.remove('design-gl'); schedule(); }, { once: true });
     rebuildGL(); resize(); return { draw: render, rebuild: rebuildGL, resize, dispose, updateSidechain };
@@ -948,6 +1010,7 @@ Promise.all([fetch('assets/data/8znl-ab.pdb', { signal: controller.signal }).the
         stage.dataset.secondaryCount = String(raw.filter(p => p.ss !== 'loop').length);
         stage.dataset.designSource = '8ZNL';
         by('designDataStatus').textContent = '解説用の模式図 · 参照構造：PDB 8ZNL（PD-L1 複合体）';
+        if (!autoplay && step === 0 && local < .02) step0IntroStart = null;
         rebuild(); schedule();
     })
     .catch(() => {
