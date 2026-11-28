@@ -14,6 +14,9 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
     assert.match(await page.locator('#designDescription').innerText(),/小型タンパク質（バインダー）/);
     assert.match(await page.locator('#designDisclosure').innerText(),/AIによる推論は未実施/);
+    assert.equal(await page.locator('#design').getAttribute('data-target-surface-atoms'),'0');
+    assert.equal(await page.locator('#designSiteInspect').isDisabled(),true);
+    assert.doesNotMatch(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
     assert.match(await page.locator('#designAutoplay').innerText(),/一時停止/);
@@ -48,4 +51,20 @@ try{
     await page.close();
     console.log('Browser fallback and interaction tests passed:',viewport);
   }
+  const canvasPage=await browser.newPage({viewport:{width:1280,height:720},reducedMotion:'reduce'});
+  const canvasErrors=[];
+  canvasPage.on('pageerror',e=>canvasErrors.push(e.message));
+  await canvasPage.route('https://cdn.jsdelivr.net/**',route=>route.abort());
+  await canvasPage.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.targetSurfaceVisible==='true');
+  assert.equal(await canvasPage.locator('#design').getAttribute('data-target-surface-atoms'),'921');
+  assert.equal((await canvasPage.locator('#design').getAttribute('data-target-contact-residues')).split(',').length,17);
+  assert.equal(await canvasPage.locator('#design').getAttribute('data-site-only'),'false');
+  await canvasPage.locator('#designSiteInspect').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  await canvasPage.locator('#designReplay').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+  assert.deepEqual(canvasErrors,[]);
+  await canvasPage.close();
 }finally{await browser.close();}
+
