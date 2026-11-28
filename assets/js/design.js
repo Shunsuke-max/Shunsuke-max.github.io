@@ -4,7 +4,7 @@ const by = id => document.getElementById(id);
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const DEFAULT_FOCUS = 7, DEFAULT_PAIR = 45, DEFAULT_K = 8;
 const chapters = [
-    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的PD-L1に結合する小型タンパク質（バインダー）の形を、ノイズから生成します。', 'X<sub>t</sub> → X<sub>0</sub>'],
+    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的PD-L1に結合する小型タンパク質（バインダー）を設計します。', 'X<sub>t</sub> → X<sub>0</sub>'],
     ['RFD3', '標的に合わせて\n原子を配置する', 'RFdiffusion3は、標的との結合面に合わせて、主鎖と側鎖の原子の位置を生成します。', 'p<sub>θ</sub>(X | C)'],
     ['GEOMETRY', '立体構造を\nグラフで表す', '配列上で離れた残基も、折り畳まれると近くに位置することがあります。近い残基同士を線で結びます。', 'G = (V, E)'],
     ['PROTEINMPNN', '立体構造に合う\n配列を設計する', 'ProteinMPNNは主鎖の形を変えず、周囲の残基との位置関係からアミノ酸配列を予測します。', 'p<sub>φ</sub>(S | X<sub>bb</sub>)'],
@@ -207,10 +207,11 @@ const legends = [
     ['青緑：バインダー主鎖', 'PD-L1', '金点線：N・O原子間の近接'],
     ['青緑：バインダー主鎖', '近い残基を結ぶ線'],
     ['青緑：固定した主鎖', '近い残基・側鎖候補'],
-    ['青緑：設計バインダー', '金：再予測構造（模式例）', 'PD-L1']
+    []
 ];
 function updateLegend(n) {
     const e = by('designLegend');
+    e.hidden = n === 4;
     e.replaceChildren(...legends[n].map((label, i) => {
         const s = document.createElement('span'), dot = document.createElement('i');
         const cls = i === 0 ? '' : (n === 0 || (n === 1 && i === 1) || (n === 4 && i === 2)) ? ' target' : ' amber';
@@ -282,7 +283,8 @@ function updateSequence(now = performance.now()) {
 
 function setStep(n) {
     if (n === step) return; graphFromAtoms = n === 2 && step === 1 && real; graphTransitionStart = performance.now(); step = n; stage.dataset.designStep = String(n);
-    by('designIntent').hidden = n !== 0; by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
+    stage.querySelector('.design-formula-row').hidden = n !== 0;
+    by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
     by('designAtomicPanel').hidden = n !== 1; by('designGraphPanel').hidden = n !== 2; by('designGraphMatrix').hidden = n !== 2 || !graphModel; by('designGraphHit').hidden = n !== 2 || !graphModel; graphFrameKey = '';
     if (n !== 2) { if (by('designGraphDetail').open) by('designGraphDetail').close(); setMatrixOpen(false); }
     by('designGraphLabels').hidden = n !== 2 || !graphModel; updateLegend(n);
@@ -291,6 +293,13 @@ function setStep(n) {
     by('designTitle').textContent = c[1];
     by('designDescription').innerHTML = c[2];
     by('designFormula').innerHTML = c[3];
+    by('designFormulaNote').textContent = [
+        'ノイズを含む状態から目標構造へ変化する過程の模式図です。tは説明用の進行度で、実モデルの時刻ではありません。',
+        '設計条件Cを与えたときの原子座標Xの生成を表します。',
+        'Vは残基、Eは空間的に近い残基を結ぶ辺を表します。',
+        '主鎖座標Xbbを条件として、配列Sを予測することを表します。',
+        '配列Sから構造を再予測し、目標構造とのずれを調べます。RMSDは位置のずれの二乗平均平方根です。この展示では実際のRMSDを計算していません。'
+    ][n];
     by('designSequencePanel').hidden = n !== 3;
     by('designEvaluate').hidden = n !== 4;
     by('designNext').textContent = ['次へ：原子配置 ↓', '次へ：グラフ表現 ↓', '次へ：配列設計 ↓', '次へ：構造検証 ↓', '研究と開発へ ↓'][n];
