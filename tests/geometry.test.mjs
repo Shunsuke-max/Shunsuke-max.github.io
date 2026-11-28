@@ -18,12 +18,12 @@ test('Directed kNN excludes self and retains sequence neighbors; deterministic t
   assert.equal(describePair(g,k,0,0).rank,null);
 });
 test('All valid k: exactly k unique neighbors per row, n*k directed edges; nested neighbor sets',()=>{
-  const g=buildGeometry(Array.from({length:46},(_,i)=>r(Math.sin(i),i*.41,Math.cos(i))));
+  const g=buildGeometry(Array.from({length:58},(_,i)=>r(Math.sin(i),i*.41,Math.cos(i))));
   let last=null;
-  for(let k=1;k<46;k++){
+  for(let k=1;k<58;k++){
     const graph=buildKnn(g,k);
-    assert.equal(graph.edges.length,46*k);
-    for(let i=0;i<46;i++){
+    assert.equal(graph.edges.length,58*k);
+    for(let i=0;i<58;i++){
       assert.equal(graph.adjacency[i][i],0);
       assert.equal(graph.adjacency[i].reduce((a,b)=>a+b,0),k);
       assert.equal(new Set(graph.neighbors[i]).size,k);
