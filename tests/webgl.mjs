@@ -164,6 +164,12 @@ try {
   await page.waitForTimeout(150);
   const c0 = await page.locator('.design-copy').boundingBox(), b0 = await page.locator('.design-bottom').boundingBox();
   assert.ok(c0.y + c0.height <= b0.y - 2, 'laptop step 01 copy must not overlap bottom nav');
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  await page.locator('#design').screenshot({path:'artifacts/screenshots/compact-binding-site.png'});
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+  await page.locator('#design').screenshot({path:'artifacts/screenshots/compact-intro.png'});
   await page.locator('[data-design-jump="2"]').click();
   await page.waitForFunction(() => document.querySelector('#design').dataset.designStep === '2');
   await page.waitForTimeout(150);
@@ -174,6 +180,13 @@ try {
   for (const [name, p] of [['intro', .02], ['ribbon', .36], ['graph', .50], ['sequence', .76], ['compare', .92]]) {
     await goDesign(p); await page.locator('#design').screenshot({ path: 'artifacts/screenshots/mobile-' + name + '.png' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2), false);
+    if (name === 'intro') {
+      await page.locator('#designSiteInspect').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-binding-site.png'});
+      await page.locator('#designSiteInspect').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+    }
     if (name === 'graph') {
       await page.locator('#designGraphMatrixOpen').click();
       await page.locator('#designGraphMatrix').waitFor({ state: 'visible' });
