@@ -142,6 +142,7 @@ try {
       assert.match(await page.locator('#designChoiceNote').innerText(), /セリン/);
       await page.locator('#designSequenceSelect').selectOption('10');
       assert.equal(await page.locator('#design').getAttribute('data-sequence-focus'),'11');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/design-04-selected-residue.png'});
       await page.locator('[data-design-jump="2"]').click();
       await page.waitForFunction(() => document.querySelector('#design').dataset.designStep === '2');
       await page.locator('#designGraphReset').click();
