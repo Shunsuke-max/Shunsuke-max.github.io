@@ -104,8 +104,8 @@ function buildAtomicStudy(center, scaleFactor) {
     stage.dataset.atomicBondCount = String(bonds.length);
     stage.dataset.interfaceContacts = String(polar.length);
     by('designAtomicFocus').textContent = polar.length
-        ? '結合面のN・O原子間の近接：' + polar.length + ' 対（< 3.5 Å）'
-        : '結合面の原子';
+        ? 'PD-L1とのN・O原子間の近接：' + polar.length + ' 対（< 3.5 Å）'
+        : 'PD-L1との結合面の原子';
     updateAtomicMode();
 }
 function visibleAtomic(a) { return atomicMode === 'all' ? a.chain === 'A' : a.focus; }
@@ -861,7 +861,7 @@ function renderGraphUI(pair) {
     [...track.children].forEach((b, i) => { b.classList.toggle('near', graphNeighbors.has(i)); b.classList.toggle('pair', i === graphPair); b.setAttribute('aria-pressed', String(i === graphFocus)); });
     by('designMatrixReadout').textContent = residueLabel(graphFocus) + ' → ' + residueLabel(graphPair) + ' · ' + pair.distance.toFixed(2) + ' Å · ' + (pair.self ? '同一残基' : pair.isNeighbor ? '近傍内' : '近傍外');
     for (const b of stage.querySelectorAll('[data-matrix-mode]')) b.setAttribute('aria-pressed', String(b.dataset.matrixMode === graphMode));
-    by('designMatrixLegend').textContent = graphMode === 'adj' ? '近傍：1（青緑・金）／ 非近傍：0（暗色）／ 自分自身：灰色' : 'Cα間距離：明るいほど近い（0〜24 Å以上）';
+    by('designMatrixLegend').textContent = graphMode === 'adj' ? '近い残基：1（青緑・金）／ その他：0（暗色）／ 同じ残基：灰色' : 'Cα間距離：明るいほど近い（0〜24 Å以上）';
     drawMatrix(); if (by('designGraphDetail').open) renderAtomDetail();
 }
 function selectGraph(i, j = null) {
