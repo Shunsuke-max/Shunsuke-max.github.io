@@ -1826,3 +1826,13 @@
 .design-eval-key span { display: inline-flex; align-items: center; gap: 5px; }
 .design-stage[data-compare="close"] .design-deviation-dot { background: #6fe3bd; }
 @media (max-width: 800px) { .design-eval-key { font-size: .65rem; gap: 4px 9px; } }
+.design-replay[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.design-replay:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Reserve a clear visual lane for the PD-L1 surface beside the long Japanese heading. */
+@media (min-width: 801px) {
+  .design-stage[data-design-step="0"] .design-copy h1 {
+    font-size: clamp(1.85rem, 3.65vw, 3.4rem);
+  }
+}
+

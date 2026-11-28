@@ -47,9 +47,10 @@
       <div class="design-formula-row">
         <span id="designTimeStep" class="design-timestep" aria-hidden="true">t = 1.00</span>
         <button id="designReplay" class="design-replay" type="button">↺ 最初から再生</button>
+        <button id="designSiteInspect" class="design-replay" type="button" aria-pressed="false" disabled>結合面だけ</button>
       </div>
       <div id="designDataStatus" class="design-data" role="status">実験構造を読み込み中</div>
-      <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> バインダーのCα原子（模式図）</span><span><i class="design-dot target"></i> PD-L1</span></div>
+      <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> バインダー（模式図）</span><span><i class="design-dot target"></i> PD-L1</span><span hidden><i class="design-dot amber"></i> 結合面（接触残基）</span></div>
     </div>
     <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>結合面</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>バインダー全体</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験座標を表示。結合とN・O原子間の近接は距離から推定（水素は非表示）。</p></div>
     <div id="designGraphLabels" class="design-graph-labels" aria-hidden="true" hidden><i id="designGraphFocusRing" class="design-graph-ring"></i><i id="designGraphFocusLeader" class="design-graph-leader"></i><i id="designGraphPairLeader" class="design-graph-leader"></i><span id="designGraphFocusLabel">ARG 08</span><span id="designGraphPairLabel">VAL 46</span></div>
@@ -140,7 +141,8 @@
       <a href="https://www.rcsb.org/structure/8ZNL">RCSB PDB 8ZNL（ヒト PD-L1 と de novo 設計ミニバインダーの 1.77 Å 共結晶構造）</a>
       <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
       <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
-      <p>参照構造はPDB 8ZNL（バインダー鎖A：58残基、ヒトPD-L1鎖B：114残基）。工程02では重原子の実験座標を表示し、N・O原子間の近接（3.5 Å未満）を距離から判定します。工程03では実験座標からCα間距離、k近傍（自分自身を除く）、25通りの原子間距離、RBF特徴量を計算しています。仮想Cβ*はN・Cα・Cから算出します。</p>
+      <p>参照構造はPDB 8ZNL（バインダー鎖A：58残基、ヒトPD-L1鎖B：114残基）。工程01では重原子のvan der Waals球でPD-L1の表面を近似し、バインダーとの最短重原子間距離が4 Å以下の17残基を金色で示します。これは実験構造の接触面であり、結合エネルギーに基づくホットスポットやAIへの実際の入力条件ではありません。</p>
+      <p>工程02では重原子の実験座標を表示し、N・O原子間の近接（3.5 Å未満）を距離から判定します。工程03では実験座標からCα間距離、k近傍（自分自身を除く）、25通りの原子間距離、RBF特徴量を計算しています。仮想Cβ*はN・Cα・Cから算出します。</p>
       <p>リボンは実験座標をもとに描画しています。工程01のノイズからの変化、工程03の情報伝達、工程04の配列表示と側鎖候補、工程05の構造比較は模式表現です。AIモデルの推論は実行していません。</p>
     </details>
   </section>
