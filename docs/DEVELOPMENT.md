@@ -1,42 +1,60 @@
-# Curiosity Lab — Development guide
+# Morphē — 開発ガイド
 
-## Purpose
-A molecular journey and an interactive exhibition of published research and software. Keep the scientific data distinct from illustrative scenery. Do not imply that generated conformations are a time trajectory or that predictions prove biological function.
+## 構成
 
-## Protein design journey
-The homepage uses the natural crambin crystal structure (PDB 1CRN) as a public reference. It visualizes a deterministic coordinate interpolation, a C-alpha distance graph, a reference sequence and an illustrative side-chain choice. The validation stage overlays a deliberately displaced version of the reference trace and lets visitors compare closer and farther examples; neither is a real predicted structure. None is an actual RFdiffusion3 trajectory, ProteinMPNN result, or structure prediction. The educational visualization is the primary goal; actual model outputs are not required. If PDB retrieval fails, display only schematic coordinates and no invented sequence. WebGL has a Canvas fallback. Replace the reference with genuine public model outputs only when provenance and disclosure are established.
-
-## Architecture
-- `assets/js/design.js` / `assets/css/design.css`: five-stage scroll-driven design experience.
-- `index.html`: semantic markup, existing SVG scenery, exhibit content.
-- `assets/css/base.css`: shared color, type, spacing, navigation and focus tokens.
-- `assets/css/journey.css`: sticky story, molecular gallery and responsive controls.
-- `assets/css/exhibition.css`: project-specific layouts.
-- `assets/js/journey.js`: scene state, PDB fetching, camera and viewer lifecycle.
-- `assets/js/depth-scene.js`: optional Three.js procedural bloodstream and cell interior, driven by scene progress; SVG fallback remains available.
-- `assets/js/exhibition.js`: image tabs, contact data, design pipeline and scroll effects.
-
-The static GitHub Pages deployment remains compatible with the existing root/main configuration. No credentials are needed. 3Dmol.js and public PDB structures are fetched externally; the exhibition uses public repository images.
-
-## Local verification
-Requires Node 22+ for the recommended environment.
-```sh
-node --test tests/static.test.mjs
-npm install --no-save playwright@1.51.1
-npx playwright install chromium
-python3 -m http.server 4173
-# In a separate terminal:
-node tests/browser.mjs
+```text
+index.html                    ページ構造・研究展示
+assets/
+  css/
+    base.css                  共通トークン、ナビゲーション
+    design/                   設計展示（HTMLの読み込み順を維持）
+      stage.css               基本画面・操作・レスポンシブ
+      atomic.css              原子の表示
+      graph.css               残基グラフ・行列・RBF
+      refinements.css         後続の表示調整
+    exhibition.css            研究・開発展示
+  js/
+    design.js                 状態・操作・描画の統合エントリ
+    design/
+      copy.mjs                章の文言・凡例・数式説明
+      reference.mjs           PDB解析・模式座標
+      geometry.mjs            Å単位の幾何計算（純粋関数）
+      schematic.mjs           側鎖・比較用の模式座標
+      mesh.mjs                Three.js描画部品
+    exhibition.js             作品ギャラリー・操作
+  data/8znl-ab.pdb             実験座標
+  morphe-favicon.png          アイコン
+tests/                        数値・静的・ブラウザ・WebGLテスト
+preview-rfd3/                 過去の公開プレビュー（独立）
+docs/                         現在の仕様と開発履歴
 ```
 
-CI uses Ubuntu 24.04 to match the pinned Playwright release. Browser test covers desktop/mobile navigation, the design journey, four exhibits and the intentionally unavailable CDN fallback. It does not validate GPU/WebGL or real PDB rendering. Manual release checks: real 3Dmol load, camera, residue selection, fullscreen, Safari/iOS, screenshots, loading performance and scientific text.
+## 設計原則
 
-## Next
-1. Visually verify the new procedural Three.js vessel/cell scenery and refine the camera path. It is schematic, not a physical simulation.
-2. Create scene-specific motion direction; preserve reduced-motion behavior.
-3. Use only genuinely public coordinates for scientific exhibits, with provenance.
-4. Measure loading and rendering performance before setting numerical targets.
-5. Review the visual result on desktop and mobile before merge.
+- 参照構造はPDB 8ZNL（鎖A 58残基、鎖B 114残基）。幾何計算にはÅ単位の座標を使い、描画座標と区別する。
+- 実験座標と模式表現を分離し、AI推論・結合や機能の実証を主張しない。
+- 参照データが取得できない場合は模式図に切り替える。WebGLが利用できない場合はCanvasで表示する。
+- 静的GitHub Pagesのルート公開を維持。ビルド・サーバー・秘密鍵は不要。Three.jsはバージョン固定の外部CDNから読み込む。
+- 現在のCSS分割はカスケードを保持するための第一段階。描画ループ・UI状態は今後の分割対象。過去プレビューは既存URLを維持するため変更しない。
 
-## Molecular rendering refinement
-The design scene renders a stylized C-alpha ribbon with widths based on the reference PDB HELIX/SHEET annotations, a residue's actual reference atom positions, and an identical ribbon mesh style for a deliberately perturbed comparison. It does not reproduce an atom-accurate secondary-structure cartoon, an inference trajectory, or a predicted structure. Small ambient points in the diffusion scene are decorative; larger points represent a schematic C-alpha trace. The camera and opacity interpolate with scroll, and animation is throttled to roughly 30 frames/s. CI captures motion-enabled intermediate states and mobile WebGL screens as well as the reduced-motion scenes. The 2D fallback preserves the explanatory flow without claiming exact secondary-structure rendering.
+## テスト
+
+Node.js 22、Python 3 が必要。
+
+```sh
+node --test tests/static.test.mjs
+npm install --no-save playwright@1.51.1 three@0.170.0
+npx playwright install chromium
+python3 -m http.server 4173
+# 別のターミナルで
+node tests/browser.mjs
+mkdir -p /tmp/curiosity-pdb
+curl -fsSL https://files.rcsb.org/download/8ZNL.pdb -o /tmp/curiosity-pdb/8ZNL.pdb
+node tests/webgl.mjs
+```
+
+CIは静的・数値・フォールバック・実験座標の照合・WebGL・PC/モバイル画面を検証する。PRでスクリーンショットを比較し、実画面で確認してからマージする。Safari/iOSの実機検証は別途必要。
+
+## 科学的な仕様
+
+[GEOMETRY.md](GEOMETRY.md) を参照。過去の設計経緯は [archive/geometry-history.md](archive/geometry-history.md) に保存。
