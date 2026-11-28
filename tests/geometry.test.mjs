@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildGeometry,buildKnn,describePair} from '../assets/js/design-geometry.mjs';
+import {buildGeometry,buildKnn,describePair,fixedFrameDeviation} from '../assets/js/design-geometry.mjs';
 const r=(x,y,z)=>({x,y,z});
 test('Euclidean geometry: true zero diagonal, symmetry, 3-4-12 triangle',()=>{
   const g=buildGeometry([r(0,0,0),r(3,4,12),r(3,0,0)]);
@@ -61,3 +61,5 @@ test('Backbone distance matrix and virtual C-beta; RBF basis',()=>{
  assert.equal(pairAtomDistances(a,{atoms:[]}),null);
  const rbf=distanceRbf(2);assert.equal(rbf.length,16);assert.equal(rbf[0].value,1);assert.equal(rbf[15].center,22);assert.ok(rbf.every(x=>x.value>=0&&x.value<=1));
 });
+
+test('Fixed-frame deviation converts display units to angstroms without alignment',()=>{const a=[r(0,0,0),r(1,2,3)],b=[r(3,4,0),r(1,2,3)];const result=fixedFrameDeviation(a,b,2);assert.deepEqual(result.distances,[2.5,0]);assert.ok(Math.abs(result.rmsd-2.5/Math.sqrt(2))<1e-12);assert.throws(()=>fixedFrameDeviation(a,b,0));});
