@@ -52,7 +52,14 @@ const binderInterfaceSet = new Set([6, 9, 10, 29, 33]);
 const targetInterfaceSet = new Set([70, 114, 118, 124, 126]);
 // Display-only van der Waals spheres, not a solvent-excluded surface.
 const surfaceRadii = { C: 1.70, N: 1.55, O: 1.52, S: 1.80 };
-let targetSurfaceAtoms = [], targetSiteYaw = .52;
+let targetSurfaceAtoms = [], targetSiteYaw = .52, inspectSite = false;
+const siteIntroMs = 1500;
+function syncSiteInspect() {
+    const b = by('designSiteInspect');
+    b.hidden = step !== 0 && step !== -1;
+    b.disabled = !targetSurfaceAtoms.length;
+    b.setAttribute('aria-pressed', String(inspectSite));
+}
 function buildTargetSurface(center, scaleFactor) {
     targetSurfaceAtoms = [];
     const binder = raw.flatMap(r => r.atoms).filter(a => surfaceRadii[a.element]);
@@ -74,6 +81,7 @@ function buildTargetSurface(center, scaleFactor) {
     }
     stage.dataset.targetContactResidues = contact.join(',');
     stage.dataset.targetSurfaceAtoms = String(targetSurfaceAtoms.length);
+    syncSiteInspect();
     updateLegend(Math.max(0,step));
 }
 
@@ -311,6 +319,7 @@ function updateSequence(now = performance.now()) {
 
 function setStep(n) {
     if (n === step) return; graphFromAtoms = n === 2 && step === 1 && real; graphTransitionStart = performance.now(); step = n; stage.dataset.designStep = String(n);
+    inspectSite = false; syncSiteInspect();
     by('designIntent').hidden = n !== 0; by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
     by('designAtomicPanel').hidden = n !== 1; by('designGraphPanel').hidden = n !== 2; by('designGraphMatrix').hidden = n !== 2 || !graphModel; by('designGraphHit').hidden = n !== 2 || !graphModel; graphFrameKey = '';
     if (n !== 2) { if (by('designGraphDetail').open) by('designGraphDetail').close(); setMatrixOpen(false); }
@@ -367,6 +376,7 @@ function scheduleAutoplayNext(targetStep) {
     }, delay);
 }
 function startAutoplay() {
+    inspectSite = false; syncSiteInspect();
     autoplay = true;
     syncAutoplayUI();
     const startStep = step >= 4 ? 0 : Math.max(0, step);
@@ -378,9 +388,16 @@ function startAutoplay() {
 if (autoplayButton) autoplayButton.addEventListener('click', () => { if (autoplay) stopAutoplay(); else startAutoplay(); });
 if (replayButton) replayButton.addEventListener('click', () => {
     stopAutoplay();
+    inspectSite = false; syncSiteInspect();
     step0IntroStart = performance.now();
     if (local >= .02) jump(0);
     schedule();
+});
+by('designSiteInspect').addEventListener('click', () => {
+    if (!targetSurfaceAtoms.length || step !== 0) return;
+    stopAutoplay(); inspectSite = !inspectSite;
+    if (!inspectSite) step0IntroStart = performance.now() - siteIntroMs;
+    syncSiteInspect(); schedule();
 });
 function jump(n) {
     programmaticScrollUntil = performance.now() + 1100;
@@ -414,17 +431,18 @@ const ease = x => { x = clamp(x); return x * x * (3 - 2 * x); };
 function geometry(now = performance.now()) {
     let u = 1, siteOnly = false;
     if (step === 0) {
-        if (motion.matches) { u = .90; }
+        if (inspectSite && real) { siteOnly = true; u = 0; }
+        else if (motion.matches) { u = .90; }
         else if (autoplay) {
             const elapsed = now - autoplayStepStart;
-            siteOnly = real && elapsed < 850;
-            const t = clamp((elapsed - (real ? 850 : 0)) / 4800);
+            siteOnly = real && elapsed < siteIntroMs;
+            const t = clamp((elapsed - (real ? siteIntroMs : 0)) / 4800);
             u = .90 * ease(t);
         } else if (local < .02) {
             if (step0IntroStart === null) step0IntroStart = now;
             const elapsed = now - step0IntroStart;
-            siteOnly = real && elapsed < 850;
-            const t = clamp((elapsed - (real ? 850 : 0)) / 4500);
+            siteOnly = real && elapsed < siteIntroMs;
+            const t = clamp((elapsed - (real ? siteIntroMs : 0)) / 4500);
             u = .90 * ease(t);
         } else {
             u = .90 * ease(local);
@@ -455,7 +473,7 @@ function draw(now) {
         by('designTimeStep').textContent = 't = ' + tVal.toFixed(2);
     }
     stage.dataset.siteOnly = String(g.siteOnly);
-    const angle = step === 0 && real ? targetSiteYaw + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : step === 2 ? graphAngle : step === 1 && real && atomicMode === 'local' ? atomicAngle + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : .52 + (motion.matches ? 0 : now * .00012);
+    const angle = step === 0 && real ? targetSiteYaw + (motion.matches || g.siteOnly ? 0 : .16 * Math.sin(now * .00035)) : step === 2 ? graphAngle : step === 1 && real && atomicMode === 'local' ? atomicAngle + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : .52 + (motion.matches ? 0 : now * .00012);
     if (gl) { try { gl.draw(g, angle); stage.classList.add('design-gl'); } catch { gl.dispose(); gl = null; stage.classList.remove('design-gl'); } }
     if (!gl && ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height);
@@ -464,7 +482,7 @@ function draw(now) {
         const shift = showTarget ? complexShift : { x: 0, y: 0, z: 0 };
         const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (showTarget ? .78 : step === 2 && wide ? .76 : 1);
         const a = Math.cos(angle), b = Math.sin(angle);
-        const project = v => { const vx = v.x - shift.x, vy = v.y - shift.y, vz = v.z - shift.z; const x = vx * a + vz * b, z = -vx * b + vz * a; const k = 1 / (1 + (step === 2 ? -z : z) * .025); return { x: cx + x * scale * k, y: cy - (step === 2 ? vy * Math.cos(graphPitch) - z * Math.sin(graphPitch) : vy) * scale * k, z, k }; };
+        const project = v => { const vx = v.x - shift.x, vy = v.y - shift.y, vz = v.z - shift.z; const x = vx * a + vz * b, z = -vx * b + vz * a; const k = 1 / (1 + (step === 0 || step === 2 ? -z : z) * .025); return { x: cx + x * scale * k, y: cy - (step === 2 ? vy * Math.cos(graphPitch) - z * Math.sin(graphPitch) : vy) * scale * k, z, k }; };
         const trace = (q, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y); for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2); ctx.lineTo(q.at(-1).x, q.at(-1).y); ctx.stroke(); };
         const showSurface = step === 0 && real && targetSurfaceAtoms.length > 0;
         stage.dataset.targetSurfaceVisible = String(showSurface);
@@ -490,7 +508,7 @@ function draw(now) {
         if (g.u > .12) trace(p, 'rgba(127,212,209,' + (Math.pow(g.u, 1.6) * (step === 2 ? .22 : .88)) + ')', step === 1 || step === 4 ? 5 : 2.6);
         const count = step === 3 ? Math.round((motion.matches ? 1 : Math.min(1, local * 1.35)) * p.length) : 0;
         if (step === 0 && !g.siteOnly) { ctx.fillStyle = '#96bac7'; ctx.globalAlpha = .24 * (1 - g.u); for (let i = 0; i < 220; i++) { const v = project({ x: (random(i * 3 + 500) - .5) * 24, y: (random(i * 3 + 501) - .5) * 22, z: (random(i * 3 + 502) - .5) * 25 }); ctx.beginPath(); ctx.arc(v.x, v.y, .6 + random(i + 750) * 1.3, 0, Math.PI * 2); ctx.fill(); } }
-        if (!g.siteOnly) p.map((v, i) => ({ ...v, i })).sort((a, b) => b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
+        if (!g.siteOnly) p.map((v, i) => ({ ...v, i })).sort((a, b) => step === 0 ? a.z - b.z : b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
         ctx.globalAlpha = 1;
         if (step === 2) graphLabelPositions(project);
         if (step === 1 && real && g.ribbon > .94) { const q = detailAtoms.map(project); for (const [i, j] of detailBonds) { if (!visibleAtomic(detailAtoms[i]) || !visibleAtomic(detailAtoms[j])) continue; ctx.strokeStyle = detailAtoms[i].chain === 'B' ? '#708798' : '#8a989b'; ctx.lineWidth = atomicMode === 'local' ? 2.4 : 1.3; ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } if (atomicMode === 'local') { ctx.setLineDash([4, 4]); ctx.strokeStyle = '#f2cc84'; ctx.lineWidth = 1.6; for (const [i, j] of interfaceContacts) { ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } ctx.setLineDash([]); } q.map((pt, i) => ({ ...pt, i })).filter(pt => visibleAtomic(detailAtoms[pt.i])).sort((a, b) => b.z - a.z).forEach(pt => { const at = detailAtoms[pt.i]; ctx.fillStyle = (at.chain === 'B' ? targetElementColors : elementColors)[at.element]; ctx.beginPath(); ctx.arc(pt.x, pt.y, (atomicMode === 'local' ? 3.5 : 2.5) * (at.element === 'S' ? 1.25 : 1) * pt.k, 0, Math.PI * 2); ctx.fill(); }); }
