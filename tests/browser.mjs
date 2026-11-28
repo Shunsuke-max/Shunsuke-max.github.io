@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 const browser=await chromium.launch({headless:true});
 try{
-  for(const viewport of [{width:1440,height:900},{width:390,height:844}]){
+  for(const viewport of [{width:1440,height:900},{width:1280,height:720},{width:390,height:844}]){
     const page=await browser.newPage({viewport,reducedMotion:'reduce'});
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
@@ -12,12 +12,21 @@ try{
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    assert.equal(await page.locator('#designTitle').innerText(),'ノイズから\n構造を生成する');
+    assert.equal(await page.locator('#designDescription').innerText(),'ノイズを含む状態から、残基の位置を段階的に更新します。');
+    assert.equal(await page.locator('#designFormula').isVisible(),false);
+    assert.match(await page.locator('#designDisclosure').innerText(),/AI推論は未実施/);
+    await page.locator('.design-sources summary').click();
+    assert.equal(await page.locator('#designFormula').isVisible(),true);
+    await page.locator('.design-sources summary').click();
+
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
     assert.match(await page.locator('#designAutoplay').innerText(),/一時停止/);
     await page.locator('[data-design-jump="2"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='2');
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'false');
+    assert.equal(await page.locator('#designDescription').innerText(),'配列上で離れた残基も、立体構造では近接します。');
     assert.equal(await page.locator('#design').getAttribute('data-graph-source'),'unavailable');
     assert.equal(await page.locator('#design').getAttribute('data-graph-neighbor-count'),'0');
     assert.equal(await page.locator('#designGraphMetrics').isVisible(),false);assert.equal(await page.locator('#designGraphControls').isVisible(),false);assert.equal(await page.locator('#designGraphMatrix').isVisible(),false);
@@ -31,6 +40,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
     await page.locator('[data-compare="different"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');
+    assert.match(await page.locator('#designEvaluate').innerText(),/機能の実証には実験が必要/);
     await page.locator('#work-foldlens').scrollIntoViewIfNeeded();
     await page.locator('[data-gallery="fold"][data-index="2"]').click();
     assert.match(await page.locator('#foldCaption').innerText(),/3鎖/);
