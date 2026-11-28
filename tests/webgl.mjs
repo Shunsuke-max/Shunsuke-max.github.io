@@ -154,13 +154,14 @@ try {
       assert.equal(await page.locator('#design').getAttribute('data-compare'), 'different');
       assert.match(await page.locator('#designEvalSummary').innerText(), /大/);
       const rmsd=Number(await page.locator('#design').getAttribute('data-rmsd'));
-      assert.ok(rmsd>0);
+      assert.ok(Math.abs(rmsd-7.1357956)<.00001,'fixed-frame RMSD in angstroms');
+      assert.match(await page.locator('#designDeviationScale').innerText(),/0–10 Å/);
       await page.locator('#designDeviationSelect').fill('20');
       assert.equal(await page.locator('#design').getAttribute('data-eval-residue'),'20');
       await page.waitForTimeout(150);
       await page.locator('#design').screenshot({ path: 'artifacts/screenshots/design-05-different.png' });
       await page.locator('[data-compare="close"]').click();
-      assert.ok(Number(await page.locator('#design').getAttribute('data-rmsd'))<rmsd);
+      assert.ok(Math.abs(Number(await page.locator('#design').getAttribute('data-rmsd'))-.89707145)<.00001);
     }
     await page.locator('#design').screenshot({ path: 'artifacts/screenshots/design-0' + (n + 1) + '.png' });
   }
@@ -208,6 +209,16 @@ try {
       await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-binding-site.png'});
       await page.locator('#designSiteInspect').click();
       await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+      await page.locator('#designFit').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-fit.png'});
+      await page.locator('#designFit').click();
+    }
+    if (name === 'ribbon') {
+      await page.locator('#designAtomicZoom').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.atomicZoom==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-interface-zoom.png'});
+      await page.locator('#designAtomicZoom').click();
     }
     if (name === 'graph') {
       await page.locator('#designGraphMatrixOpen').click();
