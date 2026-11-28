@@ -10,4 +10,12 @@ test('IDs are unique and internal anchors resolve',()=>{assert.equal(new Set(ids
 test('JavaScript parses and literal element references resolve',()=>{for(const p of paths.filter(p=>p.endsWith('.js'))){const js=readFileSync(p,'utf8');new Script(js);for(const m of js.matchAll(/\b(?:by|get)\('([^']+)'\)/g))assert.ok(ids.includes(m[1]),m[1]);}});
 test('existing exhibits and design controls remain present',()=>{for(const id of ['designJourney','design','designCanvas','designAutoplay','designNext','designReplay','designTimeStep','designEvalSummary','work-foldlens','work-ensemble','work-part5','work-design'])assert.ok(ids.includes(id),id);assert.ok(!ids.includes('experiments'));assert.ok(!ids.includes('scaleJourney'));assert.match(html,/lang="ja"/);});
 
+test('Morphē is the sole site brand without a visible subtitle',()=>{
+  assert.match(html,/<title>Morphē<\/title>/);
+  assert.match(html,/<meta property="og:title" content="Morphē">/);
+  assert.match(html,/<a class="wordmark" href="\.\/">Morphē<\/a>/);
+  assert.doesNotMatch(html,/Curiosity Lab/i);
+  assert.match(html,/<div class="design-top"><a href="#works">/);
+});
+
 import './geometry.test.mjs';
