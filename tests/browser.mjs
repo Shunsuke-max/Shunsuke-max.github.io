@@ -6,9 +6,9 @@ try{
     const page=await browser.newPage({viewport,reducedMotion:'reduce'});
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
-    // Simulate the CDN being unavailable: offline fallback and project UI must still work.
+    // Simulate the CDN and structure file being unavailable: offline fallback and project UI must still work.
     await page.route('https://cdn.jsdelivr.net/**',route=>route.abort());
-    await page.route('https://files.rcsb.org/**',route=>route.abort());
+    await page.route('**/assets/data/8znl-ab.pdb',route=>route.abort());
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');

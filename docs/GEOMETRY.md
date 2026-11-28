@@ -31,3 +31,11 @@ Second integration pass: self-pair zero distance without duplicate 3D label; mat
 
 ## Gate 08 release QA
 Run 46079779766 passed numerical, offline, desktop and mobile WebGL checks. Reviewed desktop composition, mobile graph, matrix overlay, and actual pair feature dialog. Desktop title/source status crowded the controls, and mobile matrix screenshot showed background lettering during opening. Release patch removes duplicate source status in the ready graph, caps controls with internal scrolling, makes matrix opaque with immediate visibility and raises it above the source disclosure. Adds Escape close, direct 3D/sequence selection and layout/opacity assertions. Recheck release commit and production deployment.
+
+## PDB 8ZNL PD-L1 Binder Theme Migration
+- Source upgraded from single-chain Crambin (1CRN, 46 residues) to RCSB PDB 8ZNL (1.77 Å co-crystal structure of a de novo designed 58-residue 3-helix miniprotein binder on Chain A bound to the 114-residue human PD-L1 IgV domain on Chain B).
+- Bundled subset file: `assets/data/8znl-ab.pdb` (verbatim Chain A & Chain B ATOM records + headers + HELIX/SHEET records), verified byte-for-coordinate against the live RCSB `8ZNL.pdb` in `tests/geometry-reference.mjs`.
+- Geometry explorer (`03 / GEOMETRY`) operates on the 58-residue binder (Chain A, residue IDs 1–58, `k = 1..57`).
+- Default `k = 8` with focus `Arg8` (index 7) and comparison `Val46` (index 45): `5.66 Å` Cα distance, sequence separation `38`, rank `7 / 8` (`A7 · E9 · A11 · E5 · R6 · L10 · V46 · R4`), demonstrating a cross-helix tertiary contact between Helix 1 and Helix 3 that toggles out of the neighborhood when `k < 7`.
+- Chapters 01, 02, and 05 also display the PD-L1 target backbone (Chain B) alongside the binder, and Chapter 02 computes real heavy-atom interchain polar contacts (`< 3.5 Å` N/O–N/O) directly from `8znl-ab.pdb`.
+- Reference: https://www.rcsb.org/structure/8ZNL ; https://files.rcsb.org/download/8ZNL.pdb

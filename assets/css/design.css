@@ -94,6 +94,8 @@
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
   padding: 5px 11px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
@@ -153,7 +155,7 @@
   border-left: 2px solid var(--accent);
   background: color-mix(in oklab, var(--surface) 64%, transparent);
   border-radius: 0 6px 6px 0;
-  max-width: 300px;
+  max-width: 340px;
 }
 
 .design-intent span {
@@ -174,6 +176,14 @@
   display: none;
 }
 
+.design-formula-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 14px 0 8px;
+}
+
 .design-formula {
   font-family: var(--font-mono);
   font-size: clamp(1.1rem, 0.85rem + 1vw, 1.65rem);
@@ -181,7 +191,49 @@
   line-height: 1.45;
   letter-spacing: -0.01em;
   color: var(--gold);
-  margin: 14px 0 8px;
+  margin: 0;
+}
+
+.design-timestep {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #a4d9d5;
+  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.design-replay {
+  pointer-events: auto;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-glass);
+  color: var(--text);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  min-block-size: 30px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.design-replay:hover {
+  border-color: var(--accent);
+  color: var(--text-strong);
+}
+
+.design-replay:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.design-timestep[hidden],
+.design-replay[hidden] {
+  display: none;
 }
 
 .design-formula sub {
@@ -243,6 +295,16 @@
   box-shadow: 0 0 8px color-mix(in oklab, var(--gold) 45%, transparent);
 }
 
+.design-dot.target {
+  background: #698da3;
+  box-shadow: 0 0 8px color-mix(in oklab, #698da3 50%, transparent);
+}
+
+.design-dot.coral {
+  background: #f27366;
+  box-shadow: 0 0 8px color-mix(in oklab, #f27366 55%, transparent);
+}
+
 .design-bottom {
   position: absolute;
   left: clamp(20px, 5vw, 80px);
@@ -258,6 +320,7 @@
 }
 
 .design-step-nav button {
+  position: relative;
   color: color-mix(in oklab, var(--muted) 88%, transparent);
   text-align: left;
   border: 0;
@@ -266,6 +329,19 @@
   padding: 10px 0 6px;
   min-width: 0;
   min-block-size: 44px;
+}
+
+.design-stage[data-autoplay="true"] .design-step-nav button[aria-current="step"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 2px;
+  background: var(--gold);
+  transform-origin: left center;
+  transform: scaleX(var(--step-progress, 0));
+  pointer-events: none;
 }
 
 .design-step-nav button span {
@@ -400,16 +476,16 @@
 .design-residues {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 10px;
+  gap: 3px;
+  margin-top: 8px;
 }
 
 .design-residues span {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  min-width: 22px;
+  font-size: 0.66rem;
+  min-width: 18px;
   text-align: center;
-  padding: 3px 4px;
+  padding: 2px 3px;
   border-radius: 4px;
   border: 1px solid color-mix(in oklab, #94b4be 24%, transparent);
   color: #93a7ac;
@@ -484,6 +560,23 @@
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   color: var(--muted);
+}
+
+.design-eval-summary {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
+  background: color-mix(in oklab, var(--accent) 12%, var(--background));
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #dff7f4;
+}
+
+.design-eval-summary.is-warn {
+  border-color: color-mix(in oklab, #f27366 56%, transparent);
+  background: color-mix(in oklab, #f27366 15%, var(--background));
+  color: #ffdcd8;
 }
 
 .design-evaluate a {
@@ -603,13 +696,15 @@
   }
 
   .design-top {
-    top: 58px;
-    font-size: 0.6rem;
+    top: 56px;
+    font-size: 0.54rem;
+    letter-spacing: 0.08em;
+    gap: 8px;
   }
 
   .design-top a {
-    font-size: 0.68rem;
-    padding: 3px 9px;
+    font-size: 0.64rem;
+    padding: 3px 8px;
   }
 
   .design-sources {
@@ -620,7 +715,7 @@
   }
 
   .design-copy {
-    top: 92px;
+    top: 96px;
     width: calc(100% - 40px);
     max-width: 420px;
   }
@@ -650,9 +745,25 @@
     font-size: 0.7rem;
   }
 
+  .design-formula-row {
+    margin: 5px 0 3px;
+    gap: 5px 8px;
+  }
+
   .design-formula {
     font-size: 1rem;
-    margin: 6px 0 3px;
+    margin: 0;
+  }
+
+  .design-timestep {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+  }
+
+  .design-replay {
+    font-size: 0.64rem;
+    padding: 3px 8px;
+    min-block-size: 26px;
   }
 
   .design-data {
@@ -671,16 +782,58 @@
       linear-gradient(to bottom var(--in-oklab), color-mix(in oklab, var(--background) 88%, transparent) 0%, color-mix(in oklab, var(--background) 44%, transparent) 34%, transparent 52%),
       linear-gradient(to top var(--in-oklab), var(--background) 0%, color-mix(in oklab, var(--background) 74%, transparent) 18%, transparent 40%);
   }
-  .design-step-nav { gap: 4px; }
-  .design-step-nav button { padding: 7px 0 4px; min-block-size: 36px; }
-  .design-step-nav button span { font-size: 0.52rem; overflow-wrap: anywhere; }
-  .design-step-nav button strong { display: none; }
-  .design-bottom { bottom: 12px; background: linear-gradient(to top var(--in-oklab), var(--background) 72%, transparent); padding-top: 6px; }
-  .design-bottom-line { font-size: 0.6rem; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-  .design-bottom-line span { max-width: 100%; flex: 1 1 100%; }
-  .design-bottom-actions { width: 100%; justify-content: flex-end; gap: 6px; }
-  #designAutoplay, #designNext { font-size: 0.72rem; padding: 6px 11px; min-block-size: 32px; }
-  .design-sequence, .design-evaluate {
+
+  .design-step-nav {
+    gap: 4px;
+  }
+
+  .design-step-nav button {
+    padding: 7px 0 4px;
+    min-block-size: 36px;
+  }
+
+  .design-step-nav button span {
+    font-size: 0.52rem;
+    overflow-wrap: anywhere;
+  }
+
+  .design-step-nav button strong {
+    display: none;
+  }
+
+  .design-bottom {
+    bottom: 12px;
+    background: linear-gradient(to top var(--in-oklab), var(--background) 72%, transparent);
+    padding-top: 6px;
+  }
+
+  .design-bottom-line {
+    font-size: 0.6rem;
+    gap: 6px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .design-bottom-line span {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .design-bottom-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  #designAutoplay,
+  #designNext {
+    font-size: 0.72rem;
+    padding: 6px 11px;
+    min-block-size: 32px;
+  }
+
+  .design-sequence,
+  .design-evaluate {
     left: 16px;
     right: 16px;
     bottom: calc(var(--design-nav-height, 114px) + 10px);
@@ -688,6 +841,34 @@
     max-height: min(30svh, 245px);
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+
+  .design-evaluate {
+    max-height: min(35svh, 275px);
+  }
+
+  .design-eval-line {
+    font-size: 0.72rem;
+    margin: 2px 0;
+  }
+
+  .design-eval-line small {
+    font-size: 0.62rem;
+  }
+
+  .design-eval-summary {
+    margin-top: 5px;
+    padding: 4px 8px;
+    font-size: 0.64rem;
+  }
+
+  .design-compare-options {
+    margin-top: 6px;
+  }
+
+  .design-evaluate a {
+    margin-top: 6px;
+    font-size: 0.7rem;
   }
 
   .design-residues {
@@ -776,6 +957,10 @@
   .design-stage * {
     transition: none !important;
     animation: none !important;
+  }
+
+  .design-stage[data-autoplay="true"] .design-step-nav button[aria-current="step"]::before {
+    display: none;
   }
 }
 
@@ -1280,7 +1465,7 @@
 
 .design-graph-sequence {
   display: grid;
-  grid-template-columns: repeat(16, minmax(0, 1fr));
+  grid-template-columns: repeat(20, minmax(0, 1fr));
   gap: 2px;
   margin-top: 4px
 }
@@ -1507,13 +1692,51 @@
   display: none !important
 }
 
+@media(min-width:801px) and (max-height:780px) {
+  .design-top {
+    top: 64px;
+  }
+
+  .design-sources {
+    top: 96px;
+  }
+
+  .design-copy {
+    top: clamp(102px, 14vh, 128px);
+  }
+
+  .design-copy h1 {
+    font-size: clamp(1.95rem, 1.1rem + 2.4vw, 3.05rem);
+    margin: 8px 0 10px;
+  }
+
+  .design-copy p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  .design-intent {
+    margin: 4px 0 6px;
+    padding: 4px 10px;
+  }
+
+  .design-formula-row {
+    margin: 8px 0 4px;
+  }
+
+  .design-legend {
+    margin-top: 5px;
+  }
+}
+
 @media(min-width:801px) and (max-height:740px) {
   .design-stage[data-design-step="2"] .design-copy {
-    top: 104px
+    top: 96px
   }
 
   .design-stage[data-design-step="2"] .design-copy h1 {
-    font-size: clamp(29px, 3vw, 43px);
+    font-size: clamp(28px, 3vw, 42px);
     margin: 5px 0
   }
 
@@ -1522,27 +1745,38 @@
     margin: 3px 0
   }
 
-  .design-stage[data-design-step="2"] .design-formula {
-    font-size: 1.1rem;
+  .design-stage[data-design-step="2"] .design-formula-row {
     margin: 3px 0
   }
 
+  .design-stage[data-design-step="2"] .design-formula {
+    font-size: 1.1rem;
+    margin: 0
+  }
+
   .design-graph-panel {
-    max-height: calc(100% - 390px);
+    max-height: max(120px, calc(100% - var(--design-nav-height, 130px) - 295px));
     overflow: auto;
     overscroll-behavior: contain
   }
 
   .design-graph-matrix {
-    top: 110px;
-    max-height: calc(100% - 240px)
+    top: 132px;
+    max-height: calc(100% - var(--design-nav-height, 130px) - 144px)
   }
 }
 
-/* Release QA: keep the source status out of the graph controls, and prevent
+/* Release QA: keep the source status out of the atomic/graph controls, and prevent
    the expanded matrix from showing background lettering during its opening. */
-.design-stage[data-design-step="2"][data-graph-source="1CRN"] #designDataStatus {
+.design-stage[data-design-step="1"][data-design-source="8ZNL"] #designDataStatus,
+.design-stage[data-design-step="2"][data-graph-source="8ZNL"] #designDataStatus {
   display: none
+}
+
+@media(min-width:801px) {
+  .design-stage[data-design-step="1"] .design-copy {
+    top: clamp(102px, 14vh, 148px)
+  }
 }
 
 .design-stage[data-design-step="2"] .design-graph-matrix {
@@ -1569,11 +1803,11 @@
 
 @media(min-width:801px) and (max-height:800px) {
   .design-stage[data-design-step="2"] .design-copy {
-    top: 104px
+    top: 96px
   }
 
   .design-graph-panel {
-    max-height: max(105px, calc(100% - var(--design-nav-height, 120px) - 325px))
+    max-height: max(120px, calc(100% - var(--design-nav-height, 128px) - 295px))
   }
 }
 
