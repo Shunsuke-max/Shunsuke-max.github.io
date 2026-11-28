@@ -1856,3 +1856,6 @@
  .design-deviation-bars {height:19px;}
  .design-evaluate .design-eval-key {margin-bottom:4px;}
 }
+
+.design-deviation-chart {position:relative;padding-top:10px;}
+.design-deviation-scale {position:absolute;top:0;right:0;font: .61rem var(--font-mono);color:#a7bdc4;}
