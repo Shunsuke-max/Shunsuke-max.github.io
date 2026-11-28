@@ -71,6 +71,18 @@ try {
   for(const [name,p] of [['noise',.02],['diffusion-mid',.11],['ribbon-transition',.27],['ribbon-final',.36],['graph',.50]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/motion-'+name+'.png'});
   }
+  // Compact desktop: capture every scene with the same scroll positions as mobile.
+  await page.setViewportSize({width:1280,height:720});
+  for(const [name,p] of [['intro',.02],['ribbon',.36],['graph',.50],['sequence',.76],['compare',.92]]){
+    await goDesign(p);
+    await page.locator('#design').screenshot({path:'artifacts/screenshots/compact-'+name+'.png'});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2),false);
+    if(name!=='intro'){
+      const panel=page.locator(name==='graph'?'#designGraphPanel':name==='ribbon'?'#designAtomicPanel':name==='sequence'?'#designSequencePanel':'#designEvaluate');
+      const a=await panel.boundingBox(),bottom=await page.locator('.design-bottom').boundingBox();
+      assert.ok(a&&bottom&&a.y+a.height<=bottom.y+1,'compact panel overlaps navigation: '+name);
+    }
+  }
   await page.setViewportSize({width:390,height:844});
   for(const [name,p] of [['intro',.02],['ribbon',.36],['graph',.50],['sequence',.76],['compare',.92]]){
     await goDesign(p);await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-'+name+'.png'});
