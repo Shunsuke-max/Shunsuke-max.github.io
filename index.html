@@ -48,11 +48,12 @@
         <span id="designTimeStep" class="design-timestep" aria-hidden="true">t = 1.00</span>
         <button id="designReplay" class="design-replay" type="button">↺ 最初から再生</button>
         <button id="designSiteInspect" class="design-replay" type="button" aria-pressed="false" disabled>結合面だけ</button>
+        <button id="designFit" class="design-replay" type="button" aria-pressed="false" disabled>結合した形</button>
       </div>
       <div id="designDataStatus" class="design-data" role="status">実験構造を読み込み中</div>
       <div id="designLegend" class="design-legend" aria-hidden="true"><span><i class="design-dot"></i> バインダー（模式図）</span><span><i class="design-dot target"></i> PD-L1</span><span hidden><i class="design-dot amber"></i> 結合面（接触残基）</span></div>
     </div>
-    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>結合面</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>バインダー全体</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験座標を表示。結合とN・O原子間の近接は距離から推定（水素は非表示）。</p></div>
+    <div id="designAtomicPanel" class="design-atomic-panel" hidden><div class="design-atomic-heading"><span id="designAtomicCount" role="status">参照構造を読み込み中</span></div><div class="design-atomic-controls" role="group" aria-label="表示する原子の範囲"><button type="button" data-atomic-mode="local" aria-pressed="true" disabled>結合面</button><button type="button" data-atomic-mode="all" aria-pressed="false" disabled>バインダー全体</button><button id="designAtomicZoom" type="button" aria-pressed="false" disabled>界面を拡大</button></div><p id="designAtomicFocus"></p><div class="design-elements" aria-label="元素の色分け"><span><i style="--element:#d2c5ac"></i>C</span><span><i style="--element:#82a9e2"></i>N</span><span><i style="--element:#e18a7b"></i>O</span><span><i style="--element:#e5c47f"></i>S</span></div><p>実験座標を表示。結合とN・O原子間の近接は距離から推定（水素は非表示）。</p></div>
     <div id="designGraphLabels" class="design-graph-labels" aria-hidden="true" hidden><i id="designGraphFocusRing" class="design-graph-ring"></i><i id="designGraphFocusLeader" class="design-graph-leader"></i><i id="designGraphPairLeader" class="design-graph-leader"></i><span id="designGraphFocusLabel">ARG 08</span><span id="designGraphPairLabel">VAL 46</span></div>
     <aside id="designGraphPanel" class="design-graph-panel" aria-label="残基間の空間的近傍" hidden>
       <div class="design-graph-eyebrow"><span>8ZNL・鎖Aの実験座標</span></div>
@@ -62,7 +63,7 @@
         <div class="design-graph-neighbors"><small id="designGraphRank">近い残基（距離順）</small><span id="designGraphNeighbors">—</span></div>
       </div>
       <p id="designGraphStatus" role="status">参照構造を読み込み中</p>
-      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近い残基の数 k <output id="designGraphKValue">8</output><input id="designGraphK" type="range" min="1" max="57" value="8" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を表示</button><button id="designGraphDetailOpen" type="button">原子間距離・RBF</button><button id="designGraphMessage" type="button" aria-pressed="false">情報を集める</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>周囲の残基の情報を集めるメッセージパッシングの模式図。</p></div>
+      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近い残基の数 k <output id="designGraphKValue">8</output><input id="designGraphK" type="range" min="1" max="57" value="8" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を表示</button><button id="designGraphDetailOpen" type="button">原子間距離・RBF</button><button id="designGraphMessage" type="button" aria-pressed="false">情報を集める</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>近い残基から注目残基へ情報を集める模式図。</p></div>
     </aside>
     <div id="designGraphHit" class="design-graph-hit" hidden aria-label="3D分子をドラッグで回転、残基をクリックして選択"></div>
     <aside id="designGraphMatrix" class="design-graph-matrix" aria-label="残基間の行列と配列" hidden>
@@ -84,7 +85,7 @@
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 58</span></div>
       <div id="designSequence" class="design-residues"></div>
       <div class="design-choice">
-        <span id="designSequenceFocus">注目残基の候補例</span>
+        <label class="design-residue-picker">残基 <select id="designSequenceSelect" aria-label="側鎖を比較する残基" disabled></select></label><span id="designSequenceFocus">注目残基の候補例</span>
         <div class="design-choice-options" aria-label="アミノ酸の選択例">
           <button type="button" data-aa-choice="A" aria-pressed="true">A</button>
           <button type="button" data-aa-choice="V" aria-pressed="false">V</button>
@@ -94,13 +95,13 @@
           <path d="M8 23H30" stroke="#7fd4d1" stroke-width="2.5"/>
           <circle cx="8" cy="23" r="4" fill="#7fd4d1"/>
           <circle cx="30" cy="23" r="5" fill="#e4be84"/>
-          <g class="side-a"><path d="M30 23H53" stroke="#e4be84" stroke-width="2"/><circle cx="53" cy="23" r="6" fill="#e4be84"/></g>
-          <g class="side-v"><path d="M30 23H48M48 23L69 10M48 23L69 36" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="48" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="10" r="6" fill="#e4be84"/><circle cx="69" cy="36" r="6" fill="#e4be84"/></g>
-          <g class="side-s"><path d="M30 23H49M49 23L69 13" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="49" cy="23" r="5" fill="#e4be84"/><circle cx="69" cy="13" r="6" fill="#e88f7f"/><text x="69" y="16" font-size="8" fill="#101b23" text-anchor="middle">O</text></g>
+          <g class="side-a"><text x="45" y="26" font-size="9" fill="#e4be84">CH₃</text></g>
+          <g class="side-v"><path d="M30 23L58 10M30 23L58 36" stroke="#e4be84" stroke-width="2" fill="none"/><circle cx="58" cy="10" r="6" fill="#e4be84"/><circle cx="58" cy="36" r="6" fill="#e4be84"/></g>
+          <g class="side-s"><path d="M30 23L58 13" stroke="#e4be84" stroke-width="2"/><circle cx="58" cy="13" r="6" fill="#e88f7f"/><text x="58" y="16" font-size="8" fill="#101b23" text-anchor="middle">O</text></g>
         </svg>
         <span id="designChoiceNote" aria-live="polite">A：アラニン（小型・疎水性）</span>
       </div>
-      <p>A・V・Sで側鎖の形を比較。配列は実験構造のもの、側鎖候補は模式図です。</p>
+      <p>配列は実験構造、側鎖候補は模式図です。</p>
     </div>
     <div id="designEvaluate" class="design-evaluate" hidden>
       <div class="design-eval-key" aria-label="色の意味">
@@ -113,6 +114,11 @@
       <div class="design-compare-options" aria-label="模式的な構造比較の切替">
         <button type="button" data-compare="close" aria-pressed="true">ずれが小さい例</button>
         <button type="button" data-compare="different" aria-pressed="false">ずれが大きい例</button>
+      </div>
+      <div id="designDeviationPanel" class="design-deviation" hidden>
+        <div class="design-deviation-head"><strong id="designRmsd">—</strong><span id="designDeviationReadout">—</span></div>
+        <div class="design-deviation-chart"><span id="designDeviationScale" class="design-deviation-scale">—</span><div id="designDeviationBars" class="design-deviation-bars" aria-hidden="true"></div></div>
+        <label class="design-deviation-control">残基 <input id="designDeviationSelect" type="range" min="1" max="58" value="8" aria-label="位置のずれを確認する残基"></label>
       </div>
       <p>構造比較は模式例です。結合や機能の確認には実験が必要です。</p>
       <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで実際の予測構造を比較する ↗</a>
@@ -141,9 +147,9 @@
       <a href="https://www.rcsb.org/structure/8ZNL">RCSB PDB 8ZNL（ヒト PD-L1 と de novo 設計ミニバインダーの 1.77 Å 共結晶構造）</a>
       <a href="https://rosettacommons.github.io/foundry/models/rfd3/input.html">RFdiffusion3 公式資料</a>
       <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9997061/">ProteinMPNN 原著</a>
-      <p>参照構造はPDB 8ZNL（バインダー鎖A：58残基、ヒトPD-L1鎖B：114残基）。工程01では重原子のvan der Waals球でPD-L1の表面を近似し、バインダーとの最短重原子間距離が4 Å以下の17残基を金色で示します。これは実験構造の接触面であり、結合エネルギーに基づくホットスポットやAIへの実際の入力条件ではありません。</p>
+      <p>参照構造はPDB 8ZNL（バインダー鎖A：58残基、ヒトPD-L1鎖B：114残基）。工程01では重原子のvan der Waals球でPD-L1の表面を近似し、バインダーとの最短重原子間距離が4 Å以下の17残基を金色で示します。これは実験構造の接触面であり、結合エネルギーに基づくホットスポットやAIへの実際の入力条件ではありません。「結合した形」は実験構造の両鎖の原子球表示です。形状相補性の定量評価ではありません。</p>
       <p>工程02では重原子の実験座標を表示し、N・O原子間の近接（3.5 Å未満）を距離から判定します。工程03では実験座標からCα間距離、k近傍（自分自身を除く）、25通りの原子間距離、RBF特徴量を計算しています。仮想Cβ*はN・Cα・Cから算出します。</p>
-      <p>リボンは実験座標をもとに描画しています。工程01のノイズからの変化、工程03の情報伝達、工程04の配列表示と側鎖候補、工程05の構造比較は模式表現です。AIモデルの推論は実行していません。</p>
+      <p>リボンは実験座標をもとに描画しています。工程01のノイズからの変化、工程03の情報伝達、工程04の配列表示と側鎖候補、工程05の構造比較は模式表現です。AIモデルの推論は実行していません。工程04の側鎖はN・Cα・Cから求めた仮想Cβ方向を使う模式図で、配列選択の推論結果ではありません。工程05のCα RMSDは標的を固定した共通座標系で、人工的にずらした座標との差をÅで計算した値です（最適重ね合わせなし）。</p>
     </details>
   </section>
 </div>

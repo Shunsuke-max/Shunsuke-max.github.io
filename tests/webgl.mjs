@@ -35,6 +35,11 @@ try {
   assert.equal(await intro.getAttribute('data-site-only'),'true');
   await page.locator('#designSiteInspect').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+  await page.locator('#designFit').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='true');
+  await intro.screenshot({path:'artifacts/screenshots/design-01-fit.png'});
+  await page.locator('#designFit').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='false');
   for (let n = 0; n < 5; n++) {
     if (n) await page.locator('[data-design-jump="' + n + '"]').click();
     await page.waitForFunction(n => document.querySelector('#design').dataset.designStep === String(n), n);
@@ -50,6 +55,10 @@ try {
       assert.ok(local > 40 && local < all);
       assert.ok(Number(await stage.getAttribute('data-interface-contacts')) >= 5);
       assert.match(await page.locator('#designAtomicFocus').innerText(), /PD-L1/);
+      await page.locator('#designAtomicZoom').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.atomicZoom==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/design-02-interface-zoom.png'});
+      await page.locator('#designAtomicZoom').click();
       const atomicCopy = await page.locator('.design-copy').boundingBox(), atomicPanel = await page.locator('#designAtomicPanel').boundingBox();
       assert.ok(atomicCopy.y + atomicCopy.height <= atomicPanel.y + 1, 'atomic copy and controls must not overlap');
       await page.locator('[data-atomic-mode="all"]').click();
@@ -131,6 +140,9 @@ try {
       assert.equal(await page.locator('#designSequence .on').count(), 58);
       await page.locator('[data-aa-choice="S"]').click();
       assert.match(await page.locator('#designChoiceNote').innerText(), /セリン/);
+      await page.locator('#designSequenceSelect').selectOption('10');
+      assert.equal(await page.locator('#design').getAttribute('data-sequence-focus'),'11');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/design-04-selected-residue.png'});
       await page.locator('[data-design-jump="2"]').click();
       await page.waitForFunction(() => document.querySelector('#design').dataset.designStep === '2');
       await page.locator('#designGraphReset').click();
@@ -142,9 +154,15 @@ try {
       await page.locator('[data-compare="different"]').click();
       assert.equal(await page.locator('#design').getAttribute('data-compare'), 'different');
       assert.match(await page.locator('#designEvalSummary').innerText(), /大/);
+      const rmsd=Number(await page.locator('#design').getAttribute('data-rmsd'));
+      assert.ok(Math.abs(rmsd-7.1357956)<.00001,'fixed-frame RMSD in angstroms');
+      assert.match(await page.locator('#designDeviationScale').innerText(),/0–10 Å/);
+      await page.locator('#designDeviationSelect').fill('20');
+      assert.equal(await page.locator('#design').getAttribute('data-eval-residue'),'20');
       await page.waitForTimeout(150);
       await page.locator('#design').screenshot({ path: 'artifacts/screenshots/design-05-different.png' });
       await page.locator('[data-compare="close"]').click();
+      assert.ok(Math.abs(Number(await page.locator('#design').getAttribute('data-rmsd'))-.89707145)<.00001);
     }
     await page.locator('#design').screenshot({ path: 'artifacts/screenshots/design-0' + (n + 1) + '.png' });
   }
@@ -192,6 +210,16 @@ try {
       await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-binding-site.png'});
       await page.locator('#designSiteInspect').click();
       await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+      await page.locator('#designFit').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-fit.png'});
+      await page.locator('#designFit').click();
+    }
+    if (name === 'ribbon') {
+      await page.locator('#designAtomicZoom').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.atomicZoom==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-interface-zoom.png'});
+      await page.locator('#designAtomicZoom').click();
     }
     if (name === 'graph') {
       await page.locator('#designGraphMatrixOpen').click();
