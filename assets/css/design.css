@@ -1820,3 +1820,10 @@
 }
 .design-replay[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
 .design-replay:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Reserve a clear visual lane for the PD-L1 surface beside the long Japanese heading. */
+@media (min-width: 801px) {
+  .design-stage[data-design-step="0"] .design-copy h1 {
+    font-size: clamp(1.85rem, 3.65vw, 3.4rem);
+  }
+}
