@@ -44,7 +44,7 @@
       <div class="design-kicker" id="designKicker">01 / 05 — DIFFUSION</div>
       <h1 id="designTitle">ノイズから<br>バインダーを生成する</h1>
       <p id="designDescription">がん免疫療法の標的PD-L1に結合する小型タンパク質（バインダー）の形を、ノイズから生成します。</p>
-      <div id="designIntent" class="design-intent"><strong>PD-L1 結合ミニバインダー（58残基 · PDB 8ZNL）</strong></div>
+      <div id="designIntent" class="design-intent"><strong>PD-L1 × 58残基バインダー</strong></div>
       <div class="design-formula-row">
         <div id="designFormula" class="design-formula">X<sub>t</sub> → X<sub>0</sub></div>
         <span id="designTimeStep" class="design-timestep" aria-hidden="true">t = 1.00</span>
@@ -63,16 +63,16 @@
         <div class="design-graph-neighbors"><small id="designGraphRank">近い残基（距離順）</small><span id="designGraphNeighbors">—</span></div>
       </div>
       <p id="designGraphStatus" role="status">参照構造を読み込み中</p>
-      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近傍数 k <output id="designGraphKValue">8</output><input id="designGraphK" type="range" min="1" max="57" value="8" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を表示</button><button id="designGraphDetailOpen" type="button">原子間距離・RBF</button><button id="designGraphMessage" type="button" aria-pressed="false">情報を集める</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>周囲の残基の情報を集めるメッセージパッシングの模式図。</p></div>
+      <div id="designGraphControls" class="design-graph-controls" hidden><label>注目残基 <select id="designGraphFocusSelect" aria-label="注目残基"></select></label><label>比較残基 <select id="designGraphPairSelect" aria-label="比較残基"></select></label><label class="design-k-control">近い残基の数 k <output id="designGraphKValue">8</output><input id="designGraphK" type="range" min="1" max="57" value="8" aria-label="近傍数 k"></label><div class="design-graph-actions"><button id="designGraphMatrixOpen" type="button" aria-expanded="false">行列を表示</button><button id="designGraphDetailOpen" type="button">原子間距離・RBF</button><button id="designGraphMessage" type="button" aria-pressed="false">情報を集める</button><button id="designGraphReset" type="button">リセット</button></div><p id="designGraphMessageNote" hidden>周囲の残基の情報を集めるメッセージパッシングの模式図。</p></div>
     </aside>
     <div id="designGraphHit" class="design-graph-hit" hidden aria-label="3D分子をドラッグで回転、残基をクリックして選択"></div>
     <aside id="designGraphMatrix" class="design-graph-matrix" aria-label="残基間の行列と配列" hidden>
       <div class="design-graph-eyebrow"><button id="designGraphMatrixClose" type="button" aria-label="行列パネルを閉じる">閉じる ×</button></div>
       <div class="design-matrix-switch" role="group" aria-label="行列の表示切替"><button type="button" data-matrix-mode="adj" aria-pressed="true">近接行列</button><button type="button" data-matrix-mode="dist" aria-pressed="false">距離行列</button></div>
       <canvas id="designMatrixCanvas" width="320" height="320" tabindex="0" aria-label="残基間行列。矢印キーで残基ペアを選択"></canvas>
-      <p id="designMatrixLegend">近傍：1（青緑・金）／ 非近傍：0（暗色）／ 自分自身：灰色</p>
+      <p id="designMatrixLegend">近い残基：1（青緑・金）／ その他：0（暗色）／ 同じ残基：灰色</p>
       <div id="designMatrixReadout" role="status"></div>
-      <div class="design-graph-eyebrow"><span>BINDER SEQUENCE (CHAIN A)</span><span>1–58</span></div>
+      <div class="design-graph-eyebrow"><span>バインダーの配列（鎖A）</span><span>1–58</span></div>
       <div id="designGraphSequence" class="design-graph-sequence" aria-label="バインダー配列から注目残基を選択"></div>
       <p class="design-matrix-help">セル・配列を選択すると3D表示が変わります（金：近傍、白枠：比較ペア）。</p>
     </aside>
@@ -124,7 +124,7 @@
         <button type="button" data-design-jump="4"><span>05 / VALIDATION</span><strong>構造を再予測して検証する</strong></button>
       </div>
       <div class="design-bottom-line">
-        <span id="designDisclosure">実験構造を用いた解説 · AIによる推論は未実施</span>
+        <span id="designDisclosure">解説用の表示 · AIによる推論は未実施</span>
         <div class="design-bottom-actions">
           <button id="designAutoplay" type="button">▶ 自動で再生</button>
           <button id="designNext" type="button">次へ：原子配置 ↓</button>
