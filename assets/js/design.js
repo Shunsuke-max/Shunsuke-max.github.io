@@ -61,6 +61,7 @@ function syncSiteInspect() {
     b.disabled = !targetSurfaceAtoms.length;
     b.setAttribute('aria-pressed', String(inspectSite));
     const fit = by('designFit'); fit.disabled = !binderSurfaceAtoms.length; fit.hidden = b.hidden; fit.setAttribute('aria-pressed', String(fitMode));
+    if(step===0)updateLegend(0);
 }
 function buildTargetSurface(center, scaleFactor) {
     targetSurfaceAtoms = []; binderSurfaceAtoms = [];
@@ -254,7 +255,8 @@ const legends = [
 function updateLegend(n) {
     const e = by('designLegend');
     e.hidden = n === 4;
-    e.replaceChildren(...legends[n].filter((_,i)=>!(n===0 && i>0 && !targetSurfaceAtoms.length)).map((label, i) => {
+    const labels=n===0&&fitMode?['バインダー（実験構造）','PD-L1','結合面（接触残基）']:legends[n];
+    e.replaceChildren(...labels.filter((_,i)=>!(n===0 && i>0 && !targetSurfaceAtoms.length)).map((label, i) => {
         const s = document.createElement('span'), dot = document.createElement('i');
         const cls = i === 0 ? '' : ((n === 0 && i === 1) || (n === 1 && i === 1)) ? ' target' : ' amber';
         dot.className = 'design-dot' + cls;
@@ -290,9 +292,10 @@ function updateEvalSummary() {
     if(!valid) return;
     const stats=geometryModule.fixedFrameDeviation(points,comparisonPoints(points),displayScale);
     stage.dataset.rmsd=stats.rmsd.toFixed(6);
-    by('designRmsd').textContent='Cα RMSD '+stats.rmsd.toFixed(2)+' Å';
+    by('designRmsd').textContent='Cα RMSD（模式） '+stats.rmsd.toFixed(2)+' Å';
     const bars=by('designDeviationBars');
-    bars.replaceChildren(...stats.distances.map((v,i)=>{const b=document.createElement('span');b.style.height=Math.min(100,v/6*100)+'%';b.classList.toggle('selected',i===evalResidue);b.title=residueLabel(i)+': '+v.toFixed(2)+' Å';return b;}));
+    const maxDeviation=Math.max(1,...geometryModule.fixedFrameDeviation(points,points.map((p,i)=>({x:p.x+1.75*Math.sin(i*.29),y:p.y+1.75*Math.cos(i*.19),z:p.z+1.75*Math.sin(i*.17+1)})),displayScale).distances);
+    bars.replaceChildren(...stats.distances.map((v,i)=>{const b=document.createElement('span');b.style.height=Math.min(100,v/maxDeviation*100)+'%';b.classList.toggle('selected',i===evalResidue);b.title=residueLabel(i)+': '+v.toFixed(2)+' Å';return b;}));
     by('designDeviationSelect').value=String(evalResidue+1);
     by('designDeviationReadout').textContent=residueLabel(evalResidue)+'：'+stats.distances[evalResidue].toFixed(2)+' Å';
     stage.dataset.evalResidue=String(raw[evalResidue].resseq);
@@ -559,7 +562,7 @@ function draw(now) {
             for (let i = 0; i < p.length; i++) { ctx.lineWidth=i===evalResidue?3:1;ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(cmp[i].x, cmp[i].y); ctx.stroke(); }
         }
         if (g.u > .12 && !(step===0&&fitMode)) trace(p, 'rgba(127,212,209,' + (Math.pow(g.u, 1.6) * (step === 2 ? .22 : .88)) + ')', step === 1 || step === 4 ? 5 : 2.6);
-        const count = step === 3 ? Math.round((motion.matches ? 1 : Math.min(1, local * 1.35)) * p.length) : 0;
+        const count = step === 3 ? Math.round((motion.matches ? 1 : autoplay ? clamp((now-autoplayStepStart)/3600) : Math.min(1, local * 1.35)) * p.length) : 0;
         if (step === 0 && !g.siteOnly && !fitMode) { ctx.fillStyle = '#96bac7'; ctx.globalAlpha = .24 * (1 - g.u); for (let i = 0; i < 220; i++) { const v = project({ x: (random(i * 3 + 500) - .5) * 24, y: (random(i * 3 + 501) - .5) * 22, z: (random(i * 3 + 502) - .5) * 25 }); ctx.beginPath(); ctx.arc(v.x, v.y, .6 + random(i + 750) * 1.3, 0, Math.PI * 2); ctx.fill(); } }
         if (!g.siteOnly && !(step===0&&fitMode)) p.map((v, i) => ({ ...v, i })).sort((a, b) => step === 0 ? a.z - b.z : b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
         ctx.globalAlpha = 1;
@@ -733,7 +736,7 @@ function initGL(T) {
 
     let sidechainKey='';
     function updateSidechain() {
-        const key=real+':'+selectedResidue+':'+choice;
+        const key=real+':'+selectedResidue+':'+choice+':'+displayScale;
         if(key===sidechainKey)return;sidechainKey=key;
         while(sidechainGroup.children.length)sidechainGroup.remove(sidechainGroup.children[0]);
         const sc=sidechainExample();if(!sc)return;
