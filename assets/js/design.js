@@ -294,7 +294,8 @@ function updateEvalSummary() {
     stage.dataset.rmsd=stats.rmsd.toFixed(6);
     by('designRmsd').textContent='Cα RMSD（模式） '+stats.rmsd.toFixed(2)+' Å';
     const bars=by('designDeviationBars');
-    const maxDeviation=Math.max(1,...geometryModule.fixedFrameDeviation(points,points.map((p,i)=>({x:p.x+1.75*Math.sin(i*.29),y:p.y+1.75*Math.cos(i*.19),z:p.z+1.75*Math.sin(i*.17+1)})),displayScale).distances);
+    const maxDeviation=Math.ceil(Math.max(1,...geometryModule.fixedFrameDeviation(points,points.map((p,i)=>({x:p.x+1.75*Math.sin(i*.29),y:p.y+1.75*Math.cos(i*.19),z:p.z+1.75*Math.sin(i*.17+1)})),displayScale).distances));
+    by('designDeviationScale').textContent='0–'+maxDeviation+' Å';
     bars.replaceChildren(...stats.distances.map((v,i)=>{const b=document.createElement('span');b.style.height=Math.min(100,v/maxDeviation*100)+'%';b.classList.toggle('selected',i===evalResidue);b.title=residueLabel(i)+': '+v.toFixed(2)+' Å';return b;}));
     by('designDeviationSelect').value=String(evalResidue+1);
     by('designDeviationReadout').textContent=residueLabel(evalResidue)+'：'+stats.distances[evalResidue].toFixed(2)+' Å';
@@ -500,7 +501,7 @@ function geometry(now = performance.now()) {
             u = .90 * ease(local);
         }
     } else if (step === 1) {
-        u = motion.matches ? 1 : .90 + .10 * ease(local / .70);
+        u = motion.matches || atomicZoom ? 1 : .90 + .10 * ease(local / .70);
     }
     const ribbon = real && step >= 1 ? (step === 1 ? ease((u - .94) / .06) : 1) : 0;
     const coords = points.map((p, i) => { const swirl = (1 - u) * u * 1.2; return { x: noise[i].x + (p.x - noise[i].x) * u + Math.sin(i * .73) * swirl, y: noise[i].y + (p.y - noise[i].y) * u + Math.cos(i * .49) * swirl, z: noise[i].z + (p.z - noise[i].z) * u }; });
@@ -533,7 +534,7 @@ function draw(now) {
     if (gl) { try { gl.draw(g, angle); stage.classList.add('design-gl'); } catch { gl.dispose(); gl = null; stage.classList.remove('design-gl'); } }
     if (!gl && ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height);
-        const portrait = width < 801, wide = width >= 1280, cx = width * (step === 2 && wide ? .51 : portrait ? .50 : .67), cy = height * (portrait ? (step === 1 ? .49 : step === 2 ? .40 : step >= 3 ? .47 : .54) : step === 2 ? .43 : step >= 3 ? .34 : .45);
+        const portrait = width < 801, wide = width >= 1280, cx = width * (step === 2 && wide ? .51 : portrait ? .50 : .67), cy = height * (portrait ? (step === 1 ? .49 : step === 2 ? .40 : step >= 3 ? .41 : .54) : step === 2 ? .43 : step >= 3 ? .34 : .45);
         const showTarget = real && targetPoints.length && (step === 0 || step === 1 || step === 4);
         const shift = step===1&&atomicZoom&&real?atomicCenter:showTarget ? complexShift : { x: 0, y: 0, z: 0 };
         const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (step===1&&atomicZoom?1.25:showTarget ? .78 : step === 2 && wide ? .76 : 1);
