@@ -26,4 +26,9 @@ test('scientific copy retains provenance and avoids opaque jargon',()=>{
   assert.match(js,/近い残基同士を線で結びます/);
   assert.match(html,/<link rel="icon"[^>]*morphe-favicon\.png/);
 });
+test('formula is in the source disclosure, not the main copy',()=>{
+  assert.match(html,/<details class="design-sources">[\s\S]*?id="designFormula"/);
+  assert.doesNotMatch(html,/id="designIntent"/);
+  assert.match(html,/class="design-eval-key"/);
+});
 import './geometry.test.mjs';
