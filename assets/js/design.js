@@ -624,7 +624,7 @@ function renderGraphUI(pair) {
     [...track.children].forEach((b, i) => { b.classList.toggle('near', graphNeighbors.has(i)); b.classList.toggle('pair', i === graphPair); b.setAttribute('aria-pressed', String(i === graphFocus)); });
     by('designMatrixReadout').textContent = residueLabel(graphFocus) + ' → ' + residueLabel(graphPair) + ' · ' + pair.distance.toFixed(2) + ' Å · ' + (pair.self ? '同一残基' : pair.isNeighbor ? 'k近傍に含む' : 'k近傍の外');
     for (const b of stage.querySelectorAll('[data-matrix-mode]')) b.setAttribute('aria-pressed', String(b.dataset.matrixMode === graphMode));
-    by('designMatrixLegend').textContent = graphMode === 'adj' ? '各行の近傍：1 ／ 非近傍：0（対角は自己残基）' : 'Cα間距離：明 0 Å — 暗 24 Å以上';
+    by('designMatrixLegend').textContent = graphMode === 'adj' ? '近傍：1（青緑・金）／ 非近傍：0（暗色）／ 自己残基：灰色' : 'Cα間距離：明 0 Å — 暗 24 Å以上';
     drawMatrix(); if (by('designGraphDetail').open) renderAtomDetail();
 }
 function selectGraph(i, j = null) {
