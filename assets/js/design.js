@@ -4,11 +4,11 @@ const by = id => document.getElementById(id);
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const DEFAULT_FOCUS = 7, DEFAULT_PAIR = 45, DEFAULT_K = 8;
 const chapters = [
-    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的 PD-L1 に結合する人工タンパク質を設計します。拡散モデルは、無秩序なノイズ状態から少しずつ誤差を取り除き、標的のそばに収まる立体構造を生成します。', 'X<sub>t</sub> → X<sub>0</sub>'],
-    ['RFD3', '標的に合わせて\n原子を配置する', 'RFdiffusion3（RFD3）は、標的 PD-L1 の結合面（設計条件 C）をもとに、バインダーの主鎖と側鎖の原子配置（X）を一体で生成します。側鎖まで扱うことで、界面の相互作用を精密に設計できます。', 'p<sub>θ</sub>(X | C)'],
-    ['GEOMETRY', '立体構造を\nグラフで表す', '折り畳みにより、配列上で離れた残基も空間で近接します。バインダー各残基の位置から近傍関係を抽出し、次工程の配列設計に使います。', 'G = (V, E)'],
-    ['PROTEINMPNN', '立体構造に合う\n配列を設計する', 'バインダーの主鎖構造（X<sub>bb</sub>）を固定し、前工程で捉えた空間的な近傍環境をもとに、各位置に適したアミノ酸配列（S）を ProteinMPNN で推論します。', 'p<sub>φ</sub>(S | X<sub>bb</sub>)'],
-    ['VALIDATION', '構造を再予測して\n設計を検証する', '設計した配列（S）から立体構造（X′）を再予測し、意図したバインダー構造とのずれ（RMSD）を評価します。ただし、構造の一致だけでは結合や機能は保証されないため、最終確認には生化学実験が必要です。', 'S → X&#x2032; → RMSD']
+    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的PD-L1に結合する小型タンパク質（バインダー）を設計します。', 'X<sub>t</sub> → X<sub>0</sub>'],
+    ['RFD3', '標的に合わせて\n原子を配置する', 'RFdiffusion3は、標的との結合面に合わせて、主鎖と側鎖の原子の位置を生成します。', 'p<sub>θ</sub>(X | C)'],
+    ['GEOMETRY', '立体構造を\nグラフで表す', '配列上で離れた残基も、折り畳まれると近くに位置することがあります。近い残基同士を線で結びます。', 'G = (V, E)'],
+    ['PROTEINMPNN', '立体構造に合う\n配列を設計する', 'ProteinMPNNは主鎖の形を変えず、周囲の残基との位置関係からアミノ酸配列を予測します。', 'p<sub>φ</sub>(S | X<sub>bb</sub>)'],
+    ['VALIDATION', '構造を再予測して\n設計を検証する', '設計した配列から立体構造を予測し、目標の形に近いか確かめます。', 'S → X&#x2032; → RMSD']
 ];
 const aa = { ALA: 'A', ARG: 'R', ASN: 'N', ASP: 'D', CYS: 'C', GLN: 'Q', GLU: 'E', GLY: 'G', HIS: 'H', ILE: 'I', LEU: 'L', LYS: 'K', MET: 'M', PHE: 'F', PRO: 'P', SER: 'S', THR: 'T', TRP: 'W', TYR: 'Y', VAL: 'V' };
 function random(n) { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123; return x - Math.floor(x); }
@@ -104,8 +104,8 @@ function buildAtomicStudy(center, scaleFactor) {
     stage.dataset.atomicBondCount = String(bonds.length);
     stage.dataset.interfaceContacts = String(polar.length);
     by('designAtomicFocus').textContent = polar.length
-        ? '表示範囲：バインダー（Glu9・Gln29・Asn33 等）と PD-L1 結合面の重原子・極性接触 ' + polar.length + ' 対（< 3.5 Å）'
-        : '表示範囲：バインダーと PD-L1 結合界面の重原子';
+        ? 'PD-L1とのN・O原子間の近接：' + polar.length + ' 対（< 3.5 Å）'
+        : 'PD-L1との結合面の原子';
     updateAtomicMode();
 }
 function visibleAtomic(a) { return atomicMode === 'all' ? a.chain === 'A' : a.focus; }
@@ -114,7 +114,7 @@ function updateAtomicMode() {
     stage.dataset.atomicMode = atomicMode;
     stage.dataset.atomicVisibleCount = String(count);
     by('designAtomicCount').textContent = count
-        ? (atomicMode === 'all' ? count + ' / ' + binderAtomTotal + ' バインダー重原子' : '界面 ' + count + ' 重原子（鎖A＋PD-L1）')
+        ? (atomicMode === 'all' ? count + ' / ' + binderAtomTotal + ' 原子（水素を除く）' : '結合面：' + count + ' 原子（水素を除く）')
         : '参照構造を取得できません';
     for (const b of stage.querySelectorAll('[data-atomic-mode]')) {
         b.disabled = !detailAtoms.length;
@@ -140,7 +140,7 @@ function updateGraphStudy(rebuildGeometry = true) {
     const pair = graphModel ? geometryModule.describePair(graphGeometry, graphModel, graphFocus, graphPair) : null;
     by('designGraphDistance').textContent = pair ? pair.distance.toFixed(2) + ' Å' : '—';
     by('designGraphSeparation').textContent = pair ? String(pair.sequenceSeparation) : '—';
-    by('designGraphStatus').textContent = pair ? ('バインダー全58残基 · 自身を除く上位 ' + graphK + ' 個 · 3D回転・残基選択可') : '参照構造を取得できないため、近傍グラフを表示できません。';
+    by('designGraphStatus').textContent = pair ? ('ドラッグで回転、クリックで残基を選択') : '参照構造を取得できないため、近傍グラフを表示できません。';
     by('designGraphNeighbors').textContent = graphModel ? graphModel.neighbors[graphFocus].map(j => raw[j].aa + raw[j].resseq).join(' · ') : '—';
     by('designGraphMetrics').hidden = !pair; by('designGraphControls').hidden = !pair; by('designGraphHit').hidden = step !== 2 || !pair; by('designGraphMatrix').hidden = step !== 2 || !pair;
     if (pair) renderGraphUI(pair);
@@ -203,14 +203,15 @@ function graphLabelPositions(project) {
 let compare = 'close', choice = 'A';
 let selectedResidue = DEFAULT_FOCUS;
 const legends = [
-    ['青緑の点：バインダー Cα（模式）', '薄藍：標的 PD-L1'],
-    ['青緑：バインダー主鎖', '薄藍：標的 PD-L1', '金点線：界面の極性接触'],
-    ['青緑：バインダー主鎖', '金：空間的に近いk近傍の辺'],
-    ['青緑：固定した主鎖', '金：近傍残基と 3D 側鎖例（A/V/S）'],
-    ['青緑：設計バインダー', '金：再予測構造（模式例）', '薄藍：標的 PD-L1']
+    ['バインダーのCα原子（模式図）', 'PD-L1'],
+    ['青緑：バインダー主鎖', 'PD-L1', '金点線：N・O原子間の近接'],
+    ['青緑：バインダー主鎖', '近い残基を結ぶ線'],
+    ['青緑：固定した主鎖', '近い残基・側鎖候補'],
+    []
 ];
 function updateLegend(n) {
     const e = by('designLegend');
+    e.hidden = n === 4;
     e.replaceChildren(...legends[n].map((label, i) => {
         const s = document.createElement('span'), dot = document.createElement('i');
         const cls = i === 0 ? '' : (n === 0 || (n === 1 && i === 1) || (n === 4 && i === 2)) ? ' target' : ' amber';
@@ -227,7 +228,7 @@ function updateEvalSummary() {
     const el = by('designEvalSummary');
     if (!el) return;
     const isDiff = compare === 'different';
-    el.textContent = isDiff ? '模式ズレ：大（構造が大きく乖離 · 設計へ戻すイメージ）' : '模式ズレ：小（構造が概ね一致 · 候補維持のイメージ）';
+    el.textContent = isDiff ? 'ずれ：大（設計を見直す例）' : 'ずれ：小（候補に残す例）';
     el.classList.toggle('is-warn', isDiff);
 }
 for (const b of stage.querySelectorAll('[data-compare]')) b.addEventListener('click', () => {
@@ -274,15 +275,16 @@ function updateSequence(now = performance.now()) {
     const count = real && step === 3 ? Math.round(seqProgress * raw.length) : 0;
     by('designSequenceCount').textContent = count + ' / ' + raw.length;
     selectedResidue = graphFocus; stage.dataset.sequenceFocus = String(raw[selectedResidue]?.resseq || selectedResidue + 1);
-    by('designSequenceFocus').textContent = real ? '注目残基 ' + residueLabel(selectedResidue) + ' の側鎖候補例' : '注目残基の候補例';
-    by('designSequenceLabel').textContent = real ? 'PD-L1 設計バインダーの参照配列（PDB 8ZNL 鎖A）' : '参照配列を取得できませんでした';
+    by('designSequenceFocus').textContent = real ? residueLabel(selectedResidue) + ' の側鎖候補' : '注目残基の候補例';
+    by('designSequenceLabel').textContent = real ? '実験構造の配列（8ZNL・鎖A）' : '参照配列を取得できませんでした';
     [...by('designSequence').children].forEach((s, i) => { s.textContent = i < count ? raw[i].aa : '·'; s.classList.toggle('on', i < count); s.classList.toggle('design-seq-focus', real && i === selectedResidue); });
     if (gl) gl.updateSidechain();
 }
 
 function setStep(n) {
     if (n === step) return; graphFromAtoms = n === 2 && step === 1 && real; graphTransitionStart = performance.now(); step = n; stage.dataset.designStep = String(n);
-    by('designIntent').hidden = n !== 0; by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
+    stage.querySelector('.design-formula-row').hidden = n !== 0;
+    by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
     by('designAtomicPanel').hidden = n !== 1; by('designGraphPanel').hidden = n !== 2; by('designGraphMatrix').hidden = n !== 2 || !graphModel; by('designGraphHit').hidden = n !== 2 || !graphModel; graphFrameKey = '';
     if (n !== 2) { if (by('designGraphDetail').open) by('designGraphDetail').close(); setMatrixOpen(false); }
     by('designGraphLabels').hidden = n !== 2 || !graphModel; updateLegend(n);
@@ -291,6 +293,13 @@ function setStep(n) {
     by('designTitle').textContent = c[1];
     by('designDescription').innerHTML = c[2];
     by('designFormula').innerHTML = c[3];
+    by('designFormulaNote').textContent = [
+        'ノイズを含む状態から目標構造へ変化する過程の模式図です。tは説明用の進行度で、実モデルの時刻ではありません。',
+        '設計条件Cを与えたときの原子座標Xの生成を表します。',
+        'Vは残基、Eは空間的に近い残基を結ぶ辺を表します。',
+        '主鎖座標Xbbを条件として、配列Sを予測することを表します。',
+        '配列Sから構造を再予測し、目標構造とのずれを調べます。RMSDは位置のずれの二乗平均平方根です。この展示では実際のRMSDを計算していません。'
+    ][n];
     by('designSequencePanel').hidden = n !== 3;
     by('designEvaluate').hidden = n !== 4;
     by('designNext').textContent = ['次へ：原子配置 ↓', '次へ：グラフ表現 ↓', '次へ：配列設計 ↓', '次へ：構造検証 ↓', '研究と開発へ ↓'][n];
@@ -849,7 +858,7 @@ function renderGraphUI(pair) {
     by('designGraphPairTitle').textContent = residueLabel(graphFocus) + ' — ' + residueLabel(graphPair);
     by('designGraphFocusLabel').textContent = residueLabel(graphFocus).toUpperCase();
     by('designGraphPairLabel').textContent = residueLabel(graphPair).toUpperCase();
-    by('designGraphRank').textContent = pair.self ? '同一残基（自己ノード）' : pair.isNeighbor ? 'k近傍の ' + pair.rank + ' 番目（k = ' + graphK + '）' : 'k近傍の外（近い順に ' + pair.rank + ' 番目）';
+    by('designGraphRank').textContent = pair.self ? '同じ残基' : pair.isNeighbor ? '距離の近い順に' + pair.rank + '番目（近傍内）' : '距離の近い順に' + pair.rank + '番目（近傍外）';
     by('designGraphKValue').textContent = String(graphK); by('designGraphK').value = String(graphK);
     for (const [id, selected] of [['designGraphFocusSelect', graphFocus], ['designGraphPairSelect', graphPair]]) {
         const select = by(id);
@@ -859,9 +868,9 @@ function renderGraphUI(pair) {
     const track = by('designGraphSequence');
     if (track.children.length !== raw.length) { track.replaceChildren(...raw.map((r, i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = r.aa; b.dataset.residue = String(i); b.title = residueLabel(i); b.setAttribute('aria-label', residueLabel(i) + ' を注目残基に選択'); b.addEventListener('click', () => selectGraph(i)); return b; })); }
     [...track.children].forEach((b, i) => { b.classList.toggle('near', graphNeighbors.has(i)); b.classList.toggle('pair', i === graphPair); b.setAttribute('aria-pressed', String(i === graphFocus)); });
-    by('designMatrixReadout').textContent = residueLabel(graphFocus) + ' → ' + residueLabel(graphPair) + ' · ' + pair.distance.toFixed(2) + ' Å · ' + (pair.self ? '同一残基' : pair.isNeighbor ? 'k近傍に含む' : 'k近傍の外');
+    by('designMatrixReadout').textContent = residueLabel(graphFocus) + ' → ' + residueLabel(graphPair) + ' · ' + pair.distance.toFixed(2) + ' Å · ' + (pair.self ? '同一残基' : pair.isNeighbor ? '近傍内' : '近傍外');
     for (const b of stage.querySelectorAll('[data-matrix-mode]')) b.setAttribute('aria-pressed', String(b.dataset.matrixMode === graphMode));
-    by('designMatrixLegend').textContent = graphMode === 'adj' ? '近接行列：行 i の k近傍を 1（青緑）、他を 0（暗色）で表し、グラフの辺を定義します。' : '距離行列：全残基ペアの Cα間距離を明暗で示します（明るいほど近い、0–24 Å以上）。';
+    by('designMatrixLegend').textContent = graphMode === 'adj' ? '近い残基：1（青緑・金）／ その他：0（暗色）／ 同じ残基：灰色' : 'Cα間距離：明るいほど近い（0〜24 Å以上）';
     drawMatrix(); if (by('designGraphDetail').open) renderAtomDetail();
 }
 function selectGraph(i, j = null) {
@@ -925,7 +934,7 @@ function renderAtomDetail() {
     host.append(table); showRbf(1, 1, values[1][1]);
 }
 function showRbf(i, j, d) {
-    by('designGraphRbfLabel').textContent = residueLabel(graphFocus) + ' ' + atomNames[i] + ' — ' + residueLabel(graphPair) + ' ' + atomNames[j] + ' の距離：' + d.toFixed(2) + ' Å（RBF展開）';
+    by('designGraphRbfLabel').textContent = residueLabel(graphFocus) + ' ' + atomNames[i] + ' — ' + residueLabel(graphPair) + ' ' + atomNames[j] + ' の距離：' + d.toFixed(2) + ' Å（RBF特徴量）';
     by('designGraphRbf').replaceChildren(...geometryModule.distanceRbf(d).map(r => { const el = document.createElement('span'); el.style.setProperty('--rbf', String(r.value)); el.title = '中心 ' + r.center.toFixed(2) + ' Å: ' + r.value.toFixed(4); el.setAttribute('aria-label', el.title); return el; }));
 }
 by('designGraphDetailOpen').addEventListener('click', () => { renderAtomDetail(); by('designGraphDetail').showModal(); });
@@ -947,12 +956,12 @@ Promise.all([fetch('assets/data/8znl-ab.pdb', { signal: controller.signal }).the
         raw = parsed.binder; targetRaw = parsed.target; real = true;
         stage.dataset.secondaryCount = String(raw.filter(p => p.ss !== 'loop').length);
         stage.dataset.designSource = '8ZNL';
-        by('designDataStatus').textContent = '解説用の模式図 · 参照構造：PDB 8ZNL（PD-L1 複合体）';
+        by('designDataStatus').textContent = '参照：PDB 8ZNL（実験構造）';
         rebuild(); schedule();
     })
     .catch(() => {
         stage.dataset.designSource = 'schematic';
-        by('designDataStatus').textContent = '解説用の模式図 · オフライン表示';
+        by('designDataStatus').textContent = '参照構造なし・模式図を表示';
         updateGraphStudy(); schedule();
     })
     .finally(() => clearTimeout(timeout));

@@ -18,10 +18,16 @@ try {
   });
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelector('#design').dataset.designSource === '8ZNL' && document.querySelector('#design').classList.contains('design-gl'), {}, { timeout: 30000 });
+  assert.equal(await page.locator('#designFormula').isVisible(),false);
+  await page.locator('.design-sources summary').click();
+  assert.equal(await page.locator('#designFormula').isVisible(),true);
+  await page.locator('.design-sources summary').click();
   for (let n = 0; n < 5; n++) {
     if (n) await page.locator('[data-design-jump="' + n + '"]').click();
     await page.waitForFunction(n => document.querySelector('#design').dataset.designStep === String(n), n);
     await page.waitForTimeout(200);
+    assert.equal(await page.locator('.design-formula-row').isVisible(),n===0);
+    if(n===4)assert.equal(await page.locator('#designLegend').isVisible(),false);
     if (n === 1) {
       await page.waitForFunction(() => document.querySelector('#design').dataset.ribbonVisible === 'true');
       assert.ok(Number(await page.locator('#design').getAttribute('data-secondary-count')) > 0);

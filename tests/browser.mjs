@@ -12,6 +12,8 @@ try{
     await page.route('https://raw.githubusercontent.com/**',route=>route.fulfill({status:404,body:''}));
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
+    assert.match(await page.locator('#designDescription').innerText(),/小型タンパク質（バインダー）/);
+    assert.match(await page.locator('#designDisclosure').innerText(),/AIによる推論は未実施/);
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
     assert.match(await page.locator('#designAutoplay').innerText(),/一時停止/);
