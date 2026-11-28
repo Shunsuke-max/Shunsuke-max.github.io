@@ -79,3 +79,10 @@ export function distanceRbf(d) {
   if(!Number.isFinite(d)||d<0)throw new RangeError('Invalid distance');
   return Array.from({length:16},(_,i)=>{const center=2+20*i/15;return {center,value:Math.exp(-(((d-center)/1.25)**2))};});
 }
+
+/** Coordinate deviation in a shared, target-fixed frame; no rigid-body fitting. */
+export function fixedFrameDeviation(reference,candidate,scale=1){
+  if(!Array.isArray(reference)||!Array.isArray(candidate)||!reference.length||reference.length!==candidate.length||!Number.isFinite(scale)||scale<=0)throw new RangeError('Invalid coordinate pairs or scale');
+  const distances=reference.map((p,i)=>{const q=candidate[i];const v=Math.hypot(p.x-q.x,p.y-q.y,p.z-q.z)/scale;if(!Number.isFinite(v))throw new RangeError('Invalid coordinate');return v;});
+  return {distances,rmsd:Math.sqrt(distances.reduce((sum,v)=>sum+v*v,0)/distances.length)};
+}
