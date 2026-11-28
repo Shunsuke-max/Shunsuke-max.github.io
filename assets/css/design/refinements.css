@@ -1,0 +1,41 @@
+/* Keep mathematical notation available without competing with the molecular view. */
+.design-formula-row[hidden], .design-legend[hidden] { display: none; }
+.design-sources[open] { max-height: min(55svh, 420px); overflow-y: auto; overscroll-behavior: contain; }
+.design-source-formula { font-family: var(--font-mono); color: var(--gold); font-size: .9rem; }
+.design-eval-key { display: flex; flex-wrap: wrap; gap: 5px 13px; font-size: .73rem; color: var(--text); margin-bottom: 8px; }
+.design-eval-key span { display: inline-flex; align-items: center; gap: 5px; }
+.design-stage[data-compare="close"] .design-deviation-dot { background: #6fe3bd; }
+@media (max-width: 800px) { .design-eval-key { font-size: .65rem; gap: 4px 9px; } }
+.design-replay[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.design-replay:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Reserve a clear visual lane for the PD-L1 surface beside the long Japanese heading. */
+@media (min-width: 801px) {
+  .design-stage[data-design-step="0"] .design-copy h1 {
+    font-size: clamp(1.85rem, 3.65vw, 3.4rem);
+  }
+}
+
+
+.design-residue-picker {display:inline-flex;align-items:center;gap:5px;}
+.design-residue-picker select {background:#132a34;color:var(--text);border:1px solid var(--line-strong);border-radius:5px;padding:3px 5px;font:inherit;}
+.design-deviation[hidden] {display:none;}
+.design-deviation {margin-top:7px;}
+.design-deviation-head {display:flex;justify-content:space-between;gap:8px;font-size:.72rem;color:#cbd7d9;}
+.design-deviation-bars {display:flex;align-items:end;gap:1px;height:26px;margin-top:4px;border-bottom:1px solid var(--line);}
+.design-deviation-bars span {flex:1;background:#6fe3bd;min-width:0;min-height:1px;}
+.design-stage[data-compare="different"] .design-deviation-bars span {background:#f27366;}
+.design-deviation-bars span.selected {background:#fff0c7!important;outline:1px solid #fff0c7;}
+.design-deviation-control {display:flex;align-items:center;gap:8px;font-size:.65rem;}
+.design-deviation-control input {flex:1;min-width:0;accent-color:var(--gold);}
+@media(max-width:800px){
+ .design-residues {flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:thin;}
+ .design-residues span {flex-shrink:0;}
+ .design-sequence .design-sidechain {display:none;}
+ .design-sequence,.design-evaluate {padding:7px 10px;}
+ .design-deviation-bars {height:19px;}
+ .design-evaluate .design-eval-key {margin-bottom:4px;}
+}
+
+.design-deviation-chart {position:relative;padding-top:10px;}
+.design-deviation-scale {position:absolute;top:0;right:0;font: .61rem var(--font-mono);color:#a7bdc4;}

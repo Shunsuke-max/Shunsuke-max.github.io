@@ -1,49 +1,13 @@
+import {chapters, legends, formulaNotes} from './design/copy.mjs';
+import {fallback, parsePDB, random} from './design/reference.mjs';
+import {makeRibbon, makeStudioEnv, makeGlowSprite} from './design/mesh.mjs';
+import {buildSidechainExample, displacedCoordinates} from './design/schematic.mjs';
+
 const stage = document.getElementById('design'), journey = document.getElementById('designJourney');
 const canvas = document.getElementById('designCanvas'), webgl = document.getElementById('designWebGL');
 const by = id => document.getElementById(id);
 const motion = matchMedia('(prefers-reduced-motion: reduce)');
 const DEFAULT_FOCUS = 7, DEFAULT_PAIR = 45, DEFAULT_K = 8;
-const chapters = [
-    ['DIFFUSION', 'ノイズから\nバインダーを生成する', 'がん免疫療法の標的PD-L1に結合する小型タンパク質（バインダー）を設計します。', 'X<sub>t</sub> → X<sub>0</sub>'],
-    ['RFD3', '標的に合わせて\n原子を配置する', 'RFdiffusion3は、標的との結合面に合わせて、主鎖と側鎖の原子の位置を生成します。', 'p<sub>θ</sub>(X | C)'],
-    ['GEOMETRY', '立体構造を\nグラフで表す', '配列上で離れた残基も、折り畳まれると近くに位置することがあります。近い残基同士を線で結びます。', 'G = (V, E)'],
-    ['PROTEINMPNN', '立体構造に合う\n配列を設計する', 'ProteinMPNNは主鎖の形を変えず、周囲の残基との位置関係からアミノ酸配列を予測します。', 'p<sub>φ</sub>(S | X<sub>bb</sub>)'],
-    ['VALIDATION', '構造を再予測して\n設計を検証する', '設計した配列から立体構造を予測し、目標の形に近いか確かめます。', 'S → X&#x2032; → RMSD']
-];
-const aa = { ALA: 'A', ARG: 'R', ASN: 'N', ASP: 'D', CYS: 'C', GLN: 'Q', GLU: 'E', GLY: 'G', HIS: 'H', ILE: 'I', LEU: 'L', LYS: 'K', MET: 'M', PHE: 'F', PRO: 'P', SER: 'S', THR: 'T', TRP: 'W', TYR: 'Y', VAL: 'V' };
-function random(n) { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123; return x - Math.floor(x); }
-function fallback() { return Array.from({ length: 58 }, (_, i) => ({ x: Math.cos(i * .52) * 2.0 + Math.sin(i * .12) * 4.2, y: Math.sin(i * .52) * 2.0, z: (i - 29) * .36, aa: '?', resseq: i + 1, ss: 'helix', atoms: [] })); }
-function parsePDB(pdb) {
-    const ranges = [], atomMap = new Map(), chains = { A: [], B: [] }, seen = new Set();
-    for (const line of pdb.split(/\r?\n/)) {
-        if (line.startsWith('HELIX ')) ranges.push({ kind: 'helix', chain: line[19], from: Number(line.slice(21, 25)), to: Number(line.slice(33, 37)) });
-        if (line.startsWith('SHEET ')) ranges.push({ kind: 'sheet', chain: line[21], from: Number(line.slice(22, 26)), to: Number(line.slice(33, 37)) });
-        if (line.startsWith('ATOM  ') && [' ', 'A'].includes(line[16]) && (line[21] === 'A' || line[21] === 'B')) {
-            const k = line.slice(21, 27), xyz = [30, 38, 46].map(i => Number(line.slice(i, i + 8)));
-            if (xyz.every(Number.isFinite)) {
-                if (!atomMap.has(k)) atomMap.set(k, []);
-                atomMap.get(k).push({ x: xyz[0], y: xyz[1], z: xyz[2], name: line.slice(12, 16).trim(), element: (line.slice(76, 78).trim() || line.slice(12, 16).trim()[0]).toUpperCase() });
-            }
-        }
-    }
-    for (const line of pdb.split(/\r?\n/)) {
-        const ch = line[21];
-        if (!line.startsWith('ATOM  ') || line.slice(12, 16).trim() !== 'CA' || ![' ', 'A'].includes(line[16]) || !(ch === 'A' || ch === 'B')) continue;
-        const key = line.slice(21, 27); if (seen.has(key)) continue; seen.add(key);
-        const xyz = [30, 38, 46].map(k => Number(line.slice(k, k + 8))); if (xyz.some(v => !Number.isFinite(v))) continue;
-        const resseq = Number(line.slice(22, 26));
-        chains[ch].push({
-            x: xyz[0], y: xyz[1], z: xyz[2],
-            aa: aa[line.slice(17, 20).trim()] || '?',
-            resseq, residue: key.trim(), chain: ch,
-            ss: ranges.find(r => r.chain === ch && resseq >= r.from && resseq <= r.to)?.kind || 'loop',
-            atoms: atomMap.get(key) || []
-        });
-    }
-    if (chains.A.length !== 58 || chains.B.length !== 114) throw Error('Unexpected 8ZNL residue count');
-    return { binder: chains.A, target: chains.B };
-}
-
 let raw = fallback(), targetRaw = [], real = false, points = [], targetPoints = [], noise = [], edges = [], complexShift = { x: 0, y: 0, z: 0 };
 let step = -1, progress = 0, local = 0, visible = true, raf = 0, gl = null;
 let width = 0, height = 0, dpr = 1, detailAtoms = [], detailBonds = [], interfaceContacts = [], atomicMode = 'local', atomicAngle = .52, binderAtomTotal = 0;
@@ -245,13 +209,6 @@ function graphLabelPositions(project) {
 
 let compare = 'close', choice = 'A';
 let selectedResidue = DEFAULT_FOCUS;
-const legends = [
-    ['バインダー（模式図）', 'PD-L1', '結合面（接触残基）'],
-    ['青緑：バインダー主鎖', 'PD-L1', '金点線：N・O原子間の近接'],
-    ['青緑：バインダー主鎖', '近い残基を結ぶ線'],
-    ['主鎖', '近い残基・側鎖候補'],
-    []
-];
 function updateLegend(n) {
     const e = by('designLegend');
     e.hidden = n === 4;
@@ -264,22 +221,8 @@ function updateLegend(n) {
         return s;
     }));
 }
-function sidechainExample(){
-    if(!real||!geometryModule||!points[selectedResidue])return null;
-    const frame=geometryModule.backboneFeatures(raw[selectedResidue]);if(!frame)return null;
-    const [n,ca,carbon,,cb]=frame, p=points[selectedResidue];
-    const toPoint=(v,element)=>({x:p.x+(v[0]-ca[0])*displayScale,y:p.y+(v[1]-ca[1])*displayScale,z:p.z+(v[2]-ca[2])*displayScale,element});
-    const out=cb.map((v,i)=>v-ca[i]),norm=v=>{const l=Math.hypot(...v)||1;return v.map(x=>x/l);},u=norm(out),ref=norm(carbon.map((v,i)=>v-ca[i])),cross=norm([u[1]*ref[2]-u[2]*ref[1],u[2]*ref[0]-u[0]*ref[2],u[0]*ref[1]-u[1]*ref[0]]);
-    const tip=(sign,len)=>cb.map((v,i)=>v+len*(.55*u[i]+sign*.835*cross[i]));
-    const atoms=[toPoint(ca,'C'),toPoint(n,'N'),toPoint(carbon,'C'),toPoint(cb,'C')],bonds=[[0,1],[0,2],[0,3]];
-    if(choice==='V'){atoms.push(toPoint(tip(1,1.52),'C'),toPoint(tip(-1,1.52),'C'));bonds.push([3,4],[3,5]);}
-    if(choice==='S'){atoms.push(toPoint(tip(1,1.43),'O'));bonds.push([3,4]);}
-    return {atoms,bonds};
-}
-function comparisonPoints(coords) {
-    const magnitude = compare === 'close' ? .22 : 1.75;
-    return coords.map((p, i) => ({ x: p.x + magnitude * Math.sin(i * .29), y: p.y + magnitude * Math.cos(i * .19), z: p.z + magnitude * Math.sin(i * .17 + 1) }));
-}
+function sidechainExample(){return real?buildSidechainExample(raw[selectedResidue],points[selectedResidue],displayScale,choice,geometryModule?.backboneFeatures):null;}
+function comparisonPoints(coords){return displacedCoordinates(coords,compare);}
 function updateEvalSummary() {
     const el = by('designEvalSummary');
     if (!el) return;
@@ -294,7 +237,7 @@ function updateEvalSummary() {
     stage.dataset.rmsd=stats.rmsd.toFixed(6);
     by('designRmsd').textContent='Cα RMSD（模式） '+stats.rmsd.toFixed(2)+' Å';
     const bars=by('designDeviationBars');
-    const maxDeviation=Math.ceil(Math.max(1,...geometryModule.fixedFrameDeviation(points,points.map((p,i)=>({x:p.x+1.75*Math.sin(i*.29),y:p.y+1.75*Math.cos(i*.19),z:p.z+1.75*Math.sin(i*.17+1)})),displayScale).distances));
+    const maxDeviation=Math.ceil(Math.max(1,...geometryModule.fixedFrameDeviation(points,displacedCoordinates(points,'different'),displayScale).distances));
     by('designDeviationScale').textContent='0–'+maxDeviation+' Å';
     bars.replaceChildren(...stats.distances.map((v,i)=>{const b=document.createElement('span');b.style.height=Math.min(100,v/maxDeviation*100)+'%';b.classList.toggle('selected',i===evalResidue);b.title=residueLabel(i)+': '+v.toFixed(2)+' Å';return b;}));
     by('designDeviationSelect').value=String(evalResidue+1);
@@ -372,13 +315,7 @@ function setStep(n) {
     by('designTitle').textContent = c[1];
     by('designDescription').innerHTML = c[2];
     by('designFormula').innerHTML = c[3];
-    by('designFormulaNote').textContent = [
-        'ノイズを含む状態から目標構造へ変化する過程の模式図です。tは説明用の進行度で、実モデルの時刻ではありません。',
-        '設計条件Cを与えたときの原子座標Xの生成を表します。',
-        'Vは残基、Eは空間的に近い残基を結ぶ辺を表します。',
-        '主鎖座標Xbbを条件として、配列Sを予測することを表します。',
-        '配列Sから構造を再予測し、目標構造とのずれを調べます。RMSDは位置のずれの二乗平均平方根です。この展示では人工的な座標のずれから、標的固定のRMSDを計算しています。'
-    ][n];
+    by('designFormulaNote').textContent = formulaNotes[n];
     by('designSequencePanel').hidden = n !== 3;
     by('designEvaluate').hidden = n !== 4;
     if(n===4){evalResidue=graphFocus;updateEvalSummary();}
@@ -574,96 +511,6 @@ function draw(now) {
     if (!motion.matches && (step !== 2 || graphMessage || graphTransition < 1 || autoplay)) raf = requestAnimationFrame(draw);
 }
 function schedule() { if (visible && !raf) raf = requestAnimationFrame(draw); }
-
-// Rotation-minimizing Bishop (parallel-transport) ribbon frames avoid Frenet twists/pinches.
-function makeRibbon(T, coords, labels, palette = null) {
-    const curve = new T.CatmullRomCurve3(coords.map(p => new T.Vector3(p.x, p.y, p.z)), false, 'centripetal');
-    const segments = (coords.length - 1) * 12, sides = 12;
-    const tangents = [], normals = [], binormals = [];
-    for (let k = 0; k <= segments; k++) tangents.push(curve.getTangentAt(k / segments).normalize());
-    const up = Math.abs(tangents[0].y) < .9 ? new T.Vector3(0, 1, 0) : new T.Vector3(1, 0, 0);
-    normals.push(new T.Vector3().crossVectors(tangents[0], up).normalize());
-    binormals.push(new T.Vector3().crossVectors(tangents[0], normals[0]).normalize());
-    const axis = new T.Vector3();
-    for (let k = 1; k <= segments; k++) {
-        const prevT = tangents[k - 1], currT = tangents[k], n = normals[k - 1].clone();
-        axis.crossVectors(prevT, currT);
-        const sinA = axis.length();
-        if (sinA > 1e-5) {
-            const angle = Math.acos(Math.max(-1, Math.min(1, prevT.dot(currT))));
-            n.applyAxisAngle(axis.normalize(), angle);
-        }
-        n.addScaledVector(currT, -n.dot(currT)).normalize();
-        normals.push(n);
-        binormals.push(new T.Vector3().crossVectors(currT, n).normalize());
-    }
-    const sampleWidth = ix => {
-        const i0 = Math.max(0, Math.min(coords.length - 1, Math.floor(ix))), i1 = Math.min(coords.length - 1, i0 + 1), f = ix - i0;
-        const wFor = ss => ss === 'helix' ? .36 : ss === 'sheet' ? .42 : .10;
-        const hFor = ss => ss === 'loop' ? .10 : .068;
-        const ss0 = labels[i0]?.ss || 'loop', ss1 = labels[i1]?.ss || 'loop';
-        let w = wFor(ss0) + (wFor(ss1) - wFor(ss0)) * f;
-        const h = hFor(ss0) + (hFor(ss1) - hFor(ss0)) * f;
-        const nearest = Math.min(coords.length - 1, Math.floor(ix + .5)), ss = labels[nearest]?.ss || 'loop';
-        if (ss === 'sheet') {
-            let end = nearest; while (end + 1 < labels.length && labels[end + 1].ss === 'sheet') end++;
-            const distance = end + .48 - ix;
-            if (distance < 1.3) w *= distance < .48 ? Math.max(.14, distance / .48) * 1.55 : 1 + .55 * (1.3 - distance) / .82;
-        }
-        return { w, h, ss };
-    };
-    const pos = [], indices = [], colors = []; const color = new T.Color();
-    const pal = palette || { helix: '#8ee4de', sheet: '#6eb5c2', loop: '#5a91a4' };
-    for (let k = 0; k <= segments; k++) {
-        const t = k / segments, p = curve.getPointAt(t), n = normals[k], b = binormals[k];
-        const ix = curve.getUtoTmapping(t) * (coords.length - 1);
-        const { w, h, ss } = sampleWidth(ix);
-        color.set(pal[ss] || pal.loop);
-        for (let s = 0; s < sides; s++) {
-            const a = s / sides * Math.PI * 2;
-            const v = p.clone().addScaledVector(n, Math.cos(a) * w).addScaledVector(b, Math.sin(a) * h);
-            pos.push(v.x, v.y, v.z); colors.push(color.r, color.g, color.b);
-        }
-        if (k > 0) for (let s = 0; s < sides; s++) {
-            const a = (k - 1) * sides + s, b0 = (k - 1) * sides + (s + 1) % sides, c = k * sides + s, d = k * sides + (s + 1) % sides;
-            indices.push(a, b0, c, b0, d, c);
-        }
-    }
-    const geometry = new T.BufferGeometry();
-    geometry.setAttribute('position', new T.Float32BufferAttribute(pos, 3));
-    geometry.setAttribute('color', new T.Float32BufferAttribute(colors, 3));
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-    return geometry;
-}
-
-function makeStudioEnv(T, renderer) {
-    const pmrem = new T.PMREMGenerator(renderer);
-    const envScene = new T.Scene();
-    const panel = (w, h, pos, rot, color, intensity) => {
-        const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: new T.Color(color).multiplyScalar(intensity), side: T.DoubleSide }));
-        m.position.set(...pos); m.rotation.set(...rot); envScene.add(m);
-    };
-    panel(14, 8, [-7, 7, 8], [.55, -.65, 0], 0xfff3e0, 2.2);
-    panel(12, 10, [9, 3, -7], [.2, 2.2, 0], 0x7ed9e2, 2.0);
-    panel(16, 16, [0, -9, 0], [-Math.PI / 2, 0, 0], 0x162635, 1.1);
-    panel(10, 6, [0, 10, 0], [Math.PI / 2, 0, 0], 0xdaf5f4, 1.6);
-    const rt = pmrem.fromScene(envScene, 0.04);
-    pmrem.dispose();
-    return rt;
-}
-
-function makeGlowSprite(T) {
-    const c = document.createElement('canvas'); c.width = 64; c.height = 64;
-    const g = c.getContext('2d');
-    const grad = g.createRadialGradient(32, 32, 2, 32, 32, 30);
-    grad.addColorStop(0, 'rgba(218,246,245,1)');
-    grad.addColorStop(.32, 'rgba(127,212,209,.62)');
-    grad.addColorStop(.7, 'rgba(127,212,209,.12)');
-    grad.addColorStop(1, 'rgba(127,212,209,0)');
-    g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
-    const tex = new T.CanvasTexture(c); tex.colorSpace = T.SRGBColorSpace; return tex;
-}
 
 function initGL(T) {
     const renderer = new T.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
@@ -1067,7 +914,7 @@ if ('IntersectionObserver' in window) new IntersectionObserver(entries => { visi
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (autoplay) stopAutoplay(); if (raf) { cancelAnimationFrame(raf); raf = 0; } } else schedule(); });
 motion.addEventListener?.('change', () => { if (motion.matches && autoplay) stopAutoplay(); updateSequence(); schedule(); });
 const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 15000);
-Promise.all([fetch('assets/data/8znl-ab.pdb', { signal: controller.signal }).then(r => { if (!r.ok) throw Error('PDB unavailable'); return r.text(); }), import('./design-geometry.mjs').catch(() => null)])
+Promise.all([fetch('assets/data/8znl-ab.pdb', { signal: controller.signal }).then(r => { if (!r.ok) throw Error('PDB unavailable'); return r.text(); }), import('./design/geometry.mjs').catch(() => null)])
     .then(([pdb, module]) => {
         geometryModule = module;
         const parsed = parsePDB(pdb);

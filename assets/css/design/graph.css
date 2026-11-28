@@ -1,0 +1,712 @@
+/* Geometry Gate 02: fixed-focus study. Reserve the matrix layout for the next gate. */
+.design-stage[data-design-step="2"] .design-legend {
+  display: none
+}
+
+.design-stage[data-design-step="2"] .design-copy p {
+  max-width: 330px
+}
+
+.design-graph-panel {
+  position: absolute;
+  z-index: 5;
+  left: clamp(20px, 5vw, 80px);
+  bottom: calc(var(--design-nav-height, 120px) + 20px);
+  width: min(340px, 34vw);
+  padding: 12px 0 0;
+  border-top: 1px solid var(--line-strong);
+  color: #c7d6d8
+}
+
+.design-graph-panel[hidden],
+.design-graph-labels[hidden],
+#designGraphMetrics[hidden] {
+  display: none
+}
+
+.design-graph-eyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 10px/1.5 var(--font-mono);
+  letter-spacing: .08em;
+  color: #a4c2c8
+}
+
+.design-graph-pair {
+  font: 500 19px/1.5 var(--font-mono);
+  color: #f4d39b;
+  margin-top: 5px
+}
+
+.design-graph-pair span {
+  color: #849ba3
+}
+
+.design-graph-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 6px 0
+}
+
+.design-graph-metrics div {
+  display: grid;
+  gap: 1px
+}
+
+.design-graph-panel small {
+  font: 10px/1.5 var(--font-body);
+  color: #a8bec3
+}
+
+.design-graph-metrics strong {
+  font: 500 clamp(20px, 2vw, 28px)/1.15 var(--font-mono);
+  color: #eef1e9;
+  letter-spacing: -.06em;
+  font-variant-numeric: tabular-nums
+}
+
+.design-graph-neighbors {
+  display: grid;
+  gap: 3px;
+  margin-top: 9px
+}
+
+.design-graph-neighbors span {
+  font: 11px/1.5 var(--font-mono);
+  color: #d6b77e
+}
+
+#designGraphStatus {
+  font: 10px/1.5 var(--font-body);
+  color: #9eb5ba;
+  margin: 6px 0 0
+}
+
+.design-graph-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none
+}
+
+.design-graph-labels span {
+  position: absolute;
+  white-space: nowrap;
+  font: 500 10px/1.5 var(--font-mono);
+  letter-spacing: .07em;
+  color: #ffe8b8;
+  background: #101b23d9;
+  border: 1px solid #bca07166;
+  padding: 2px 5px;
+  border-radius: 3px
+}
+
+@media(min-width:801px) and (max-height:800px) {
+  .design-stage[data-design-step="2"] .design-copy {
+    top: 108px
+  }
+
+  .design-stage[data-design-step="2"] .design-copy h1 {
+    font-size: clamp(28px, 3.2vw, 46px);
+    margin: 8px 0
+  }
+
+  .design-stage[data-design-step="2"] .design-copy p {
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 5px 0
+  }
+
+  .design-stage[data-design-step="2"] .design-formula {
+    margin: 5px 0
+  }
+}
+
+@media(max-width:800px) {
+  .design-graph-panel {
+    left: 20px;
+    right: 20px;
+    width: auto;
+    bottom: calc(var(--design-nav-height, 114px) + 10px);
+    padding: 6px 0 0;
+    background: linear-gradient(0deg, var(--background) 70%, transparent)
+  }
+
+  .design-graph-pair {
+    font-size: 14px;
+    margin-top: 2px
+  }
+
+  .design-graph-metrics {
+    margin: 3px 0
+  }
+
+  .design-graph-metrics strong {
+    font-size: 19px
+  }
+
+  .design-graph-neighbors {
+    margin-top: 3px;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 8px
+  }
+
+  .design-graph-neighbors span {
+    font-size: 10px
+  }
+
+  #designGraphStatus {
+    margin-top: 3px
+  }
+
+  .design-graph-labels span {
+    font-size: 9px
+  }
+}
+
+/* Gate 02 visual review: focus marker and clear label leaders. */
+.design-graph-ring {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border: 1px solid #ffe5b278;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none
+}
+
+.design-graph-leader {
+  position: absolute;
+  height: 1px;
+  background: #d7b67a99;
+  transform-origin: left center;
+  pointer-events: none
+}
+
+.design-graph-labels span {
+  font-size: 11px;
+  background: #101b23ed
+}
+
+@media(max-width:800px) {
+  .design-graph-ring {
+    width: 30px;
+    height: 30px
+  }
+
+  .design-graph-labels span {
+    font-size: 10px
+  }
+
+  .design-graph-panel {
+    background: linear-gradient(0deg, var(--background) 78%, transparent)
+  }
+}
+
+/* GEOMETRY interactive explorer — keep the rest of the exhibition unchanged. */
+.design-graph-controls[hidden],
+.design-graph-hit[hidden],
+.design-graph-matrix[hidden] {
+  display: none !important
+}
+
+.design-graph-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 8px;
+  margin-top: 7px;
+  font-size: 11px
+}
+
+.design-graph-controls label {
+  display: grid;
+  gap: 2px;
+  color: #b9c9ce
+}
+
+.design-graph-controls select,
+.design-graph-actions button,
+.design-matrix-switch button,
+.design-graph-matrix button,
+.design-graph-detail button {
+  color: #deebe8;
+  background: #142831;
+  border: 1px solid #45606b;
+  border-radius: 5px;
+  font: 500 11px/1.4 var(--font-body);
+  min-height: 30px;
+  padding: 4px 7px
+}
+
+.design-graph-controls select {
+  width: 100%;
+  min-width: 0
+}
+
+.design-graph-controls button:focus-visible,
+.design-graph-controls select:focus-visible,
+.design-graph-matrix button:focus-visible,
+#designMatrixCanvas:focus-visible,
+.design-graph-detail button:focus-visible {
+  outline: 2px solid #f1cb89;
+  outline-offset: 2px
+}
+
+.design-k-control {
+  grid-column: 1/-1;
+  grid-template-columns: 1fr auto !important
+}
+
+.design-k-control input {
+  grid-column: 1/-1;
+  width: 100%;
+  accent-color: #dbb780;
+  margin: 0;
+  height: 17px
+}
+
+.design-graph-actions {
+  grid-column: 1/-1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px
+}
+
+.design-graph-actions button[aria-pressed=true],
+.design-matrix-switch button[aria-pressed=true] {
+  background: #3b392b;
+  color: #ffe7b1;
+  border-color: #d9b777
+}
+
+#designGraphMessageNote {
+  grid-column: 1/-1;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.4
+}
+
+.design-graph-hit {
+  position: absolute;
+  z-index: 4;
+  left: 39%;
+  right: 0;
+  top: 16%;
+  bottom: calc(var(--design-nav-height, 120px) + 12px);
+  touch-action: pan-y;
+  cursor: grab
+}
+
+.design-graph-hit:active {
+  cursor: grabbing
+}
+
+.design-graph-labels {
+  z-index: 4
+}
+
+.design-graph-matrix {
+  position: absolute;
+  z-index: 6;
+  right: clamp(20px, 4vw, 65px);
+  top: clamp(124px, 16.5vh, 154px);
+  width: min(27vw, 360px);
+  max-height: calc(100% - var(--design-nav-height, 120px) - 166px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px;
+  background: #0d1d26e8;
+  border: 1px solid #37515c;
+  border-radius: 10px;
+  color: #c3d6d9;
+  display: none
+}
+
+.design-matrix-switch {
+  display: flex;
+  gap: 5px;
+  margin: 8px 0
+}
+
+.design-matrix-switch button {
+  flex: 1
+}
+
+#designMatrixCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  cursor: crosshair
+}
+
+#designMatrixLegend,
+.design-matrix-help,
+#designMatrixReadout {
+  font: 10px/1.5 var(--font-body);
+  margin: 5px 0
+}
+
+#designMatrixReadout {
+  color: #f0d19c;
+  margin-bottom: 10px
+}
+
+.design-graph-sequence {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(0, 1fr));
+  gap: 2px;
+  margin-top: 4px
+}
+
+.design-graph-sequence button {
+  font: 10px var(--font-mono);
+  padding: 0;
+  min-height: 20px;
+  border-radius: 2px;
+  background: #1a3540;
+  color: #a4c3cb
+}
+
+.design-graph-sequence button.near {
+  background: #655335;
+  color: #ffe1ac
+}
+
+.design-graph-sequence button.pair {
+  box-shadow: inset 0 0 0 1px #fff1cc
+}
+
+.design-graph-sequence button[aria-pressed=true] {
+  background: #efcc92;
+  color: #18242a;
+  font-weight: bold
+}
+
+.design-graph-detail {
+  color: #dbe7e8;
+  background: #10212b;
+  border: 1px solid #4f6a73;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: min(530px, 92vw);
+  max-height: 85svh;
+  overflow: auto
+}
+
+.design-graph-detail::backdrop {
+  background: #000b
+}
+
+.design-graph-detail h2 {
+  font-size: 19px;
+  margin: 14px 0 7px
+}
+
+.design-graph-detail p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0
+}
+
+.design-graph-detail table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 3px;
+  font: 11px var(--font-mono)
+}
+
+.design-graph-detail th {
+  color: #a8c4cb;
+  font-weight: 500
+}
+
+.design-graph-detail td button {
+  width: 100%;
+  padding: 3px 0;
+  background: rgba(105, 170, 178, var(--distance-shade));
+  color: #fff
+}
+
+.design-rbf-bars {
+  height: 82px;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 3px;
+  align-items: end;
+  border-bottom: 1px solid #7898a1
+}
+
+.design-rbf-bars span {
+  height: calc(var(--rbf)*100%);
+  min-height: 1px;
+  background: #d4ae72;
+  border-radius: 2px 2px 0 0
+}
+
+.design-residues span.design-seq-focus {
+  outline: 2px solid #f0c77f;
+  outline-offset: 1px;
+  color: #ffe5b6
+}
+
+@media(min-width:1280px) {
+  .design-stage[data-design-step="2"] .design-copy {
+    width: 25vw;
+    top: clamp(118px, 17vh, 165px)
+  }
+
+  .design-stage[data-design-step="2"] .design-copy h1 {
+    font-size: clamp(34px, 3.7vw, 54px)
+  }
+
+  .design-graph-panel {
+    width: min(25vw, 330px);
+    bottom: calc(var(--design-nav-height, 120px) + 10px)
+  }
+
+  .design-graph-matrix {
+    display: block
+  }
+
+  .design-graph-hit {
+    left: 28%;
+    right: 30%
+  }
+
+  #designGraphMatrixOpen,
+  #designGraphMatrixClose {
+    display: none
+  }
+}
+
+@media(max-width:1279px) {
+  .graph-matrix-open .design-graph-matrix {
+    display: block;
+    top: 110px;
+    right: 20px;
+    width: min(360px, calc(100% - 40px));
+    max-height: calc(100% - 220px);
+    box-shadow: 0 0 0 100vmax #0008
+  }
+
+  .design-graph-panel {
+    max-height: calc(100% - 360px);
+    overflow: auto;
+    overscroll-behavior: contain
+  }
+}
+
+@media(max-width:800px) {
+  .design-stage[data-design-step="2"] .design-copy {
+    top: 92px
+  }
+
+  .design-stage[data-design-step="2"] .design-copy h1 {
+    font-size: clamp(1.5rem, 5.8vw, 2.2rem)
+  }
+
+  .design-stage[data-design-step="2"] .design-copy p {
+    font-size: 11px;
+    line-height: 1.5
+  }
+
+  .design-stage[data-design-step="2"] .design-formula {
+    margin: 3px 0
+  }
+
+  .design-graph-panel {
+    max-height: 32svh;
+    bottom: calc(var(--design-nav-height, 114px) + 7px);
+    padding: 5px 0 0;
+    background: #0a161fe8
+  }
+
+  .design-graph-metrics strong {
+    font-size: 18px
+  }
+
+  .design-graph-controls {
+    gap: 3px 7px;
+    margin-top: 4px
+  }
+
+  .design-graph-actions button,
+  .design-graph-controls select {
+    font-size: 10px;
+    min-height: 28px
+  }
+
+  .design-graph-hit {
+    left: 0;
+    right: 0;
+    top: 25%;
+    bottom: calc(var(--design-nav-height, 114px) + 32svh)
+  }
+
+  .graph-matrix-open .design-graph-matrix {
+    top: 95px;
+    max-height: calc(100% - 195px)
+  }
+
+  .design-graph-sequence button {
+    min-height: 24px
+  }
+
+  .design-graph-detail {
+    padding: 14px
+  }
+}
+
+@media(prefers-reduced-motion:no-preference) {
+
+  .design-stage[data-design-step="2"] .design-graph-panel,
+  .design-stage[data-design-step="2"] .design-graph-matrix {
+    animation: graphReveal .35s ease-out both
+  }
+
+  @keyframes graphReveal {
+    from {
+      opacity: 0
+    }
+
+    to {
+      opacity: 1
+    }
+  }
+}
+
+.design-graph-labels [hidden] {
+  display: none !important
+}
+
+@media(min-width:801px) and (max-height:780px) {
+  .design-top {
+    top: 64px;
+  }
+
+  .design-sources {
+    top: 96px;
+  }
+
+  .design-copy {
+    top: clamp(102px, 14vh, 128px);
+  }
+
+  .design-copy h1 {
+    font-size: clamp(1.95rem, 1.1rem + 2.4vw, 3.05rem);
+    margin: 8px 0 10px;
+  }
+
+  .design-copy p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  .design-intent {
+    margin: 4px 0 6px;
+    padding: 4px 10px;
+  }
+
+  .design-formula-row {
+    margin: 8px 0 4px;
+  }
+
+  .design-legend {
+    margin-top: 5px;
+  }
+}
+
+@media(min-width:801px) and (max-height:740px) {
+  .design-stage[data-design-step="2"] .design-copy {
+    top: 96px
+  }
+
+  .design-stage[data-design-step="2"] .design-copy h1 {
+    font-size: clamp(28px, 3vw, 42px);
+    margin: 5px 0
+  }
+
+  .design-stage[data-design-step="2"] .design-copy p {
+    font-size: 11px;
+    margin: 3px 0
+  }
+
+  .design-stage[data-design-step="2"] .design-formula-row {
+    margin: 3px 0
+  }
+
+  .design-stage[data-design-step="2"] .design-formula {
+    font-size: 1.1rem;
+    margin: 0
+  }
+
+  .design-graph-panel {
+    max-height: max(120px, calc(100% - var(--design-nav-height, 130px) - 295px));
+    overflow: auto;
+    overscroll-behavior: contain
+  }
+
+  .design-graph-matrix {
+    top: 132px;
+    max-height: calc(100% - var(--design-nav-height, 130px) - 144px)
+  }
+}
+
+/* Release QA: keep the source status out of the atomic/graph controls, and prevent
+   the expanded matrix from showing background lettering during its opening. */
+.design-stage[data-design-step="1"][data-design-source="8ZNL"] #designDataStatus,
+.design-stage[data-design-step="2"][data-graph-source="8ZNL"] #designDataStatus {
+  display: none
+}
+
+@media(min-width:801px) {
+  .design-stage[data-design-step="1"] .design-copy {
+    top: clamp(102px, 14vh, 148px)
+  }
+}
+
+.design-stage[data-design-step="2"] .design-graph-matrix {
+  animation: none;
+  background: #0d1d26
+}
+
+#designGraphNeighbors {
+  overflow-wrap: anywhere
+}
+
+@media(min-width:801px) {
+  .design-graph-panel {
+    max-height: max(105px, calc(100% - var(--design-nav-height, 120px) - 385px));
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin
+  }
+
+  .design-stage[data-design-step="2"] .design-copy {
+    top: clamp(94px, 12vh, 122px)
+  }
+}
+
+@media(min-width:801px) and (max-height:800px) {
+  .design-stage[data-design-step="2"] .design-copy {
+    top: 96px
+  }
+
+  .design-graph-panel {
+    max-height: max(120px, calc(100% - var(--design-nav-height, 128px) - 295px))
+  }
+}
+
+@media(max-width:1279px) {
+  .graph-matrix-open .design-graph-matrix {
+    z-index: 20;
+    background: #0d1d26;
+    box-shadow: 0 0 0 100vmax #000a
+  }
+}

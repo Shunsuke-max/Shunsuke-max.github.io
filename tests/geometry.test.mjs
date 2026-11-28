@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildGeometry,buildKnn,describePair,fixedFrameDeviation} from '../assets/js/design-geometry.mjs';
+import {buildGeometry,buildKnn,describePair,fixedFrameDeviation} from '../assets/js/design/geometry.mjs';
 const r=(x,y,z)=>({x,y,z});
 test('Euclidean geometry: true zero diagonal, symmetry, 3-4-12 triangle',()=>{
   const g=buildGeometry([r(0,0,0),r(3,4,12),r(3,0,0)]);
@@ -49,7 +49,7 @@ test('Missing coordinates, invalid k/indices rejected; results immutable',()=>{
   assert.throws(()=>{g.distances[0][1]=99;},TypeError);
 });
 
-import {backboneFeatures,pairAtomDistances,distanceRbf} from '../assets/js/design-geometry.mjs';
+import {backboneFeatures,pairAtomDistances,distanceRbf} from '../assets/js/design/geometry.mjs';
 test('Backbone distance matrix and virtual C-beta; RBF basis',()=>{
  const a={atoms:[{name:'N',x:0,y:0,z:0},{name:'CA',x:1,y:0,z:0},{name:'C',x:1,y:1,z:0},{name:'O',x:1,y:2,z:0}]};
  const b={atoms:a.atoms.map(p=>({...p,z:p.z+3}))};

@@ -3,7 +3,7 @@
 // Independent fixed-column reader and squared-distance ranking oracle.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { buildGeometry, buildKnn, describePair } from '../assets/js/design-geometry.mjs';
+import { buildGeometry, buildKnn, describePair } from '../assets/js/design/geometry.mjs';
 
 function readChainCA(pdb, chain) {
   const byResidue = new Map();

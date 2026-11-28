@@ -18,6 +18,10 @@ try{
     assert.equal(await page.locator('#designSiteInspect').isDisabled(),true);
     assert.equal(await page.locator('#designFit').isDisabled(),true);
     assert.doesNotMatch(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
+    // Bring the sticky controls into view and flush the scroll event before starting playback.
+    await page.locator('#designAutoplay').scrollIntoViewIfNeeded();
+    await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+    assert.deepEqual(errors,[]);
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
     assert.match(await page.locator('#designAutoplay').innerText(),/一時停止/);
