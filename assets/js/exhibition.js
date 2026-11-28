@@ -3,16 +3,16 @@
 const get=id=>document.getElementById(id);
 const datasets={
  fold:[
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png",alt:'FoldLensの実データ解析ワークスペース',caption:'3D構造と予測位置誤差（PAE）を同じ画面で確認できます。画像をクリックすると拡大できます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-models.png",alt:'FoldLensの5モデル比較画面',caption:'5モデルの結合界面はよく一致していますが、界面の PAE 中央値は 11.0 Å と高めです。構造の一致度と予測誤差を分けて評価します。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case2-divergence.png",alt:'FoldLensの3鎖複合体の配置比較画面',caption:'別の3鎖複合体では、モデル間で鎖の配置が大きく異なりました。単一の予測構造だけで結論を出すことには注意が必要です。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/demo-tour-step5-agent.png",alt:'FoldLensの根拠提示型AIエージェント画面',caption:'APIキー不要の事前収録デモで、6つの解析ツールに基づく根拠付き回答と、対象外の質問を遮断する挙動を確認できます。'}
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-workspace.png",alt:'FoldLensの実データ解析ワークスペース',caption:'3D構造と予測位置誤差（PAE）の連動表示'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case1-models.png",alt:'FoldLensの5モデル比較画面',caption:'5モデルの結合界面はよく一致していますが、界面のPAE中央値は11.0 Å。構造の一致だけでは信頼性を判断できません。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/real-af3-case2-divergence.png",alt:'FoldLensの3鎖複合体の配置比較画面',caption:'3鎖複合体では、予測モデルごとに鎖の配置が大きく異なります。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/foldlens-portfolio/main/assets/demo-tour-step5-agent.png",alt:'FoldLensの根拠提示型AIエージェント画面',caption:'解析結果を根拠に回答し、対象外の質問には回答しない動作（事前収録デモ）。'}
  ],
  part:[
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg",alt:'Part5 Proのホーム画面',title:'学習の入口',caption:'実力診断と短時間の演習から、次に取るべき学習を選べます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/training.jpg",alt:'Part5 Proのトレーニング画面',title:'目的別の演習',caption:'弱点や学習目的に合わせて、文法・語彙・復習などの演習を選べます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/mock-question.png",alt:'Part5 Proの模試問題画面',title:'本番を想定した模試',caption:'制限時間付きの四択演習で、現在の実力と時間配分を確認できます。'},
-  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/feedback.png",alt:'Part5 Proの回答・解説画面',title:'解いて終わらない',caption:'正答だけでなく語の意味や解説を確認し、次の復習につなげます。'}
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/home.jpg",alt:'Part5 Proのホーム画面',title:'学習の入口',caption:'実力診断と短時間の演習から学習を始める。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/training.jpg",alt:'Part5 Proのトレーニング画面',title:'目的別の演習',caption:'文法・語彙など、弱点に合わせた演習。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/mock-question.png",alt:'Part5 Proの模試問題画面',title:'本番を想定した模試',caption:'制限時間付きの模試で実力と時間配分を確認。'},
+  {src:"https://raw.githubusercontent.com/Shunsuke-max/part5-pro-portfolio/main/assets/feedback.png",alt:'Part5 Proの回答・解説画面',title:'解いて終わらない',caption:'正答・語句の意味・解説を確認して復習。'}
  ]
 };
 const galleries=Array.from(document.querySelectorAll('[data-gallery]'));
@@ -45,10 +45,10 @@ frames.forEach(b=>b.addEventListener('click',()=>{
 }));
 
 const phases=[
- ['標的ホットスポットと設計条件を固定する','文献や共結晶構造から標的の結合部位（ホットスポット）と避けるべき領域を整理し、再現可能な入力制約として明文化します。'],
- ['条件を満たす構造候補を複数サンプリングする','RFdiffusion 系の拡散モデルで条件付き生成を行い、単一の偶然解に頼らず構造の多様性と幾何妥当性を確認します。'],
- ['界面とコアを両立する配列候補を設計する','ProteinMPNN や LigandMPNN で固定構造に合う配列を複数設計し、結合面と内部パッキングの両面から候補を揃えます。'],
- ['独立モデルの再予測と棄却ゲートで絞り込む','AlphaFold 3 や Boltz-2 などの独立モデルで再予測し、RMSD・PAE・重原子衝突の基準を満たさない候補を機械的に棄却します。計算上の合格だけで結合や機能は証明できないため、最終検証は生化学実験で行います。']
+ ['結合させたい部位を指定する','文献と公開構造から、結合させたい部位や避けたい領域を整理します。'],
+ ['条件に合う構造候補を生成する','RFdiffusion系のモデルで複数の構造を生成し、形や条件への適合を確認します。'],
+ ['構造に合うアミノ酸配列を設計する','ProteinMPNNやLigandMPNNで、結合面とタンパク質内部の形に合う配列候補を設計します。'],
+ ['構造を再予測し、候補を絞り込む','AlphaFold 3やBoltz-2で構造を再予測し、RMSD・PAE・原子衝突などで候補を評価します。結合や機能の実証には実験が必要です。']
 ];
 const phaseButtons=Array.from(document.querySelectorAll('[data-phase-button]'));
 phaseButtons.forEach(b=>b.addEventListener('click',()=>{
