@@ -31,12 +31,16 @@ try {
   await page.locator('#designSiteInspect').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
   assert.equal(await page.locator('#designSiteInspect').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('#designTimeStep').isVisible(),false);
+  assert.doesNotMatch(await page.locator('#designLegend').innerText(),/バインダー/);
   await intro.screenshot({path:'artifacts/screenshots/design-01-binding-site.png'});
   assert.equal(await intro.getAttribute('data-site-only'),'true');
   await page.locator('#designSiteInspect').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
   await page.locator('#designFit').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='true');
+  assert.equal(await page.locator('#designTimeStep').isVisible(),false);
+  assert.match(await page.locator('#designLegend').innerText(),/実験構造/);
   await intro.screenshot({path:'artifacts/screenshots/design-01-fit.png'});
   await page.locator('#designFit').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='false');
@@ -142,6 +146,10 @@ try {
       assert.match(await page.locator('#designChoiceNote').innerText(), /セリン/);
       await page.locator('#designSequenceSelect').selectOption('10');
       assert.equal(await page.locator('#design').getAttribute('data-sequence-focus'),'11');
+      await page.locator('#designSequenceZoom').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.sequenceZoom==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/design-04-neighborhood-zoom.png'});
+      await page.locator('#designSequenceZoom').click();
       await page.locator('#design').screenshot({path:'artifacts/screenshots/design-04-selected-residue.png'});
       await page.locator('[data-design-jump="2"]').click();
       await page.waitForFunction(() => document.querySelector('#design').dataset.designStep === '2');
@@ -229,6 +237,12 @@ try {
       await page.locator('#design').screenshot({ path: 'artifacts/screenshots/mobile-graph-matrix.png' });
       await page.locator('#designGraphMatrixClose').click();
       await page.locator('#designGraphMatrix').waitFor({ state: 'hidden' });
+    }
+    if(name==='sequence'){
+      await page.locator('#designSequenceZoom').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.sequenceZoom==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-neighborhood-zoom.png'});
+      await page.locator('#designSequenceZoom').click();
     }
     if (name === 'graph' || name === 'ribbon' || name === 'sequence' || name === 'compare') {
       const panel = page.locator(name === 'graph' ? '#designGraphPanel' : name === 'ribbon' ? '#designAtomicPanel' : name === 'sequence' ? '#designSequencePanel' : '#designEvaluate');

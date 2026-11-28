@@ -88,7 +88,7 @@
       <div class="design-seq-head"><span id="designSequenceLabel">参照配列</span><span id="designSequenceCount">0 / 58</span></div>
       <div id="designSequence" class="design-residues"></div>
       <div class="design-choice">
-        <label class="design-residue-picker">残基 <select id="designSequenceSelect" aria-label="側鎖を比較する残基" disabled></select></label><span id="designSequenceFocus">注目残基の候補例</span>
+        <label class="design-residue-picker">残基 <select id="designSequenceSelect" aria-label="側鎖を比較する残基" disabled></select></label><span id="designSequenceFocus">側鎖候補（模式）</span><button id="designSequenceZoom" type="button" aria-pressed="false" disabled>周囲を拡大</button>
         <div class="design-choice-options" aria-label="アミノ酸の選択例">
           <button type="button" data-aa-choice="A" aria-pressed="true">A</button>
           <button type="button" data-aa-choice="V" aria-pressed="false">V</button>
@@ -113,7 +113,7 @@
         <span><i class="design-dot target"></i> PD-L1</span>
         <span><i class="design-dot coral design-deviation-dot"></i> 位置のずれ</span>
       </div>
-      <div class="design-eval-summary" id="designEvalSummary" aria-live="polite">ずれ：小（候補に残す例）</div>
+      <div class="design-eval-summary" id="designEvalSummary" aria-live="polite">ずれ：小（目標構造に近い）</div>
       <div class="design-compare-options" aria-label="模式的な構造比較の切替">
         <button type="button" data-compare="close" aria-pressed="true">ずれが小さい例</button>
         <button type="button" data-compare="different" aria-pressed="false">ずれが大きい例</button>
@@ -123,7 +123,7 @@
         <div class="design-deviation-chart"><span id="designDeviationScale" class="design-deviation-scale">—</span><div id="designDeviationBars" class="design-deviation-bars" aria-hidden="true"></div></div>
         <label class="design-deviation-control">残基 <input id="designDeviationSelect" type="range" min="1" max="58" value="8" aria-label="位置のずれを確認する残基"></label>
       </div>
-      <p>構造比較は模式例です。結合や機能の確認には実験が必要です。</p>
+      <p>構造比較は模式例です。RMSDだけでは判断できません。結合や機能の確認には実験が必要です。</p>
       <a href="https://shunsuke-max.github.io/foldlens-portfolio/">FoldLensで実際の予測構造を比較する ↗</a>
     </div>
     <div class="design-bottom">
