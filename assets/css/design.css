@@ -77,7 +77,7 @@
   right: clamp(20px, 5vw, 80px);
   z-index: 5;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 12px;
   font-family: var(--font-mono);
@@ -1584,3 +1584,7 @@
     box-shadow: 0 0 0 100vmax #000a
   }
 }
+/* Keep provenance truthful when experimental coordinates are unavailable. */
+.design-stage:not([data-design-source="1CRN"]) .design-atomic-disclosure,
+.design-stage:not([data-graph-source="1CRN"]) .design-graph-disclosure { display: none; }
+.design-sources[open] { max-height: min(55svh, 420px); overflow-y: auto; overscroll-behavior: contain; }
