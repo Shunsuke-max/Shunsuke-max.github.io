@@ -23,12 +23,14 @@ try {
   assert.ok(Number(await intro.getAttribute('data-target-surface-atoms')) > 800);
   await page.waitForFunction(()=>document.querySelector('#design').dataset.targetSurfaceVisible==='true');
   assert.match(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
-  await page.emulateMedia({reducedMotion:'no-preference'});
-  await page.locator('#designReplay').click();
+  // Inspect is an explicit, persistent state rather than a race against an animation.
+  await page.locator('#designSiteInspect').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  assert.equal(await page.locator('#designSiteInspect').getAttribute('aria-pressed'),'true');
   await intro.screenshot({path:'artifacts/screenshots/design-01-binding-site.png'});
+  assert.equal(await intro.getAttribute('data-site-only'),'true');
+  await page.locator('#designSiteInspect').click();
   await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
-  await page.emulateMedia({reducedMotion:'reduce'});
   for (let n = 0; n < 5; n++) {
     if (n) await page.locator('[data-design-jump="' + n + '"]').click();
     await page.waitForFunction(n => document.querySelector('#design').dataset.designStep === String(n), n);
