@@ -1818,3 +1818,11 @@
     box-shadow: 0 0 0 100vmax #000a
   }
 }
+/* Keep mathematical notation available without competing with the molecular view. */
+.design-formula-row[hidden], .design-legend[hidden] { display: none; }
+.design-sources[open] { max-height: min(55svh, 420px); overflow-y: auto; overscroll-behavior: contain; }
+.design-source-formula { font-family: var(--font-mono); color: var(--gold); font-size: .9rem; }
+.design-eval-key { display: flex; flex-wrap: wrap; gap: 5px 13px; font-size: .73rem; color: var(--text); margin-bottom: 8px; }
+.design-eval-key span { display: inline-flex; align-items: center; gap: 5px; }
+.design-stage[data-compare="close"] .design-deviation-dot { background: #6fe3bd; }
+@media (max-width: 800px) { .design-eval-key { font-size: .65rem; gap: 4px 9px; } }
