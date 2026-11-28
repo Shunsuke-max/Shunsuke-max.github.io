@@ -25,7 +25,7 @@ function syncSiteInspect() {
     b.disabled = !targetSurfaceAtoms.length;
     b.setAttribute('aria-pressed', String(inspectSite));
     const fit = by('designFit'); fit.disabled = !binderSurfaceAtoms.length; fit.hidden = b.hidden; fit.setAttribute('aria-pressed', String(fitMode));
-    if(step===0)updateLegend(0);
+    if(step===0){by('designTimeStep').hidden=inspectSite||fitMode;updateLegend(0);}
 }
 function buildTargetSurface(center, scaleFactor) {
     targetSurfaceAtoms = []; binderSurfaceAtoms = [];
@@ -208,17 +208,19 @@ function graphLabelPositions(project) {
 }
 
 let compare = 'close', choice = 'A';
-let selectedResidue = DEFAULT_FOCUS;
-function updateLegend(n) {
+let selectedResidue = DEFAULT_FOCUS, sequenceZoom=false;
+function sequenceCenter(){return meanPoint([points[selectedResidue],...[...graphNeighbors].map(i=>points[i])].filter(Boolean));}
+function updateLegend(n, siteOnly = inspectSite) {
     const e = by('designLegend');
     e.hidden = n === 4;
-    const labels=n===0&&fitMode?['バインダー（実験構造）','PD-L1','結合面（接触残基）']:legends[n];
-    e.replaceChildren(...labels.filter((_,i)=>!(n===0 && i>0 && !targetSurfaceAtoms.length)).map((label, i) => {
-        const s = document.createElement('span'), dot = document.createElement('i');
-        const cls = i === 0 ? '' : ((n === 0 && i === 1) || (n === 1 && i === 1)) ? ' target' : ' amber';
-        dot.className = 'design-dot' + cls;
-        s.append(dot, document.createTextNode(label));
-        return s;
+    const labels = n === 0 && fitMode ? ['バインダー（実験構造）','PD-L1','結合面（接触残基）'] : legends[n];
+    const entries = labels.map((label,i)=>({
+        label, color:i===0?'':(n===0&&i===1)||(n===1&&i===1)?' target':' amber', i
+    })).filter(({i})=>!(n===0 && ((i>0&&!targetSurfaceAtoms.length)||(i===0&&siteOnly))));
+    e.replaceChildren(...entries.map(({label,color})=>{
+        const s=document.createElement('span'), dot=document.createElement('i');
+        dot.className='design-dot'+color;
+        s.append(dot,document.createTextNode(label));return s;
     }));
 }
 function sidechainExample(){return real?buildSidechainExample(raw[selectedResidue],points[selectedResidue],displayScale,choice,geometryModule?.backboneFeatures):null;}
@@ -227,7 +229,7 @@ function updateEvalSummary() {
     const el = by('designEvalSummary');
     if (!el) return;
     const isDiff = compare === 'different';
-    el.textContent = isDiff ? 'ずれ：大（設計を見直す例）' : 'ずれ：小（候補に残す例）';
+    el.textContent = isDiff ? 'ずれ：大（目標構造から離れる）' : 'ずれ：小（目標構造に近い）';
     el.classList.toggle('is-warn', isDiff);
     const panel=by('designDeviationPanel');
     const valid=real&&geometryModule&&points.length;
@@ -295,16 +297,19 @@ function updateSequence(now = performance.now()) {
     const count = real && step === 3 ? Math.round(seqProgress * raw.length) : 0;
     by('designSequenceCount').textContent = count + ' / ' + raw.length;
     selectedResidue = graphFocus; by('designSequenceSelect').value=String(selectedResidue); stage.dataset.sequenceFocus = String(raw[selectedResidue]?.resseq || selectedResidue + 1);
-    by('designSequenceFocus').textContent = real ? residueLabel(selectedResidue) + ' の側鎖候補' : '注目残基の候補例';
+    by('designSequenceFocus').textContent = '側鎖候補（模式）';
+    by('designSequenceZoom').disabled=!graphModel;
+    by('designSequenceZoom').setAttribute('aria-pressed',String(sequenceZoom));
     by('designSequenceLabel').textContent = real ? '実験構造の配列（8ZNL・鎖A）' : '参照配列を取得できませんでした';
     [...by('designSequence').children].forEach((s, i) => { s.textContent = i < count ? raw[i].aa : '·'; s.classList.toggle('on', i < count); s.classList.toggle('design-seq-focus', real && i === selectedResidue); });
     if (gl) gl.updateSidechain();
 }
 
 by('designSequenceSelect').addEventListener('change',e=>selectGraph(Number(e.target.value)));
+by('designSequenceZoom').addEventListener('click',()=>{if(!graphModel||step!==3)return;sequenceZoom=!sequenceZoom;by('designSequenceZoom').setAttribute('aria-pressed',String(sequenceZoom));schedule();});
 function setStep(n) {
     if (n === step) return; graphFromAtoms = n === 2 && step === 1 && real; graphTransitionStart = performance.now(); step = n; stage.dataset.designStep = String(n);
-    inspectSite = false; fitMode=false; syncSiteInspect();
+    inspectSite = false; fitMode=false; sequenceZoom=false; syncSiteInspect();
     stage.querySelector('.design-formula-row').hidden = n !== 0;
     by('designTimeStep').hidden = n !== 0; by('designReplay').hidden = n !== 0;
     by('designAtomicPanel').hidden = n !== 1; by('designGraphPanel').hidden = n !== 2; by('designGraphMatrix').hidden = n !== 2 || !graphModel; by('designGraphHit').hidden = n !== 2 || !graphModel; graphFrameKey = '';
@@ -464,17 +469,19 @@ function draw(now) {
         const tVal = Math.max(0, 1 - g.u / .90);
         by('designTimeStep').textContent = 't = ' + tVal.toFixed(2);
     }
+    if(step===0&&stage.dataset.siteOnly!==String(g.siteOnly))updateLegend(0,g.siteOnly);
     stage.dataset.siteOnly = String(g.siteOnly);
     stage.dataset.fitVisible=String(step===0&&real&&fitMode);
     stage.dataset.atomicZoom=String(step===1&&real&&atomicZoom);
+    stage.dataset.sequenceZoom=String(step===3&&!!graphModel&&sequenceZoom);
     const angle = step === 0 && real ? targetSiteYaw + (motion.matches || g.siteOnly || fitMode ? 0 : .16 * Math.sin(now * .00035)) : step === 2 ? graphAngle : step === 1 && real && atomicMode === 'local' ? atomicAngle + (motion.matches ? 0 : .16 * Math.sin(now * .00035)) : .52 + (motion.matches ? 0 : now * .00012);
     if (gl) { try { gl.draw(g, angle); stage.classList.add('design-gl'); } catch { gl.dispose(); gl = null; stage.classList.remove('design-gl'); } }
     if (!gl && ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height);
-        const portrait = width < 801, wide = width >= 1280, cx = width * (step === 2 && wide ? .51 : portrait ? .50 : .67), cy = height * (portrait ? (step === 1 ? .49 : step === 2 ? .40 : step >= 3 ? .41 : .54) : step === 2 ? .43 : step >= 3 ? .34 : .45);
+        const portrait = width < 801, wide = width >= 1280, cx = width * (step === 2 && wide ? .51 : portrait ? .50 : step===1&&atomicZoom?.63:.67), cy = height * (portrait ? (step === 1 ? .49 : step === 2 ? .40 : step === 3 ? .47 : step === 4 ? .44 : .54) : step === 2 ? .43 : step >= 3 ? .34 : .45);
         const showTarget = real && targetPoints.length && (step === 0 || step === 1 || step === 4);
-        const shift = step===1&&atomicZoom&&real?atomicCenter:showTarget ? complexShift : { x: 0, y: 0, z: 0 };
-        const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (step===1&&atomicZoom?1.25:showTarget ? .78 : step === 2 && wide ? .76 : portrait&&step===3?1.19:1);
+        const shift = step===1&&atomicZoom&&real?atomicCenter:step===3&&sequenceZoom&&graphModel?sequenceCenter():showTarget ? complexShift : { x: 0, y: 0, z: 0 };
+        const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (step===1&&atomicZoom?1.0:showTarget ? .78 : step === 2 && wide ? .76 : step===3&&sequenceZoom?1.65:portrait&&step===3?1.19:1);
         const a = Math.cos(angle), b = Math.sin(angle);
         const project = v => { const vx = v.x - shift.x, vy = v.y - shift.y, vz = v.z - shift.z; const x = vx * a + vz * b, z = -vx * b + vz * a; const k = 1 / (1 + (step === 0 || step === 2 ? -z : z) * .025); return { x: cx + x * scale * k, y: cy - (step === 2 ? vy * Math.cos(graphPitch) - z * Math.sin(graphPitch) : vy) * scale * k, z, k }; };
         const trace = (q, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y); for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2); ctx.lineTo(q.at(-1).x, q.at(-1).y); ctx.stroke(); };
@@ -504,6 +511,7 @@ function draw(now) {
         if (!g.siteOnly && !(step===0&&fitMode)) p.map((v, i) => ({ ...v, i })).sort((a, b) => step === 0 ? a.z - b.z : b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && real ? (v.i === selectedResidue ? '#fff0c7' : graphNeighbors.has(v.i) ? '#e4be84' : '#7fd4d1') : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
         ctx.globalAlpha = 1;
         if(step===2&&graphMessage&&graphModel){const f=p[graphFocus];ctx.strokeStyle='#ffe1a6';ctx.lineWidth=2;ctx.beginPath();ctx.arc(f.x,f.y,12+5*graphArrival(),0,Math.PI*2);ctx.stroke();}
+        if(step===3&&sequenceZoom&&graphModel){for(const [i,j] of edges)line(i,j,'rgba(228,190,132,.56)',1);}
         if(step===3&&real){const sc=sidechainExample();if(sc){const q=sc.atoms.map(project);for(const [i,j] of sc.bonds){ctx.strokeStyle='#e5d7be';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[j].x,q[j].y);ctx.stroke();}q.forEach((a,i)=>{ctx.fillStyle=sc.atoms[i].element==='O'?'#f07a6d':sc.atoms[i].element==='N'?'#82a9e2':i<3?'#7fd4d1':'#eec480';ctx.beginPath();ctx.arc(a.x,a.y,4,0,Math.PI*2);ctx.fill();});}}
         if (step === 2) graphLabelPositions(project);
         if (step === 1 && real && g.ribbon > .94) { const q = detailAtoms.map(project); for (const [i, j] of detailBonds) { if (!visibleAtomic(detailAtoms[i]) || !visibleAtomic(detailAtoms[j])) continue; ctx.strokeStyle = detailAtoms[i].chain === 'B' ? '#708798' : '#8a989b'; ctx.lineWidth = atomicMode === 'local' ? 2.4 : 1.3; ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } if (atomicMode === 'local') { ctx.setLineDash([4, 4]); ctx.strokeStyle = '#f2cc84'; ctx.lineWidth = 1.6; for (const [i, j] of interfaceContacts) { ctx.beginPath(); ctx.moveTo(q[i].x, q[i].y); ctx.lineTo(q[j].x, q[j].y); ctx.stroke(); } ctx.setLineDash([]); } q.map((pt, i) => ({ ...pt, i })).filter(pt => visibleAtomic(detailAtoms[pt.i])).sort((a, b) => b.z - a.z).forEach(pt => { const at = detailAtoms[pt.i]; ctx.fillStyle = (at.chain === 'B' ? targetElementColors : elementColors)[at.element]; ctx.beginPath(); ctx.arc(pt.x, pt.y, (atomicMode === 'local' ? 3.5 : 2.5) * (at.element === 'S' ? 1.25 : 1) * pt.k, 0, Math.PI * 2); ctx.fill(); }); }
@@ -561,6 +569,8 @@ function initGL(T) {
     const scBondGeo = new T.CylinderGeometry(.062, .062, 1, 10);
     const scCarbonMat = new T.MeshPhysicalMaterial({ color: 0xeec480, roughness: .24, metalness: .08, clearcoat: .5 });
     const scOxygenMat = new T.MeshPhysicalMaterial({ color: 0xf07a6d, roughness: .22, metalness: .06, clearcoat: .55 });
+    const scNitrogenMat = new T.MeshPhysicalMaterial({color:0x82a9e2,roughness:.25});
+    const scBackboneMat = new T.MeshPhysicalMaterial({color:0x7fd4d1,roughness:.28});
     const scBondMat = new T.MeshPhysicalMaterial({ color: 0xe5d7be, roughness: .30, metalness: .1, clearcoat: .35 });
     const scHaloRing = new T.Mesh(new T.TorusGeometry(.48, .022, 10, 40), new T.MeshBasicMaterial({ color: 0xf5d49b, transparent: true, opacity: .82 }));
     inner.add(sidechainGroup);
@@ -589,7 +599,7 @@ function initGL(T) {
         const sc=sidechainExample();if(!sc)return;
         const coords=sc.atoms.map(a=>new T.Vector3(a.x,a.y,a.z));
         for(const [i,j] of sc.bonds)addScSegment(coords[i],coords[j]);
-        sc.atoms.forEach((a,i)=>{const m=new T.Mesh(scSphereGeo,a.element==='O'?scOxygenMat:i<3?mat:scCarbonMat);m.position.copy(coords[i]);sidechainGroup.add(m);});
+        sc.atoms.forEach((a,i)=>{const m=new T.Mesh(scSphereGeo,a.element==='O'?scOxygenMat:a.element==='N'?scNitrogenMat:i<3?scBackboneMat:scCarbonMat);m.position.copy(coords[i]);sidechainGroup.add(m);});
         scHaloRing.position.copy(coords[0]);scHaloRing.lookAt(coords[3]);sidechainGroup.add(scHaloRing);
     }
 
@@ -682,20 +692,21 @@ function initGL(T) {
     function render(g, angle) {
         const portrait = width < 801;
         const showTarget = real && !!targetRibbon && (step === 0 || step === 1 || step === 4);
-        const shift=step===1&&atomicZoom&&real?atomicCenter:showTarget?complexShift:{x:0,y:0,z:0};inner.position.set(-shift.x,-shift.y,-shift.z);
+        const shift=step===1&&atomicZoom&&real?atomicCenter:step===3&&sequenceZoom&&graphModel?sequenceCenter():showTarget?complexShift:{x:0,y:0,z:0};inner.position.set(-shift.x,-shift.y,-shift.z);
 
         const depth = step === 0 ? 1 - ease(local) : 0;
         const mobileDistance = Math.max(31, 9.4 / (Math.tan(camera.fov * Math.PI / 360) * camera.aspect));
         const complexBoost = showTarget ? 1.24 : 1;
         const desktopDistance = (step === 2 ? (width >= 1280 ? Math.max(25, 12.4 / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.aspect * .39)) : 20.8) : step >= 3 ? 22.8 : 20.4) * complexBoost;
         camera.position.set(0, 0, (step === 1 && real ? (portrait ? (atomicMode === 'local' ? Math.max(25, mobileDistance * .84) : mobileDistance * 1.05) : 24.4) : (portrait ? (step === 2 ? Math.max(23, mobileDistance * .76) : mobileDistance * complexBoost) : desktopDistance)) + depth * 3.0);
-        if(step===1&&atomicZoom&&real)camera.position.z*=.68;
+        if(step===1&&atomicZoom&&real)camera.position.z*=portrait?.84:.80;
         if(portrait&&step===3)camera.position.z*=.84;
+        if(step===3&&sequenceZoom&&graphModel)camera.position.z*=.76;
         camera.lookAt(0, 0, 0);
         camera.setViewOffset(
             width, height,
-            portrait ? 0 : step === 2 && width >= 1280 ? -Math.round(width * .01) : -Math.round(width * .17),
-            portrait ? Math.round(height * (step === 1 ? .015 : step === 2 ? .10 : step >= 3 ? .09 : -.075)) : Math.round(height * (step >= 3 ? .14 : .035)),
+            portrait ? 0 : step === 2 && width >= 1280 ? -Math.round(width * .01) : -Math.round(width * (step===1&&atomicZoom?.13:.17)),
+            portrait ? Math.round(height * (step === 1 ? .015 : step === 2 ? .10 : step === 3 ? .025 : step === 4 ? .045 : -.075)) : Math.round(height * (step >= 3 ? .14 : .035)),
             width, height
         );
         group.rotation.y = angle;
@@ -704,7 +715,7 @@ function initGL(T) {
 
         if (targetRibbon) {
             targetRibbon.visible = showTarget && !(step === 0 && targetSurface);
-            targetRibbonMat.opacity = step === 1 ? (atomicMode === 'local' ? .38 : .26) : step === 0 ? .34 : .26;
+            targetRibbonMat.opacity = step === 1 ? (atomicZoom?.20:atomicMode === 'local' ? .38 : .26) : step === 0 ? .34 : .26;
         }
         if (targetSurface) targetSurface.visible = step === 0 && real;
         stage.dataset.targetSurfaceVisible = String(!!targetSurface && targetSurface.visible);
@@ -736,7 +747,7 @@ function initGL(T) {
         lines.visible = g.u > .12 && !(step===0&&fitMode) && step < 2 && !(step === 1 && real && g.ribbon > .94);
         lines.material.opacity = Math.pow(g.u, 1.6) * .86;
         backbone.visible = step >= 1 && (!real || g.ribbon < .15 || step === 3);
-        if (ribbon) { ribbon.visible = (step === 1 || step === 2 || step === 4) && g.ribbon > .02; ribbonMat.opacity = step === 1 ? g.ribbon * (atomicMode === 'all' ? .18 : .40) : step === 2 ? (.14 + .24 * (1 - graphTransition)) : g.ribbon; ribbonMat.depthWrite = step !== 1 && step !== 2 && g.ribbon > .85; }
+        if (ribbon) { ribbon.visible = (step === 1 || step === 2 || step === 4) && g.ribbon > .02; ribbonMat.opacity = step === 1 ? g.ribbon * (atomicZoom?.22:atomicMode === 'all' ? .18 : .40) : step === 2 ? (.14 + .24 * (1 - graphTransition)) : g.ribbon; ribbonMat.depthWrite = step !== 1 && step !== 2 && g.ribbon > .85; }
         const showDetail = step === 1 && g.ribbon > .94 || step === 2 && graphFromAtoms && graphTransition < 1;
         atomMat.transparent = step === 2; bondMat.transparent = step === 2; atomMat.opacity = step === 2 ? 1 - graphTransition : 1; bondMat.opacity = atomMat.opacity; atomMat.depthWrite = step !== 2; bondMat.depthWrite = step !== 2;
         if (atomDetail) { updateAtomicMeshes(); atomDetail.visible = showDetail; }
@@ -787,9 +798,9 @@ function initGL(T) {
             comparisonPoints(g.coords).forEach((v, i) => compareLine.geometry.attributes.position.setXYZ(i, v.x, v.y, v.z));
             compareLine.geometry.attributes.position.needsUpdate = true;
         }
-        graphRods.visible = step === 2 && !!graphModel; graphRods.count = edges.length;
-        graphSignals.visible = graphRods.visible && graphMessage; graphSignals.count = edges.length;
-        graphDashed.visible = graphRods.visible && graphPair !== graphFocus && !graphNeighbors.has(graphPair);
+        graphRods.visible = (step === 2 || (step===3&&sequenceZoom)) && !!graphModel; graphRods.count = edges.length;
+        graphSignals.visible = step===2 && graphRods.visible && graphMessage; graphSignals.count = edges.length;
+        graphDashed.visible = step===2 && graphRods.visible && graphPair !== graphFocus && !graphNeighbors.has(graphPair);
         if (graphDashed.visible) { const a = g.coords[graphFocus], b = g.coords[graphPair], attr = graphDashed.geometry.attributes.position; attr.setXYZ(0, a.x, a.y, a.z); attr.setXYZ(1, b.x, b.y, b.z); attr.needsUpdate = true; graphDashed.computeLineDistances(); }
         if (graphRods.visible) {
             edges.forEach(([i, j], k) => {
@@ -797,9 +808,9 @@ function initGL(T) {
                 from.set(a.x, a.y, a.z); to.set(b.x, b.y, b.z); delta.subVectors(to, from);
                 const len = delta.length(); obj.position.copy(from).add(to).multiplyScalar(.5);
                 obj.quaternion.setFromUnitVectors(yAxis, delta.normalize());
-                const weight = (j === graphPair ? 1.55 : .84) * Math.max(.02, graphTransition);
+                const weight = step===3?.6:(j === graphPair ? 1.55 : .84) * Math.max(.02, graphTransition);
                 obj.scale.set(weight, len, weight); obj.updateMatrix();
-                graphRods.setMatrixAt(k, obj.matrix); graphRods.setColorAt(k, j === graphPair ? graphIvory : graphGold);
+                graphRods.setMatrixAt(k, obj.matrix); graphRods.setColorAt(k, step===2&&j === graphPair ? graphIvory : graphGold);
                 if (graphMessage) { const phase=signalProgress(k);obj.position.set(b.x + (a.x - b.x) * phase, b.y + (a.y - b.y) * phase, b.z + (a.z - b.z) * phase); obj.rotation.set(0, 0, 0); obj.scale.setScalar(1); obj.updateMatrix(); graphSignals.setMatrixAt(k, obj.matrix); }
             });
             graphRods.instanceMatrix.needsUpdate = true; if (graphRods.instanceColor) graphRods.instanceColor.needsUpdate = true; if (graphMessage) graphSignals.instanceMatrix.needsUpdate = true;

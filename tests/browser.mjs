@@ -35,6 +35,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
     assert.equal(await page.locator('#designSequenceSelect').isDisabled(),true);
+    assert.equal(await page.locator('#designSequenceZoom').isDisabled(),true);
     await page.locator('[data-aa-choice="V"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-aa-choice'),'V');
     assert.match(await page.locator('#designChoiceNote').innerText(),/バリン/);
