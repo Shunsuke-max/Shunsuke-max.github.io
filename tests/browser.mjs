@@ -13,6 +13,7 @@ try{
     await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designSource==='schematic');
     assert.equal(await page.locator('#design').getAttribute('data-target-surface-atoms'),'0');
+    assert.equal(await page.locator('#designSiteInspect').isDisabled(),true);
     assert.doesNotMatch(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
@@ -57,6 +58,10 @@ try{
   assert.equal(await canvasPage.locator('#design').getAttribute('data-target-surface-atoms'),'921');
   assert.equal((await canvasPage.locator('#design').getAttribute('data-target-contact-residues')).split(',').length,17);
   assert.equal(await canvasPage.locator('#design').getAttribute('data-site-only'),'false');
+  await canvasPage.locator('#designSiteInspect').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  await canvasPage.locator('#designReplay').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
   assert.deepEqual(canvasErrors,[]);
   await canvasPage.close();
 }finally{await browser.close();}
