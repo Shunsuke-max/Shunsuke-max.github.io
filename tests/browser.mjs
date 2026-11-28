@@ -16,6 +16,7 @@ try{
     assert.match(await page.locator('#designDisclosure').innerText(),/AIによる推論は未実施/);
     assert.equal(await page.locator('#design').getAttribute('data-target-surface-atoms'),'0');
     assert.equal(await page.locator('#designSiteInspect').isDisabled(),true);
+    assert.equal(await page.locator('#designFit').isDisabled(),true);
     assert.doesNotMatch(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
     await page.locator('#designAutoplay').click();
     assert.equal(await page.locator('#design').getAttribute('data-autoplay'),'true');
@@ -29,6 +30,7 @@ try{
     await page.locator('[data-design-jump="3"]').click();
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='3');
     assert.match(await page.locator('#designSequenceLabel').innerText(),/取得できませんでした/);
+    assert.equal(await page.locator('#designSequenceSelect').isDisabled(),true);
     await page.locator('[data-aa-choice="V"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-aa-choice'),'V');
     assert.match(await page.locator('#designChoiceNote').innerText(),/バリン/);
@@ -36,6 +38,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#design').dataset.designStep==='4');
     await page.locator('[data-compare="different"]').click();
     assert.equal(await page.locator('#design').getAttribute('data-compare'),'different');
+    assert.equal(await page.locator('#designDeviationPanel').isVisible(),false);
     await page.locator('#work-foldlens').scrollIntoViewIfNeeded();
     await page.locator('[data-gallery="fold"][data-index="2"]').click();
     assert.match(await page.locator('#foldCaption').innerText(),/3鎖/);
@@ -60,6 +63,11 @@ try{
   assert.equal(await canvasPage.locator('#design').getAttribute('data-target-surface-atoms'),'921');
   assert.equal((await canvasPage.locator('#design').getAttribute('data-target-contact-residues')).split(',').length,17);
   assert.equal(await canvasPage.locator('#design').getAttribute('data-site-only'),'false');
+  await canvasPage.locator('#designFit').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='true');
+  assert.match(await canvasPage.locator('#designLegend').innerText(),/バインダー（実験構造）/);
+  await canvasPage.locator('#designFit').click();
+  await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.fitVisible==='false');
   await canvasPage.locator('#designSiteInspect').click();
   await canvasPage.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
   await canvasPage.locator('#designReplay').click();
