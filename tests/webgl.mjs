@@ -18,6 +18,17 @@ try {
   });
   await page.goto('http://127.0.0.1:4173/', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.querySelector('#design').dataset.designSource === '8ZNL' && document.querySelector('#design').classList.contains('design-gl'), {}, { timeout: 30000 });
+  const intro = page.locator('#design');
+  assert.equal(await intro.getAttribute('data-target-contact-residues'),'53,55,57,64,67,69,70,77,114,116,118,121,122,123,124,125,126');
+  assert.ok(Number(await intro.getAttribute('data-target-surface-atoms')) > 800);
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.targetSurfaceVisible==='true');
+  assert.match(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.locator('#designReplay').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  await intro.screenshot({path:'artifacts/screenshots/design-01-binding-site.png'});
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+  await page.emulateMedia({reducedMotion:'reduce'});
   for (let n = 0; n < 5; n++) {
     if (n) await page.locator('[data-design-jump="' + n + '"]').click();
     await page.waitForFunction(n => document.querySelector('#design').dataset.designStep === String(n), n);
