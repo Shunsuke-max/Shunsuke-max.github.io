@@ -22,6 +22,19 @@ try {
   await page.locator('.design-sources summary').click();
   assert.equal(await page.locator('#designFormula').isVisible(),true);
   await page.locator('.design-sources summary').click();
+  const intro = page.locator('#design');
+  assert.equal(await intro.getAttribute('data-target-contact-residues'),'53,55,57,64,67,69,70,77,114,116,118,121,122,123,124,125,126');
+  assert.ok(Number(await intro.getAttribute('data-target-surface-atoms')) > 800);
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.targetSurfaceVisible==='true');
+  assert.match(await page.locator('#designLegend').innerText(),/結合面（接触残基）/);
+  // Inspect is an explicit, persistent state rather than a race against an animation.
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  assert.equal(await page.locator('#designSiteInspect').getAttribute('aria-pressed'),'true');
+  await intro.screenshot({path:'artifacts/screenshots/design-01-binding-site.png'});
+  assert.equal(await intro.getAttribute('data-site-only'),'true');
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
   for (let n = 0; n < 5; n++) {
     if (n) await page.locator('[data-design-jump="' + n + '"]').click();
     await page.waitForFunction(n => document.querySelector('#design').dataset.designStep === String(n), n);
@@ -157,6 +170,12 @@ try {
   await page.waitForTimeout(150);
   const c0 = await page.locator('.design-copy').boundingBox(), b0 = await page.locator('.design-bottom').boundingBox();
   assert.ok(c0.y + c0.height <= b0.y - 2, 'laptop step 01 copy must not overlap bottom nav');
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+  await page.locator('#design').screenshot({path:'artifacts/screenshots/compact-binding-site.png'});
+  await page.locator('#designSiteInspect').click();
+  await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+  await page.locator('#design').screenshot({path:'artifacts/screenshots/compact-intro.png'});
   await page.locator('[data-design-jump="2"]').click();
   await page.waitForFunction(() => document.querySelector('#design').dataset.designStep === '2');
   await page.waitForTimeout(150);
@@ -167,6 +186,13 @@ try {
   for (const [name, p] of [['intro', .02], ['ribbon', .36], ['graph', .50], ['sequence', .76], ['compare', .92]]) {
     await goDesign(p); await page.locator('#design').screenshot({ path: 'artifacts/screenshots/mobile-' + name + '.png' });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2), false);
+    if (name === 'intro') {
+      await page.locator('#designSiteInspect').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='true');
+      await page.locator('#design').screenshot({path:'artifacts/screenshots/mobile-binding-site.png'});
+      await page.locator('#designSiteInspect').click();
+      await page.waitForFunction(()=>document.querySelector('#design').dataset.siteOnly==='false');
+    }
     if (name === 'graph') {
       await page.locator('#designGraphMatrixOpen').click();
       await page.locator('#designGraphMatrix').waitFor({ state: 'visible' });
