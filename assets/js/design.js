@@ -249,7 +249,7 @@ const legends = [
     ['バインダー（模式図）', 'PD-L1', '結合面（接触残基）'],
     ['青緑：バインダー主鎖', 'PD-L1', '金点線：N・O原子間の近接'],
     ['青緑：バインダー主鎖', '近い残基を結ぶ線'],
-    ['青緑：固定した主鎖', '近い残基・側鎖候補'],
+    ['主鎖', '近い残基・側鎖候補'],
     []
 ];
 function updateLegend(n) {
@@ -537,7 +537,7 @@ function draw(now) {
         const portrait = width < 801, wide = width >= 1280, cx = width * (step === 2 && wide ? .51 : portrait ? .50 : .67), cy = height * (portrait ? (step === 1 ? .49 : step === 2 ? .40 : step >= 3 ? .41 : .54) : step === 2 ? .43 : step >= 3 ? .34 : .45);
         const showTarget = real && targetPoints.length && (step === 0 || step === 1 || step === 4);
         const shift = step===1&&atomicZoom&&real?atomicCenter:showTarget ? complexShift : { x: 0, y: 0, z: 0 };
-        const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (step===1&&atomicZoom?1.25:showTarget ? .78 : step === 2 && wide ? .76 : 1);
+        const scale = Math.min(width * (portrait ? .040 : .035), height * (portrait ? .027 : .045)) * (step===1&&atomicZoom?1.25:showTarget ? .78 : step === 2 && wide ? .76 : portrait&&step===3?1.19:1);
         const a = Math.cos(angle), b = Math.sin(angle);
         const project = v => { const vx = v.x - shift.x, vy = v.y - shift.y, vz = v.z - shift.z; const x = vx * a + vz * b, z = -vx * b + vz * a; const k = 1 / (1 + (step === 0 || step === 2 ? -z : z) * .025); return { x: cx + x * scale * k, y: cy - (step === 2 ? vy * Math.cos(graphPitch) - z * Math.sin(graphPitch) : vy) * scale * k, z, k }; };
         const trace = (q, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(q[0].x, q[0].y); for (let i = 1; i < q.length - 1; i++) ctx.quadraticCurveTo(q[i].x, q[i].y, (q[i].x + q[i + 1].x) / 2, (q[i].y + q[i + 1].y) / 2); ctx.lineTo(q.at(-1).x, q.at(-1).y); ctx.stroke(); };
@@ -563,9 +563,8 @@ function draw(now) {
             for (let i = 0; i < p.length; i++) { ctx.lineWidth=i===evalResidue?3:1;ctx.beginPath(); ctx.moveTo(p[i].x, p[i].y); ctx.lineTo(cmp[i].x, cmp[i].y); ctx.stroke(); }
         }
         if (g.u > .12 && !(step===0&&fitMode)) trace(p, 'rgba(127,212,209,' + (Math.pow(g.u, 1.6) * (step === 2 ? .22 : .88)) + ')', step === 1 || step === 4 ? 5 : 2.6);
-        const count = step === 3 ? Math.round((motion.matches ? 1 : autoplay ? clamp((now-autoplayStepStart)/3600) : Math.min(1, local * 1.35)) * p.length) : 0;
         if (step === 0 && !g.siteOnly && !fitMode) { ctx.fillStyle = '#96bac7'; ctx.globalAlpha = .24 * (1 - g.u); for (let i = 0; i < 220; i++) { const v = project({ x: (random(i * 3 + 500) - .5) * 24, y: (random(i * 3 + 501) - .5) * 22, z: (random(i * 3 + 502) - .5) * 25 }); ctx.beginPath(); ctx.arc(v.x, v.y, .6 + random(i + 750) * 1.3, 0, Math.PI * 2); ctx.fill(); } }
-        if (!g.siteOnly && !(step===0&&fitMode)) p.map((v, i) => ({ ...v, i })).sort((a, b) => step === 0 ? a.z - b.z : b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && (v.i === selectedResidue || graphNeighbors.has(v.i) || v.i < count) ? '#e4be84' : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
+        if (!g.siteOnly && !(step===0&&fitMode)) p.map((v, i) => ({ ...v, i })).sort((a, b) => step === 0 ? a.z - b.z : b.z - a.z).forEach(v => { const r = (step === 2 ? (graphModel && v.i === graphFocus ? 8 : graphModel && v.i === graphPair ? 6 : graphNeighbors.has(v.i) ? 5 : 2.8) : step === 3 && v.i === selectedResidue ? 7.5 : 2.4 + g.u * 2.2) * v.k; ctx.beginPath(); ctx.arc(v.x, v.y, r, 0, Math.PI * 2); ctx.fillStyle = step === 2 ? (graphModel && v.i === graphFocus ? '#ffe1a6' : graphModel && v.i === graphPair ? '#fff0c7' : graphNeighbors.has(v.i) ? '#d5b17c' : '#63939d') : step === 3 && real ? (v.i === selectedResidue ? '#fff0c7' : graphNeighbors.has(v.i) ? '#e4be84' : '#7fd4d1') : '#7fd4d1'; ctx.globalAlpha = .7 + .25 * g.u; ctx.fill(); });
         ctx.globalAlpha = 1;
         if(step===2&&graphMessage&&graphModel){const f=p[graphFocus];ctx.strokeStyle='#ffe1a6';ctx.lineWidth=2;ctx.beginPath();ctx.arc(f.x,f.y,12+5*graphArrival(),0,Math.PI*2);ctx.stroke();}
         if(step===3&&real){const sc=sidechainExample();if(sc){const q=sc.atoms.map(project);for(const [i,j] of sc.bonds){ctx.strokeStyle='#e5d7be';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(q[i].x,q[i].y);ctx.lineTo(q[j].x,q[j].y);ctx.stroke();}q.forEach((a,i)=>{ctx.fillStyle=sc.atoms[i].element==='O'?'#f07a6d':sc.atoms[i].element==='N'?'#82a9e2':i<3?'#7fd4d1':'#eec480';ctx.beginPath();ctx.arc(a.x,a.y,4,0,Math.PI*2);ctx.fill();});}}
@@ -844,6 +843,7 @@ function initGL(T) {
         const desktopDistance = (step === 2 ? (width >= 1280 ? Math.max(25, 12.4 / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.aspect * .39)) : 20.8) : step >= 3 ? 22.8 : 20.4) * complexBoost;
         camera.position.set(0, 0, (step === 1 && real ? (portrait ? (atomicMode === 'local' ? Math.max(25, mobileDistance * .84) : mobileDistance * 1.05) : 24.4) : (portrait ? (step === 2 ? Math.max(23, mobileDistance * .76) : mobileDistance * complexBoost) : desktopDistance)) + depth * 3.0);
         if(step===1&&atomicZoom&&real)camera.position.z*=.68;
+        if(portrait&&step===3)camera.position.z*=.84;
         camera.lookAt(0, 0, 0);
         camera.setViewOffset(
             width, height,
@@ -874,14 +874,12 @@ function initGL(T) {
             trails.geometry.attributes.position.needsUpdate = true;
             trails.material.opacity = .18 + .22 * Math.sin(g.u * Math.PI);
         }
-        const seqProgress = motion.matches ? 1 : autoplay && step === 3 ? clamp((performance.now() - autoplayStepStart) / 3600) : Math.min(1, local * 1.35);
-        const count = step === 3 ? Math.round(seqProgress * points.length) : 0;
         g.coords.forEach((p, i) => {
             obj.position.set(p.x, p.y, p.z); obj.rotation.set(0, 0, 0);
             obj.scale.setScalar(step === 2 ? (graphModel && i === graphFocus ? 2.8 : graphModel && i === graphPair ? 2.2 : graphNeighbors.has(i) ? 1.65 : .92) : step === 3 ? (i === selectedResidue ? 2.75 : graphNeighbors.has(i) ? 1.65 : 1.15) : .88 + g.u * .72);
             obj.updateMatrix();
             spheres.setMatrixAt(i, obj.matrix);
-            spheres.setColorAt(i, step === 2 ? (graphModel && i === graphFocus ? graphIvory : graphModel && i === graphPair ? graphIvory : graphNeighbors.has(i) ? graphGold : graphMuted) : step === 3 ? (i === selectedResidue ? graphIvory : graphNeighbors.has(i) || i < count ? gold : teal) : teal);
+            spheres.setColorAt(i, step === 2 ? (graphModel && i === graphFocus ? graphIvory : graphModel && i === graphPair ? graphIvory : graphNeighbors.has(i) ? graphGold : graphMuted) : step === 3 ? (i === selectedResidue ? graphIvory : graphNeighbors.has(i) ? gold : teal) : teal);
             lines.geometry.attributes.position.setXYZ(i, p.x, p.y, p.z);
         });
         spheres.visible = !g.siteOnly && !(step===0&&fitMode) && !(real && (step === 1 || step === 4) && g.ribbon > .94);
